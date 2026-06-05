@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/auth/session";
 const merchantNav = [
   { href: "/merchant", label: "Inicio" },
   { href: "/merchant/products", label: "Productos y servicios" },
+  { href: "/merchant/inventory", label: "Inventario" },
 ];
 
 export default async function MerchantLayout({
