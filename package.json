@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test",
+    "test:e2e:merchant-layout": "playwright test e2e/merchant_layout_renders_test.spec.ts",
+    "test:e2e:products": "playwright test e2e/merchant_create_product_flow_test.spec.ts e2e/merchant_create_service_flow_test.spec.ts"
   },
   "dependencies": {
     "next": "16.2.7",
@@ -14,6 +17,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
