@@ -8,6 +8,7 @@ const adminNav = [
   { href: "/admin/commissions", label: "Comisiones" },
   { href: "/admin/coupons", label: "Cupones" },
   { href: "/admin/banners", label: "Banners" },
+  { href: "/admin/merchants", label: "Comercios" },
 ];
 
 export default async function AdminLayout({
