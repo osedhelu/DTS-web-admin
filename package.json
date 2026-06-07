@@ -21,7 +21,15 @@
     "test:e2e:zustand": "playwright test e2e/merchant_store_zustand_persist_test.spec.ts",
     "test:e2e:commissions": "playwright test e2e/commission_list_page_test.spec.ts e2e/export_commissions_csv_test.spec.ts",
     "test:e2e:coupons": "playwright test e2e/admin_create_coupon_flow_test.spec.ts",
-    "test:e2e:phase3": "playwright test e2e/"
+    "test:e2e:phase3": "playwright test e2e/",
+    "test:e2e:fase6-6.1": "echo 'Bloque 6.1: solo backend — use make fase6-test BLOCK=6.1'",
+    "test:e2e:fase6-6.2": "playwright test e2e/merchant_landing_renders_test.spec.ts e2e/merchant_public_registration_flow_test.spec.ts e2e/merchant_email_confirmation_flow_test.spec.ts",
+    "test:e2e:fase6-6.4": "playwright test e2e/food_product_with_variants_test.spec.ts e2e/product_photo_upload_test.spec.ts",
+    "test:e2e:fase6-6.5": "playwright test e2e/merchant_dashboard_metrics_test.spec.ts",
+    "test:e2e:fase6-6.6": "playwright test e2e/merchant_create_promotion_test.spec.ts",
+    "test:e2e:fase6-6.7": "playwright test e2e/merchant_update_store_profile_test.spec.ts",
+    "test:e2e:fase6-6.9": "playwright test e2e/merchant_edit_category_test.spec.ts e2e/merchant_products_search_test.spec.ts e2e/admin_banners_crud_test.spec.ts e2e/admin_edit_coupon_test.spec.ts",
+    "test:e2e:fase6-6.10": "playwright test e2e/admin_merchant_moderation_test.spec.ts"
   },
   "dependencies": {
     "next": "16.2.7",
