@@ -11,6 +11,7 @@ const merchantNav = [
   { href: "/merchant/orders", label: "Pedidos" },
   { href: "/merchant/service-orders", label: "Pedidos servicio" },
   { href: "/merchant/promotions", label: "Promociones" },
+  { href: "/merchant/settings", label: "Configuración" },
 ];
 
 interface MerchantShellProps {

@@ -10,6 +10,7 @@ interface MerchantSessionState {
   storesError: string | null;
   loadStores: () => Promise<void>;
   setActiveStoreId: (storeId: number) => void;
+  updateStoreInList: (store: Store) => void;
   reset: () => void;
 }
 
@@ -72,6 +73,14 @@ export const useMerchantSessionStore = create<MerchantSessionState>()(
 
       setActiveStoreId: (storeId) => {
         set({ activeStoreId: storeId });
+      },
+
+      updateStoreInList: (store) => {
+        set({
+          stores: get().stores.map((current) =>
+            current.id === store.id ? store : current,
+          ),
+        });
       },
 
       reset: () => {
