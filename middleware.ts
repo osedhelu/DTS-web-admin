@@ -5,12 +5,19 @@ import { ACCESS_TOKEN_COOKIE } from "@/lib/auth/cookies";
 import { getRoleHomePath, isUserRole } from "@/lib/auth/roles";
 import { decodeJwtPayload, isSessionExpired } from "@/lib/auth/session";
 
-const PUBLIC_PATHS = ["/login"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/vender",
+  "/registro-comercio",
+  "/confirmar-email",
+];
 
 function isPublicPath(pathname: string): boolean {
   return (
     PUBLIC_PATHS.includes(pathname) ||
+    pathname.startsWith("/registro-comercio/") ||
     pathname.startsWith("/api/auth/") ||
+    pathname.startsWith("/api/public/") ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico"
   );

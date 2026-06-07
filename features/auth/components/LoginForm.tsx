@@ -11,6 +11,7 @@ interface LoginSuccess {
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const verified = searchParams.get("verified") === "1";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +62,16 @@ export function LoginForm() {
           Acceso para comercios y administradores DTS.
         </p>
       </div>
+
+      {verified ? (
+        <p
+          data-testid="login-verified-banner"
+          className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+        >
+          Tu correo fue confirmado. Inicia sesión con el usuario generado a partir
+          de tu email.
+        </p>
+      ) : null}
 
       <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
         Usuario
