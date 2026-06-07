@@ -1,0 +1,144 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { UiFeedback } from "@/components/ui/UiFeedback";
+import {
+  PromotionForm,
+  formatDiscountType,
+  formatPromotionSummary,
+} from "@/features/promotions/components/PromotionForm";
+import { usePromotionsStore } from "@/features/promotions/stores/promotions-store";
+import type {
+  CreatePromotionPayload,
+  StorePromotion,
+  UpdatePromotionPayload,
+} from "@/features/promotions/types";
+import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
+import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
+
+export function PromotionsManager() {
+  const guard = useMerchantStoreGuard();
+  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
+  const promotions = usePromotionsStore((state) => state.promotions);
+  const isLoading = usePromotionsStore((state) => state.isLoading);
+  const loadPromotions = usePromotionsStore((state) => state.loadPromotions);
+  const createPromotion = usePromotionsStore((state) => state.createPromotion);
+  const updatePromotion = usePromotionsStore((state) => state.updatePromotion);
+  const deactivatePromotion = usePromotionsStore((state) => state.deactivatePromotion);
+
+  const [editing, setEditing] = useState<StorePromotion | null>(null);
+
+  useEffect(() => {
+    if (activeStoreId === null) {
+      return;
+    }
+
+    void loadPromotions(activeStoreId);
+  }, [activeStoreId, loadPromotions]);
+
+  if (!guard.ready) {
+    return guard.content;
+  }
+
+  const storeId = activeStoreId as number;
+
+  return (
+    <div data-testid="promotions-manager" className="space-y-6">
+      <UiFeedback successTestId="promotions-success-message" />
+
+      {editing ? (
+        <PromotionForm
+          initial={editing}
+          submitLabel="Guardar cambios"
+          onCancel={() => setEditing(null)}
+          onSubmit={async (payload) => {
+            const saved = await updatePromotion(storeId, editing.id, payload);
+            if (saved) {
+              setEditing(null);
+            }
+            return saved;
+          }}
+        />
+      ) : (
+        <PromotionForm
+          onSubmit={async (payload) =>
+            createPromotion(storeId, payload as CreatePromotionPayload)
+          }
+        />
+      )}
+
+      {isLoading ? (
+        <p className="text-sm text-zinc-500">Cargando promociones…</p>
+      ) : (
+        <div
+          data-testid="promotions-list"
+          className="overflow-x-auto rounded-xl border border-zinc-200 bg-white"
+        >
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-200 text-left text-zinc-600">
+                <th className="px-4 py-3">Nombre</th>
+                <th className="px-4 py-3">Tipo</th>
+                <th className="px-4 py-3">Valor</th>
+                <th className="px-4 py-3">Alcance</th>
+                <th className="px-4 py-3">Activa</th>
+                <th className="px-4 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {promotions.map((promotion) => (
+                <tr
+                  key={promotion.id}
+                  data-testid={`promotion-row-${promotion.id}`}
+                  className="border-b border-zinc-100"
+                >
+                  <td className="px-4 py-3 font-medium">{promotion.name}</td>
+                  <td className="px-4 py-3">
+                    {formatDiscountType(promotion.discount_type)}
+                  </td>
+                  <td className="px-4 py-3">
+                    {formatPromotionSummary(promotion)}
+                  </td>
+                  <td className="px-4 py-3">
+                    {promotion.product_id ? "Producto" : "Tienda"}
+                  </td>
+                  <td className="px-4 py-3">{promotion.is_active ? "Sí" : "No"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        data-testid={`promotion-edit-${promotion.id}`}
+                        onClick={() => setEditing(promotion)}
+                        className="text-sm font-medium text-zinc-900 hover:underline"
+                      >
+                        Editar
+                      </button>
+                      {promotion.is_active ? (
+                        <button
+                          type="button"
+                          data-testid={`promotion-deactivate-${promotion.id}`}
+                          onClick={() =>
+                            void deactivatePromotion(storeId, promotion.id)
+                          }
+                          className="text-sm text-red-600 hover:text-red-700"
+                        >
+                          Desactivar
+                        </button>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {promotions.length === 0 ? (
+            <p className="px-4 py-3 text-sm text-zinc-500">
+              No hay promociones creadas.
+            </p>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}
