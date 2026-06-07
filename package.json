@@ -11,7 +11,10 @@
     "test:e2e:merchant-layout": "playwright test e2e/merchant_layout_renders_test.spec.ts",
     "test:e2e:products": "playwright test e2e/merchant_create_product_flow_test.spec.ts e2e/merchant_create_service_flow_test.spec.ts",
     "test:e2e:inventory": "playwright test e2e/merchant_update_stock_flow_test.spec.ts e2e/merchant_cannot_set_stock_on_service_test.spec.ts",
-    "test:e2e:categories": "playwright test e2e/merchant_create_category_flow_test.spec.ts e2e/merchant_create_subcategory_flow_test.spec.ts"
+    "test:e2e:categories": "playwright test e2e/merchant_create_category_flow_test.spec.ts e2e/merchant_create_subcategory_flow_test.spec.ts",
+    "test:e2e:service-orders": "playwright test e2e/merchant_service_order_dashboard_test.spec.ts",
+    "test:e2e:orders": "playwright test e2e/merchant_orders_list_test.spec.ts",
+    "test:e2e:order-actions": "playwright test e2e/merchant_accept_order_action_test.spec.ts"
   },
   "dependencies": {
     "next": "16.2.7",

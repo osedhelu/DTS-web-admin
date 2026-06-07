@@ -8,6 +8,8 @@ const merchantNav = [
   { href: "/merchant/products", label: "Productos y servicios" },
   { href: "/merchant/inventory", label: "Inventario" },
   { href: "/merchant/categories", label: "Categorías" },
+  { href: "/merchant/orders", label: "Pedidos" },
+  { href: "/merchant/service-orders", label: "Pedidos servicio" },
 ];
 
 export default async function MerchantLayout({
