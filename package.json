@@ -17,12 +17,17 @@
     "test:e2e:order-actions": "playwright test e2e/merchant_accept_order_action_test.spec.ts",
     "test:e2e:orders-polling": "playwright test e2e/merchant_orders_auto_refresh_test.spec.ts",
     "test:e2e:admin-dashboard": "playwright test e2e/admin_dashboard_role_guard_test.spec.ts",
-    "test:e2e:admin-metrics": "playwright test e2e/admin_metrics_widgets_test.spec.ts"
+    "test:e2e:admin-metrics": "playwright test e2e/admin_metrics_widgets_test.spec.ts",
+    "test:e2e:zustand": "playwright test e2e/merchant_store_zustand_persist_test.spec.ts",
+    "test:e2e:commissions": "playwright test e2e/commission_list_page_test.spec.ts e2e/export_commissions_csv_test.spec.ts",
+    "test:e2e:coupons": "playwright test e2e/admin_create_coupon_flow_test.spec.ts",
+    "test:e2e:phase3": "playwright test e2e/"
   },
   "dependencies": {
     "next": "16.2.7",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",

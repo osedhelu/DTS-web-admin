@@ -1,66 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { AdminMetricsWidgets } from "@/features/admin/components/AdminMetricsWidgets";
-import type { AdminDashboardData, AdminMetrics } from "@/features/admin/types";
+import { useAdminStore } from "@/features/admin/stores/admin-store";
 
 export function AdminDashboardPanel() {
-  const [dashboard, setDashboard] = useState<AdminDashboardData | null>(null);
-  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const dashboard = useAdminStore((state) => state.dashboard);
+  const metrics = useAdminStore((state) => state.metrics);
+  const isLoading = useAdminStore((state) => state.isLoading);
+  const error = useAdminStore((state) => state.error);
+  const loadPanel = useAdminStore((state) => state.loadPanel);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadPanel() {
-      try {
-        const [dashboardResponse, metricsResponse] = await Promise.all([
-          fetch("/api/admin/dashboard"),
-          fetch("/api/admin/metrics"),
-        ]);
-
-        const dashboardData = (await dashboardResponse.json()) as AdminDashboardData & {
-          detail?: string;
-        };
-        const metricsData = (await metricsResponse.json()) as AdminMetrics & {
-          detail?: string;
-        };
-
-        if (cancelled) {
-          return;
-        }
-
-        if (!dashboardResponse.ok) {
-          setError(dashboardData.detail ?? "No se pudo cargar el panel");
-          return;
-        }
-
-        if (!metricsResponse.ok) {
-          setError(metricsData.detail ?? "No se pudieron cargar las métricas");
-          return;
-        }
-
-        setDashboard(dashboardData);
-        setMetrics(metricsData);
-      } catch {
-        if (!cancelled) {
-          setError("Error de conexión al cargar el panel.");
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
-    }
-
     void loadPanel();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  }, [loadPanel]);
 
   if (isLoading) {
     return <p className="text-sm text-zinc-500">Cargando panel…</p>;

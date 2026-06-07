@@ -1,16 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { AppShell } from "@/components/layout/AppShell";
+import MerchantLayoutClient from "@/app/merchant/MerchantLayoutClient";
 import { getServerSession } from "@/lib/auth/session";
-
-const merchantNav = [
-  { href: "/merchant", label: "Inicio" },
-  { href: "/merchant/products", label: "Productos y servicios" },
-  { href: "/merchant/inventory", label: "Inventario" },
-  { href: "/merchant/categories", label: "Categorías" },
-  { href: "/merchant/orders", label: "Pedidos" },
-  { href: "/merchant/service-orders", label: "Pedidos servicio" },
-];
 
 export default async function MerchantLayout({
   children,
@@ -24,13 +15,8 @@ export default async function MerchantLayout({
   }
 
   return (
-    <AppShell
-      title="Panel comercio"
-      sidebarTestId="merchant-sidebar"
-      navItems={merchantNav}
-      userEmail={session.email}
-    >
+    <MerchantLayoutClient userEmail={session.email}>
       {children}
-    </AppShell>
+    </MerchantLayoutClient>
   );
 }

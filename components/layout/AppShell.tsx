@@ -10,6 +10,7 @@ interface AppShellProps {
   sidebarTestId: string;
   navItems: NavItem[];
   userEmail?: string;
+  headerSlot?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -18,6 +19,7 @@ export function AppShell({
   sidebarTestId,
   navItems,
   userEmail,
+  headerSlot,
   children,
 }: AppShellProps) {
   return (
@@ -53,6 +55,7 @@ export function AppShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {headerSlot}
         <main className="flex-1 px-8 py-8">{children}</main>
       </div>
     </div>

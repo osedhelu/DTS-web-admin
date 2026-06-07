@@ -3,7 +3,11 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { getServerSession } from "@/lib/auth/session";
 
-const adminNav = [{ href: "/admin", label: "Inicio" }];
+const adminNav = [
+  { href: "/admin", label: "Inicio" },
+  { href: "/admin/commissions", label: "Comisiones" },
+  { href: "/admin/coupons", label: "Cupones" },
+];
 
 export default async function AdminLayout({
   children,
