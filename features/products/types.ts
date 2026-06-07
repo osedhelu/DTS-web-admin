@@ -1,5 +1,24 @@
 export type ProductType = "physical" | "service";
 
+export interface ProductVariant {
+  id?: number;
+  name: string;
+  price: string;
+  sort_order: number;
+}
+
+export interface ProductIngredient {
+  id?: number;
+  name: string;
+  is_allergen: boolean;
+}
+
+export interface ProductImage {
+  id: number;
+  url: string;
+  is_primary: boolean;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -14,6 +33,13 @@ export interface Product {
   requires_on_site_visit: boolean;
   duration_minutes: number | null;
   tracks_stock: boolean;
+  primary_image_url?: string | null;
+}
+
+export interface ProductDetail extends Product {
+  variants: ProductVariant[];
+  ingredients: ProductIngredient[];
+  images: ProductImage[];
 }
 
 export interface CreatePhysicalProductInput {
@@ -24,6 +50,8 @@ export interface CreatePhysicalProductInput {
   description?: string;
   category_id?: number | null;
   subcategory_id?: number | null;
+  variants?: ProductVariant[];
+  ingredients?: ProductIngredient[];
 }
 
 export interface CreateServiceInput {
@@ -37,3 +65,22 @@ export interface CreateServiceInput {
 }
 
 export type CreateProductInput = CreatePhysicalProductInput | CreateServiceInput;
+
+export interface UpdateProductInput {
+  name?: string;
+  price?: string;
+  description?: string;
+  stock?: number;
+  category_id?: number | null;
+  subcategory_id?: number | null;
+  duration_minutes?: number | null;
+  variants?: ProductVariant[];
+  ingredients?: ProductIngredient[];
+}
+
+export const DEFAULT_FOOD_VARIANTS: ProductVariant[] = [
+  { name: "S", price: "", sort_order: 0 },
+  { name: "M", price: "", sort_order: 1 },
+  { name: "L", price: "", sort_order: 2 },
+  { name: "XL", price: "", sort_order: 3 },
+];

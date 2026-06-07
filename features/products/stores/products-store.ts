@@ -1,15 +1,33 @@
 import { create } from "@/lib/stores/create-store";
 import { useUiStore } from "@/lib/stores/ui-store";
-import type { Product } from "@/features/products/types";
+import type {
+  Product,
+  ProductDetail,
+  ProductImage,
+  UpdateProductInput,
+} from "@/features/products/types";
 import type { PaginatedResponse } from "@/lib/api/types";
 
 interface ProductsState {
   products: Product[];
   isLoading: boolean;
   loadProducts: (storeId: number) => Promise<void>;
+  loadProductDetail: (storeId: number, productId: number) => Promise<ProductDetail | null>;
   addProduct: (product: Product) => void;
+  upsertProduct: (product: Product) => void;
   removeProduct: (productId: number) => void;
   deactivateProduct: (storeId: number, productId: number) => Promise<boolean>;
+  updateProduct: (
+    storeId: number,
+    productId: number,
+    payload: UpdateProductInput,
+  ) => Promise<ProductDetail | null>;
+  uploadProductImage: (
+    storeId: number,
+    productId: number,
+    file: File,
+    isPrimary?: boolean,
+  ) => Promise<ProductImage | null>;
 }
 
 export const useProductsStore = create<ProductsState>((set, get) => ({
@@ -41,7 +59,43 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
     }
   },
 
+  loadProductDetail: async (storeId, productId) => {
+    useUiStore.getState().clearMessages();
+
+    try {
+      const response = await fetch(
+        `/api/merchant/stores/${storeId}/products/${productId}`,
+      );
+      const data = (await response.json()) as ProductDetail & { detail?: string };
+
+      if (!response.ok) {
+        useUiStore.getState().setError(data.detail ?? "No se pudo cargar el producto");
+        return null;
+      }
+
+      get().upsertProduct(data);
+      return data;
+    } catch {
+      useUiStore.getState().setError("Error de conexión al cargar el producto.");
+      return null;
+    }
+  },
+
   addProduct: (product) => {
+    set({ products: [product, ...get().products] });
+  },
+
+  upsertProduct: (product) => {
+    const exists = get().products.some((item) => item.id === product.id);
+    if (exists) {
+      set({
+        products: get().products.map((item) =>
+          item.id === product.id ? { ...item, ...product } : item,
+        ),
+      });
+      return;
+    }
+
     set({ products: [product, ...get().products] });
   },
 
@@ -74,6 +128,62 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
     } catch {
       useUiStore.getState().setError("Error de conexión al desactivar el ítem.");
       return false;
+    }
+  },
+
+  updateProduct: async (storeId, productId, payload) => {
+    useUiStore.getState().clearMessages();
+
+    try {
+      const response = await fetch(
+        `/api/merchant/stores/${storeId}/products/${productId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+      const data = (await response.json()) as ProductDetail & { detail?: string };
+
+      if (!response.ok) {
+        useUiStore.getState().setError(data.detail ?? "No se pudo actualizar el producto");
+        return null;
+      }
+
+      get().upsertProduct(data);
+      return data;
+    } catch {
+      useUiStore.getState().setError("Error de conexión al actualizar el producto.");
+      return null;
+    }
+  },
+
+  uploadProductImage: async (storeId, productId, file, isPrimary = false) => {
+    useUiStore.getState().clearMessages();
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("is_primary", String(isPrimary));
+
+    try {
+      const response = await fetch(
+        `/api/merchant/stores/${storeId}/products/${productId}/images`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = (await response.json()) as ProductImage & { detail?: string };
+
+      if (!response.ok) {
+        useUiStore.getState().setError(data.detail ?? "No se pudo subir la imagen");
+        return null;
+      }
+
+      return data;
+    } catch {
+      useUiStore.getState().setError("Error de conexión al subir la imagen.");
+      return null;
     }
   },
 }));

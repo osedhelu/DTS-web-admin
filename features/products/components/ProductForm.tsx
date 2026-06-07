@@ -1,12 +1,17 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
+import { CategorySelector } from "@/features/products/components/CategorySelector";
+import { FoodCatalogFields } from "@/features/products/components/FoodCatalogFields";
+import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import type {
   CreateProductInput,
   Product,
-  ProductType,
+  ProductIngredient,
+  ProductVariant,
 } from "@/features/products/types";
+import { useProductsStore } from "@/features/products/stores/products-store";
 
 interface ProductFormProps {
   onCreated: (product: Product) => void;
@@ -19,13 +24,25 @@ const initialState = {
   stock: "0",
   durationMinutes: "",
   description: "",
+  categoryId: null as number | null,
+  subcategoryId: null as number | null,
+  variants: [] as ProductVariant[],
+  ingredients: [] as ProductIngredient[],
 };
 
 export function ProductForm({ onCreated, storeId }: ProductFormProps) {
-  const [productType, setProductType] = useState<ProductType>("physical");
+  const updateProduct = useProductsStore((state) => state.updateProduct);
+  const categories = useCategoriesStore((state) => state.categories);
+  const loadCategories = useCategoriesStore((state) => state.loadCategories);
+
+  const [productType, setProductType] = useState<"physical" | "service">("physical");
   const [fields, setFields] = useState(initialState);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    void loadCategories(storeId);
+  }, [loadCategories, storeId]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,6 +59,8 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
             duration_minutes: fields.durationMinutes
               ? Number(fields.durationMinutes)
               : null,
+            category_id: fields.categoryId,
+            subcategory_id: fields.subcategoryId,
           }
         : {
             product_type: "physical",
@@ -49,6 +68,8 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
             price: fields.price,
             stock: Number(fields.stock) || 0,
             description: fields.description,
+            category_id: fields.categoryId,
+            subcategory_id: fields.subcategoryId,
           };
 
     try {
@@ -66,6 +87,29 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
       if (!response.ok) {
         setError(data.detail ?? "No se pudo crear el ítem");
         return;
+      }
+
+      if (productType === "physical") {
+        const variants = fields.variants
+          .filter((variant) => variant.name.trim() && variant.price)
+          .map((variant, index) => ({
+            name: variant.name.trim(),
+            price: variant.price,
+            sort_order: index,
+          }));
+        const ingredients = fields.ingredients
+          .filter((ingredient) => ingredient.name.trim())
+          .map((ingredient) => ({
+            name: ingredient.name.trim(),
+            is_allergen: ingredient.is_allergen,
+          }));
+
+        if (variants.length > 0 || ingredients.length > 0) {
+          await updateProduct(storeId, data.id, {
+            variants,
+            ingredients,
+          });
+        }
       }
 
       onCreated(data);
@@ -144,20 +188,49 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
         />
       </label>
 
+      <CategorySelector
+        categories={categories}
+        categoryId={fields.categoryId}
+        subcategoryId={fields.subcategoryId}
+        onCategoryChange={(categoryId) =>
+          setFields((current) => ({
+            ...current,
+            categoryId,
+            subcategoryId: null,
+          }))
+        }
+        onSubcategoryChange={(subcategoryId) =>
+          setFields((current) => ({ ...current, subcategoryId }))
+        }
+      />
+
       {productType === "physical" ? (
-        <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
-          Stock inicial
-          <input
-            data-testid="product-stock"
-            type="number"
-            min="0"
-            value={fields.stock}
-            onChange={(event) =>
-              setFields((current) => ({ ...current, stock: event.target.value }))
+        <>
+          <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+            Stock inicial
+            <input
+              data-testid="product-stock"
+              type="number"
+              min="0"
+              value={fields.stock}
+              onChange={(event) =>
+                setFields((current) => ({ ...current, stock: event.target.value }))
+              }
+              className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
+            />
+          </label>
+
+          <FoodCatalogFields
+            variants={fields.variants}
+            ingredients={fields.ingredients}
+            onVariantsChange={(variants) =>
+              setFields((current) => ({ ...current, variants }))
             }
-            className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
+            onIngredientsChange={(ingredients) =>
+              setFields((current) => ({ ...current, ingredients }))
+            }
           />
-        </label>
+        </>
       ) : (
         <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
           Duración estimada (minutos)
