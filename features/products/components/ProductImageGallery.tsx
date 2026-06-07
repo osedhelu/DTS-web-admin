@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import { productMediaUrl } from "@/lib/products/media-url";
+import { resolveMediaUrl } from "@/lib/media-url";
 import type { ProductImage } from "@/features/products/types";
 
 interface ProductImageGalleryProps {
@@ -59,7 +59,7 @@ export function ProductImageGallery({
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={productMediaUrl(image.url) || image.url}
+              src={resolveMediaUrl(image.url) || image.url}
               alt="Producto"
               className="h-full w-full object-cover"
             />

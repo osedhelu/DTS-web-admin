@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { productMediaUrl } from "@/lib/products/media-url";
+import { resolveMediaUrl } from "@/lib/media-url";
 import type { Product } from "@/features/products/types";
 
 interface ProductListProps {
@@ -80,7 +80,7 @@ export function ProductList({
                       {thumbnail ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={productMediaUrl(thumbnail)}
+                          src={resolveMediaUrl(thumbnail)}
                           alt=""
                           className="h-full w-full object-cover"
                         />

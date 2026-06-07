@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
+import { resolveMediaUrl } from "@/lib/media-url";
 import { useStoreSettingsStore } from "@/features/store-settings/stores/settings-store";
 import { formatStoreVertical } from "@/features/store-settings/utils";
 import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
@@ -25,7 +26,7 @@ export function StoreSettingsForm({ storeId, initial }: StoreSettingsFormProps) 
   const [phone, setPhone] = useState(initial.phone);
   const [address, setAddress] = useState(initial.address);
   const [isOpen, setIsOpen] = useState(initial.is_open);
-  const [logoPreview, setLogoPreview] = useState(initial.logo_url);
+  const [logoPreview, setLogoPreview] = useState(() => resolveMediaUrl(initial.logo_url));
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
   async function handleSubmit(event: React.FormEvent) {
@@ -42,7 +43,7 @@ export function StoreSettingsForm({ storeId, initial }: StoreSettingsFormProps) 
 
     if (saved) {
       updateStoreInList(saved);
-      setLogoPreview(saved.logo_url);
+      setLogoPreview(resolveMediaUrl(saved.logo_url));
       setLogoFile(null);
     }
   }
