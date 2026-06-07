@@ -18,6 +18,8 @@ export function CategoriesManager() {
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
   const addCategory = useCategoriesStore((state) => state.addCategory);
   const addSubcategory = useCategoriesStore((state) => state.addSubcategory);
+  const updateCategory = useCategoriesStore((state) => state.updateCategory);
+  const deleteCategory = useCategoriesStore((state) => state.deleteCategory);
 
   useEffect(() => {
     if (activeStoreId === null) {
@@ -38,10 +40,7 @@ export function CategoriesManager() {
       <UiFeedback successTestId="categories-success-message" />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <CreateCategoryForm
-          storeId={storeId}
-          onCreated={addCategory}
-        />
+        <CreateCategoryForm storeId={storeId} onCreated={addCategory} />
         <CreateSubcategoryForm
           storeId={storeId}
           categories={categories}
@@ -52,7 +51,16 @@ export function CategoriesManager() {
       {isLoading ? (
         <p className="text-sm text-zinc-500">Cargando categorías…</p>
       ) : (
-        <CategoryTreeList categories={categories} />
+        <CategoryTreeList
+          categories={categories}
+          storeId={storeId}
+          onUpdate={(categoryId, name, parentId) =>
+            updateCategory(storeId, categoryId, name, parentId)
+          }
+          onDelete={(categoryId, parentId) =>
+            deleteCategory(storeId, categoryId, parentId)
+          }
+        />
       )}
     </div>
   );

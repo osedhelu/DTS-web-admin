@@ -13,7 +13,7 @@ export function UiFeedback({ successTestId }: UiFeedbackProps) {
   return (
     <>
       {error ? (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" data-testid="ui-feedback-error" className="sr-only">
           {error}
         </p>
       ) : null}
@@ -21,7 +21,7 @@ export function UiFeedback({ successTestId }: UiFeedbackProps) {
       {successMessage ? (
         <p
           data-testid={successTestId}
-          className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+          className="sr-only"
         >
           {successMessage}
         </p>

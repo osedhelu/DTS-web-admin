@@ -25,3 +25,5 @@ export interface CreateCouponPayload {
   valid_until: string;
   is_active: boolean;
 }
+
+export type UpdateCouponPayload = Partial<CreateCouponPayload>;

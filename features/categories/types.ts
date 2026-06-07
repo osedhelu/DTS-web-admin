@@ -25,3 +25,7 @@ export interface CreateSubcategoryInput {
   name: string;
   parent_id: number;
 }
+
+export interface UpdateCategoryInput {
+  name: string;
+}

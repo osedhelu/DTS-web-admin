@@ -8,10 +8,15 @@ import type {
 } from "@/features/products/types";
 import type { PaginatedResponse } from "@/lib/api/types";
 
+export interface ProductListFilters {
+  search?: string;
+  type?: "physical" | "service";
+}
+
 interface ProductsState {
   products: Product[];
   isLoading: boolean;
-  loadProducts: (storeId: number) => Promise<void>;
+  loadProducts: (storeId: number, filters?: ProductListFilters) => Promise<void>;
   loadProductDetail: (storeId: number, productId: number) => Promise<ProductDetail | null>;
   addProduct: (product: Product) => void;
   upsertProduct: (product: Product) => void;
@@ -34,14 +39,25 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
   products: [],
   isLoading: false,
 
-  loadProducts: async (storeId) => {
+  loadProducts: async (storeId, filters = {}) => {
     set({ isLoading: true });
     useUiStore.getState().clearMessages();
 
+    const params = new URLSearchParams();
+    if (filters.search?.trim()) {
+      params.set("search", filters.search.trim());
+    }
+    if (filters.type) {
+      params.set("type", filters.type);
+    }
+
+    const query = params.toString();
+    const url = query
+      ? `/api/merchant/stores/${storeId}/products?${query}`
+      : `/api/merchant/stores/${storeId}/products`;
+
     try {
-      const response = await fetch(
-        `/api/merchant/stores/${storeId}/products`,
-      );
+      const response = await fetch(url);
       const data = (await response.json()) as PaginatedResponse<Product> & {
         detail?: string;
       };

@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
+import {
+  ProductFilters,
+  type ProductTypeFilter,
+} from "@/features/products/components/ProductFilters";
 import { ProductForm } from "@/features/products/components/ProductForm";
 import { ProductList } from "@/features/products/components/ProductList";
 import { useProductsStore } from "@/features/products/stores/products-store";
@@ -21,13 +25,23 @@ export function ProductsManager() {
   const deactivateProduct = useProductsStore((state) => state.deactivateProduct);
   const setSuccess = useUiStore((state) => state.setSuccess);
 
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<ProductTypeFilter>("all");
+
   useEffect(() => {
     if (activeStoreId === null) {
       return;
     }
 
-    void loadProducts(activeStoreId);
-  }, [activeStoreId, loadProducts]);
+    const timeout = setTimeout(() => {
+      void loadProducts(activeStoreId, {
+        search,
+        type: typeFilter === "all" ? undefined : typeFilter,
+      });
+    }, 250);
+
+    return () => clearTimeout(timeout);
+  }, [activeStoreId, loadProducts, search, typeFilter]);
 
   if (!guard.ready) {
     return guard.content;
@@ -51,6 +65,13 @@ export function ProductsManager() {
   return (
     <div className="space-y-6">
       <UiFeedback successTestId="products-success-message" />
+
+      <ProductFilters
+        search={search}
+        typeFilter={typeFilter}
+        onSearchChange={setSearch}
+        onTypeFilterChange={setTypeFilter}
+      />
 
       <ProductForm storeId={storeId} onCreated={handleCreated} />
 

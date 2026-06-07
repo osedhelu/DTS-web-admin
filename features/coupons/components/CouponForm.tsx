@@ -2,10 +2,19 @@
 
 import { useState } from "react";
 
-import type { CreateCouponPayload } from "@/features/coupons/types";
+import type {
+  Coupon,
+  CreateCouponPayload,
+  UpdateCouponPayload,
+} from "@/features/coupons/types";
 
 interface CouponFormProps {
-  onSubmit: (payload: CreateCouponPayload) => Promise<boolean>;
+  initial?: Coupon | null;
+  submitLabel?: string;
+  onSubmit: (
+    payload: CreateCouponPayload | UpdateCouponPayload,
+  ) => Promise<boolean>;
+  onCancel?: () => void;
 }
 
 const defaultPayload: CreateCouponPayload = {
@@ -19,16 +28,33 @@ const defaultPayload: CreateCouponPayload = {
   is_active: true,
 };
 
-export function CouponForm({ onSubmit }: CouponFormProps) {
-  const [payload, setPayload] = useState(defaultPayload);
+export function CouponForm({
+  initial = null,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: CouponFormProps) {
+  const [payload, setPayload] = useState<CreateCouponPayload>(
+    initial
+      ? {
+          code: initial.code,
+          discount_type: initial.discount_type,
+          discount_value: initial.discount_value,
+          min_order_total: initial.min_order_total,
+          max_uses: initial.max_uses,
+          valid_from: initial.valid_from.slice(0, 10),
+          valid_until: initial.valid_until.slice(0, 10),
+          is_active: initial.is_active,
+        }
+      : defaultPayload,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
+  async function handleSubmit() {
     setIsSubmitting(true);
 
-    const created = await onSubmit(payload);
-    if (created) {
+    const saved = await onSubmit(payload);
+    if (saved && !initial) {
       setPayload(defaultPayload);
     }
 
@@ -37,11 +63,16 @@ export function CouponForm({ onSubmit }: CouponFormProps) {
 
   return (
     <form
-      data-testid="coupon-form"
-      onSubmit={(event) => void handleSubmit(event)}
+      data-testid={initial ? "coupon-edit-form" : "coupon-form"}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit();
+      }}
       className="space-y-4 rounded-xl border border-zinc-200 bg-white p-4"
     >
-      <h3 className="text-sm font-semibold text-zinc-900">Nuevo cupón</h3>
+      <h3 className="text-sm font-semibold text-zinc-900">
+        {initial ? "Editar cupón" : "Nuevo cupón"}
+      </h3>
 
       <label className="flex flex-col gap-1 text-sm">
         Código
@@ -93,14 +124,38 @@ export function CouponForm({ onSubmit }: CouponFormProps) {
         />
       </label>
 
-      <button
-        type="submit"
-        data-testid="coupon-submit"
-        disabled={isSubmitting}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {isSubmitting ? "Creando…" : "Crear cupón"}
-      </button>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          data-testid="coupon-is-active"
+          type="checkbox"
+          checked={payload.is_active}
+          onChange={(event) =>
+            setPayload((current) => ({ ...current, is_active: event.target.checked }))
+          }
+        />
+        Activo
+      </label>
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          data-testid="coupon-submit"
+          disabled={isSubmitting}
+          onClick={() => void handleSubmit()}
+          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {isSubmitting ? "Guardando…" : (submitLabel ?? "Crear cupón")}
+        </button>
+        {onCancel ? (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm"
+          >
+            Cancelar
+          </button>
+        ) : null}
+      </div>
     </form>
   );
 }
