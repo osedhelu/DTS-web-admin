@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { OrdersTable } from "@/features/orders/components/OrdersTable";
+import { ORDERS_POLL_INTERVAL_MS } from "@/features/orders/constants";
 import {
   DELIVERY_STATUS_FILTERS,
   DELIVERY_STATUS_LABELS,
@@ -20,13 +21,12 @@ export function OrdersDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchOrders() {
-      setError(null);
-
+    async function fetchOrders(options?: { silent?: boolean }) {
       try {
         const response = await fetch("/api/merchant/orders?order_type=delivery");
         const data = (await response.json()) as PaginatedResponse<DeliveryOrder> & {
@@ -38,21 +38,24 @@ export function OrdersDashboard() {
         }
 
         if (!response.ok) {
-          setError(data.detail ?? "No se pudieron cargar los pedidos");
-          setOrders([]);
+          if (!options?.silent) {
+            setError(data.detail ?? "No se pudieron cargar los pedidos");
+            setOrders([]);
+          }
           return;
         }
 
         setOrders(
           data.results.filter((order) => order.order_type === "delivery"),
         );
+        setRefreshCount((current) => current + 1);
       } catch {
-        if (!cancelled) {
+        if (!cancelled && !options?.silent) {
           setError("Error de conexión al cargar pedidos.");
           setOrders([]);
         }
       } finally {
-        if (!cancelled) {
+        if (!cancelled && !options?.silent) {
           setIsLoading(false);
         }
       }
@@ -60,8 +63,13 @@ export function OrdersDashboard() {
 
     void fetchOrders();
 
+    const intervalId = window.setInterval(() => {
+      void fetchOrders({ silent: true });
+    }, ORDERS_POLL_INTERVAL_MS);
+
     return () => {
       cancelled = true;
+      window.clearInterval(intervalId);
     };
   }, []);
 
@@ -104,6 +112,16 @@ export function OrdersDashboard() {
 
   return (
     <div className="space-y-6">
+      <p
+        data-testid="orders-auto-refresh"
+        className="text-xs text-zinc-500"
+      >
+        Actualización automática cada 10 segundos
+      </p>
+      <span data-testid="orders-refresh-count" className="sr-only">
+        {refreshCount}
+      </span>
+
       <div className="flex flex-wrap gap-2">
         {DELIVERY_STATUS_FILTERS.map((filter) => (
           <button

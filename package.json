@@ -14,7 +14,10 @@
     "test:e2e:categories": "playwright test e2e/merchant_create_category_flow_test.spec.ts e2e/merchant_create_subcategory_flow_test.spec.ts",
     "test:e2e:service-orders": "playwright test e2e/merchant_service_order_dashboard_test.spec.ts",
     "test:e2e:orders": "playwright test e2e/merchant_orders_list_test.spec.ts",
-    "test:e2e:order-actions": "playwright test e2e/merchant_accept_order_action_test.spec.ts"
+    "test:e2e:order-actions": "playwright test e2e/merchant_accept_order_action_test.spec.ts",
+    "test:e2e:orders-polling": "playwright test e2e/merchant_orders_auto_refresh_test.spec.ts",
+    "test:e2e:admin-dashboard": "playwright test e2e/admin_dashboard_role_guard_test.spec.ts",
+    "test:e2e:admin-metrics": "playwright test e2e/admin_metrics_widgets_test.spec.ts"
   },
   "dependencies": {
     "next": "16.2.7",

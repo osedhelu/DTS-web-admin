@@ -36,3 +36,25 @@ export async function loginAsMerchant(
     },
   ]);
 }
+
+export async function loginAsSuperAdmin(
+  context: BrowserContext,
+  email = "admin@test.com",
+) {
+  const token = buildMockJwt({
+    role: "super_admin",
+    email,
+    user_id: 1,
+  });
+
+  await context.addCookies([
+    {
+      name: ACCESS_TOKEN_COOKIE,
+      value: token,
+      domain: "localhost",
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+}
