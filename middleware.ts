@@ -56,6 +56,10 @@ export function middleware(request: NextRequest) {
   }
 
   if (!hasValidSession) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ detail: "No autenticado" }, { status: 401 });
+    }
+
     return redirectToLogin(request, pathname);
   }
 

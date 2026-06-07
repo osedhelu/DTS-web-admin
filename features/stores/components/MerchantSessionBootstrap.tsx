@@ -7,16 +7,16 @@ import { useMerchantSessionStore } from "@/features/stores/stores/merchant-sessi
 /** Carga las tiendas del merchant una vez por sesión de navegación. */
 export function MerchantSessionBootstrap() {
   const loadStores = useMerchantSessionStore((state) => state.loadStores);
-  const stores = useMerchantSessionStore((state) => state.stores);
+  const storesLoaded = useMerchantSessionStore((state) => state.storesLoaded);
   const isLoadingStores = useMerchantSessionStore(
     (state) => state.isLoadingStores,
   );
 
   useEffect(() => {
-    if (stores.length === 0 && !isLoadingStores) {
+    if (!storesLoaded && !isLoadingStores) {
       void loadStores();
     }
-  }, [stores.length, isLoadingStores, loadStores]);
+  }, [storesLoaded, isLoadingStores, loadStores]);
 
   return null;
 }

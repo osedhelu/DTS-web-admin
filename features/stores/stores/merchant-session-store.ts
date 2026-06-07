@@ -7,8 +7,9 @@ interface MerchantSessionState {
   stores: Store[];
   activeStoreId: number | null;
   isLoadingStores: boolean;
+  storesLoaded: boolean;
   storesError: string | null;
-  loadStores: () => Promise<void>;
+  loadStores: (options?: { force?: boolean }) => Promise<void>;
   setActiveStoreId: (storeId: number) => void;
   updateStoreInList: (store: Store) => void;
   reset: () => void;
@@ -18,6 +19,7 @@ const initialState = {
   stores: [] as Store[],
   activeStoreId: null as number | null,
   isLoadingStores: false,
+  storesLoaded: false,
   storesError: null as string | null,
 };
 
@@ -26,8 +28,12 @@ export const useMerchantSessionStore = create<MerchantSessionState>()(
     (set, get) => ({
       ...initialState,
 
-      loadStores: async () => {
+      loadStores: async (options) => {
         if (get().isLoadingStores) {
+          return;
+        }
+
+        if (get().storesLoaded && !options?.force) {
           return;
         }
 
@@ -36,7 +42,7 @@ export const useMerchantSessionStore = create<MerchantSessionState>()(
         try {
           const response = await fetch("/api/merchant/stores");
           const data = (await response.json()) as {
-            results: Store[];
+            results?: Store[];
             detail?: string;
           };
 
@@ -45,28 +51,30 @@ export const useMerchantSessionStore = create<MerchantSessionState>()(
               stores: [],
               storesError: data.detail ?? "No se pudieron cargar las tiendas",
               isLoadingStores: false,
+              storesLoaded: true,
             });
             return;
           }
 
+          const results = data.results ?? [];
           const { activeStoreId } = get();
-          const hasActiveStore = data.results.some(
-            (store) => store.id === activeStoreId,
-          );
+          const hasActiveStore = results.some((store) => store.id === activeStoreId);
           const nextActiveStoreId = hasActiveStore
             ? activeStoreId
-            : (data.results[0]?.id ?? null);
+            : (results[0]?.id ?? null);
 
           set({
-            stores: data.results,
+            stores: results,
             activeStoreId: nextActiveStoreId,
             isLoadingStores: false,
+            storesLoaded: true,
           });
         } catch {
           set({
             stores: [],
             storesError: "Error de conexión al cargar tiendas.",
             isLoadingStores: false,
+            storesLoaded: true,
           });
         }
       },
