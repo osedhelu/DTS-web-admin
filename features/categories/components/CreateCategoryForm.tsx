@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 
+import { CategoryFormScreen } from "@/features/categories/components/CategoryFormScreen";
 import type { CategoryRecord, CategoryTreeNode } from "@/features/categories/types";
 
 interface CreateCategoryFormProps {
@@ -50,37 +51,42 @@ export function CreateCategoryForm({ storeId, onCreated }: CreateCategoryFormPro
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      data-testid="create-category-form"
-      className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4"
+    <CategoryFormScreen
+      title="Nueva categoría"
+      subtitle="Categoría raíz para agrupar productos en tu catálogo."
     >
-      <div>
-        <h3 className="text-sm font-semibold text-zinc-900">Nueva categoría</h3>
-        <p className="text-xs text-zinc-600">Categoría raíz de tu tienda.</p>
-      </div>
-
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
-        Nombre
-        <input
-          data-testid="category-name"
-          required
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
-        />
-      </label>
-
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-      <button
-        type="submit"
-        data-testid="category-submit"
-        disabled={isSubmitting}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+      <form
+        onSubmit={handleSubmit}
+        data-testid="create-category-form"
+        className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6"
       >
-        {isSubmitting ? "Guardando…" : "Crear categoría"}
-      </button>
-    </form>
+        <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+          Nombre
+          <input
+            data-testid="category-name"
+            required
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Ej. Comida, Bebidas, Limpieza"
+            className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
+          />
+        </label>
+
+        {error ? (
+          <p role="alert" className="text-sm text-red-600">
+            {error}
+          </p>
+        ) : null}
+
+        <button
+          type="submit"
+          data-testid="category-submit"
+          disabled={isSubmitting}
+          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+        >
+          {isSubmitting ? "Guardando…" : "Crear categoría"}
+        </button>
+      </form>
+    </CategoryFormScreen>
   );
 }

@@ -36,6 +36,12 @@ test("merchant_create_subcategory_flow_test", async ({ page, context }) => {
       parent_id: number;
     };
 
+    rootCategory.subcategories.push({
+      id: 11,
+      name: body.name,
+      parent_id: body.parent_id,
+    });
+
     await route.fulfill({
       status: 201,
       contentType: "application/json",
@@ -48,12 +54,15 @@ test("merchant_create_subcategory_flow_test", async ({ page, context }) => {
     });
   });
 
-  await page.goto("/merchant/categories");
+  await page.goto("/merchant/categories/new-subcategory/10");
 
-  await page.getByTestId("subcategory-parent").selectOption("10");
+  await expect(page.getByTestId("create-subcategory-form")).toBeVisible();
+  await expect(page.getByTestId("subcategory-parent")).toHaveValue("10");
+
   await page.getByTestId("subcategory-name").fill("Hamburguesas");
   await page.getByTestId("subcategory-submit").click();
 
+  await expect(page).toHaveURL(/\/merchant\/categories$/);
   await expect(page.getByTestId("categories-success-message")).toContainText(
     'Subcategoría "Hamburguesas" creada correctamente.',
   );

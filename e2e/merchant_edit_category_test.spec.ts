@@ -4,11 +4,11 @@ import { loginAsMerchant } from "./helpers/auth";
 
 const store = { id: 1, name: "Restaurante Central", owner_id: 10 };
 
-const initialCategories = [
+let initialCategories = [
   {
     id: 5,
     name: "Comida",
-    subcategories: [],
+    subcategories: [] as Array<{ id: number; name: string; parent_id: number }>,
   },
 ];
 
@@ -41,6 +41,7 @@ test("merchant_edit_category_test", async ({ page, context }) => {
   await page.route("**/api/merchant/stores/1/categories/5", async (route) => {
     const body = route.request().postDataJSON() as { name: string };
     updated = true;
+    initialCategories = [{ id: 5, name: body.name, subcategories: [] }];
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -53,13 +54,13 @@ test("merchant_edit_category_test", async ({ page, context }) => {
     });
   });
 
-  await page.goto("/merchant/categories");
+  await page.goto("/merchant/categories/5/edit");
 
-  await expect(page.getByTestId("category-row-5")).toBeVisible();
-  await page.getByTestId("category-edit-5").click();
+  await expect(page.getByTestId("category-edit-form")).toBeVisible();
   await page.getByTestId("category-edit-input-5").fill("Comida rápida");
   await page.getByTestId("category-save-5").click();
 
+  await expect(page).toHaveURL(/\/merchant\/categories$/);
   await expect(page.getByTestId("categories-success-message")).toContainText(
     'Categoría "Comida rápida" actualizada correctamente.',
   );

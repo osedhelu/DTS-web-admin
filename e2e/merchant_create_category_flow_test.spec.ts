@@ -15,17 +15,24 @@ test("merchant_create_category_flow_test", async ({ page, context }) => {
     });
   });
 
+  const categories: Array<{
+    id: number;
+    name: string;
+    subcategories: [];
+  }> = [];
+
   await page.route("**/api/merchant/stores/1/categories", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify([]),
+        body: JSON.stringify(categories),
       });
       return;
     }
 
     const body = route.request().postDataJSON() as { name: string };
+    categories.push({ id: 5, name: body.name, subcategories: [] });
 
     await route.fulfill({
       status: 201,
@@ -39,16 +46,15 @@ test("merchant_create_category_flow_test", async ({ page, context }) => {
     });
   });
 
-  await page.goto("/merchant/categories");
+  await page.goto("/merchant/categories/new");
 
-  await expect(
-    page.getByRole("heading", { name: "Categorías y subcategorías" }),
-  ).toBeVisible();
-  await expect(page.getByTestId("categories-empty")).toBeVisible();
+  await expect(page.getByTestId("create-category-form")).toBeVisible();
+  await expect(page.getByTestId("category-form-back")).toBeVisible();
 
   await page.getByTestId("category-name").fill("Comida");
   await page.getByTestId("category-submit").click();
 
+  await expect(page).toHaveURL(/\/merchant\/categories$/);
   await expect(page.getByTestId("categories-success-message")).toContainText(
     'Categoría "Comida" creada correctamente.',
   );

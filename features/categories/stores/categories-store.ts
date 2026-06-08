@@ -59,9 +59,6 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
 
   addCategory: (category) => {
     set({ categories: [...get().categories, category] });
-    useUiStore.getState().setSuccess(
-      `Categoría "${category.name}" creada correctamente.`,
-    );
   },
 
   addSubcategory: (parentId, subcategory) => {
@@ -75,9 +72,6 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
           : category,
       ),
     });
-    useUiStore.getState().setSuccess(
-      `Subcategoría "${subcategory.name}" creada correctamente.`,
-    );
   },
 
   updateCategory: async (storeId, categoryId, name, parentId) => {
@@ -124,9 +118,6 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
         });
       }
 
-      useUiStore.getState().setSuccess(
-        `Categoría "${data.name}" actualizada correctamente.`,
-      );
       return true;
     } catch {
       useUiStore.getState().setError(
@@ -174,7 +165,6 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
         });
       }
 
-      useUiStore.getState().setSuccess("Categoría eliminada correctamente.");
       return true;
     } catch {
       useUiStore.getState().setError(
