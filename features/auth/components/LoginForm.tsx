@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -54,11 +55,12 @@ export function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm"
+      data-testid="login-form"
+      className="flex w-full flex-col gap-5 rounded-2xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl shadow-black/40 backdrop-blur-xl"
     >
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">Iniciar sesión</h1>
-        <p className="mt-1 text-sm text-zinc-600">
+      <div className="hidden lg:block">
+        <h1 className="text-2xl font-bold tracking-tight text-white">Iniciar sesión</h1>
+        <p className="mt-1 text-sm text-zinc-400">
           Acceso para comercios y administradores DTS.
         </p>
       </div>
@@ -66,14 +68,14 @@ export function LoginForm() {
       {verified ? (
         <p
           data-testid="login-verified-banner"
-          className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+          className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
         >
           Tu correo fue confirmado. Inicia sesión con el usuario generado a partir
           de tu email.
         </p>
       ) : null}
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className="flex flex-col gap-2 text-sm font-medium text-zinc-300">
         Usuario
         <input
           name="username"
@@ -82,11 +84,12 @@ export function LoginForm() {
           required
           value={username}
           onChange={(event) => setUsername(event.target.value)}
-          className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
+          placeholder="nombre@empresa.com"
+          className="rounded-xl border border-white/10 bg-zinc-900/60 px-4 py-2.5 font-normal text-white placeholder:text-zinc-600 outline-none ring-emerald-500/40 transition focus:border-emerald-500/50 focus:ring-2"
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className="flex flex-col gap-2 text-sm font-medium text-zinc-300">
         Contraseña
         <input
           name="password"
@@ -95,14 +98,15 @@ export function LoginForm() {
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
+          placeholder="••••••••"
+          className="rounded-xl border border-white/10 bg-zinc-900/60 px-4 py-2.5 font-normal text-white placeholder:text-zinc-600 outline-none ring-emerald-500/40 transition focus:border-emerald-500/50 focus:ring-2"
         />
       </label>
 
       {error ? (
         <p
           role="alert"
-          className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
         >
           {error}
         </p>
@@ -111,10 +115,20 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? "Ingresando…" : "Ingresar"}
       </button>
+
+      <p className="text-center text-xs text-zinc-500">
+        ¿Aún no tienes comercio?{" "}
+        <Link
+          href="/registro-comercio"
+          className="font-medium text-emerald-400 transition hover:text-emerald-300"
+        >
+          Regístrate aquí
+        </Link>
+      </p>
     </form>
   );
 }
