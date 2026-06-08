@@ -2,8 +2,10 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
 import { FoodCatalogFields } from "@/features/products/components/FoodCatalogFields";
+import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import type {
   CreateProductInput,
@@ -122,18 +124,17 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      data-testid="product-form"
-      className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6"
+    <ProductFormScreen
+      title="Nuevo producto o servicio"
+      subtitle="Elige el tipo y completa los campos del catálogo."
     >
-      <div>
-        <h3 className="text-lg font-semibold text-zinc-900">Nuevo ítem</h3>
-        <p className="text-sm text-zinc-600">
-          Elige el tipo y completa los campos correspondientes.
-        </p>
-      </div>
+      <UiFeedback successTestId="product-create-success-message" />
 
+      <form
+        onSubmit={handleSubmit}
+        data-testid="product-form"
+        className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6"
+      >
       <fieldset className="flex gap-4">
         <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
           <input
@@ -280,6 +281,7 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
       >
         {isSubmitting ? "Guardando…" : "Crear ítem"}
       </button>
-    </form>
+      </form>
+    </ProductFormScreen>
   );
 }

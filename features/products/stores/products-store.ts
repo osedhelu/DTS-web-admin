@@ -76,8 +76,6 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
   },
 
   loadProductDetail: async (storeId, productId) => {
-    useUiStore.getState().clearMessages();
-
     try {
       const response = await fetch(
         `/api/merchant/stores/${storeId}/products/${productId}`,

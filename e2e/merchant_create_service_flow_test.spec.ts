@@ -17,6 +17,14 @@ test("merchant_create_service_flow_test", async ({ page, context }) => {
     });
   });
 
+  await page.route("**/api/merchant/stores/2/categories", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
+
   await page.route("**/api/merchant/stores/2/products", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({
@@ -51,7 +59,20 @@ test("merchant_create_service_flow_test", async ({ page, context }) => {
     });
   });
 
-  await page.goto("/merchant/products");
+  await page.route("**/api/merchant/stores/2/products/77", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ...createdService,
+        variants: [],
+        ingredients: [],
+        images: [],
+      }),
+    });
+  });
+
+  await page.goto("/merchant/products/new");
 
   await page.getByTestId("product-type-service").check();
   await expect(page.getByTestId("product-duration")).toBeVisible();
@@ -63,12 +84,11 @@ test("merchant_create_service_flow_test", async ({ page, context }) => {
   await page.getByTestId("product-description").fill("Incluye cocina y baños");
   await page.getByTestId("product-submit").click();
 
-  await expect(page.getByTestId("products-success-message")).toContainText(
+  await expect(page).toHaveURL(/\/merchant\/products\/77$/);
+  await expect(page.getByTestId("product-edit-success-message")).toContainText(
     'Servicio "Limpieza profunda apartamento" creado correctamente.',
   );
-  await expect(page.getByTestId("product-row-77")).toBeVisible();
-  await expect(page.getByTestId("product-row-77")).toContainText("Servicio");
-  await expect(page.getByTestId("product-row-77")).toContainText("180 min");
+  await expect(page.getByTestId("product-edit-form")).toBeVisible();
   expect(createdService?.product_type).toBe("service");
   expect(createdService?.duration_minutes).toBe(180);
 });

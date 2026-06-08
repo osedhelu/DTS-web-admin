@@ -1,11 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import Link from "next/link";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
 import { FoodCatalogFields } from "@/features/products/components/FoodCatalogFields";
+import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
 import { ProductImageGallery } from "@/features/products/components/ProductImageGallery";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import { useProductsStore } from "@/features/products/stores/products-store";
@@ -92,6 +92,12 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
       if (loaded) {
         setDetail(loaded);
         setFields(mapDetailToForm(loaded));
+
+        const pendingSuccess = sessionStorage.getItem("product-create-success");
+        if (pendingSuccess) {
+          sessionStorage.removeItem("product-create-success");
+          setSuccess(pendingSuccess);
+        }
       }
 
       setIsLoading(false);
@@ -174,23 +180,11 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   const isPhysical = detail.product_type === "physical";
 
   return (
-    <div className="space-y-6">
+    <ProductFormScreen
+      title={detail.name}
+      subtitle={isPhysical ? "Producto físico / comida" : "Servicio a domicilio"}
+    >
       <UiFeedback successTestId="product-edit-success-message" />
-
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-sm text-zinc-500">
-            {isPhysical ? "Producto físico / comida" : "Servicio a domicilio"}
-          </p>
-          <h2 className="text-2xl font-semibold text-zinc-900">{detail.name}</h2>
-        </div>
-        <Link
-          href="/merchant/products"
-          className="text-sm font-medium text-zinc-700 hover:text-zinc-900"
-        >
-          ← Volver al catálogo
-        </Link>
-      </div>
 
       <form
         onSubmit={handleSubmit}
@@ -335,6 +329,6 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
         onUpload={handleUpload}
         isUploading={isUploading}
       />
-    </div>
+    </ProductFormScreen>
   );
 }
