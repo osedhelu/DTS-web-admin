@@ -1,15 +1,14 @@
+import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
 import { BannersManager } from "@/features/banners/components/BannersManager";
 
 export default function AdminBannersPage() {
   return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-zinc-900">Banners</h2>
-        <p className="text-zinc-600">
-          Administra los banners promocionales visibles en la app cliente.
-        </p>
-      </div>
-
+    <section>
+      <AdminPageHeader
+        badge="Contenido"
+        title="Banners"
+        description="Administra banners promocionales que se muestran en la aplicación de clientes: imagen, enlace y vigencia."
+      />
       <BannersManager />
     </section>
   );

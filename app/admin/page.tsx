@@ -1,17 +1,14 @@
 import { AdminDashboardPanel } from "@/features/admin/components/AdminDashboardPanel";
+import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
 
 export default function AdminHomePage() {
   return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-zinc-900">
-          Panel administrador
-        </h2>
-        <p className="text-zinc-600">
-          KPIs y métricas globales de la plataforma DTS.
-        </p>
-      </div>
-
+    <section>
+      <AdminPageHeader
+        badge="Dashboard"
+        title="Resumen de la plataforma"
+        description="Visualiza KPIs globales, accede a las herramientas de moderación y gestiona finanzas y contenido de DTS Delivery."
+      />
       <AdminDashboardPanel />
     </section>
   );

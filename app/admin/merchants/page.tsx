@@ -1,15 +1,14 @@
+import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
 import { MerchantsManager } from "@/features/admin-merchants/components/MerchantsManager";
 
 export default function AdminMerchantsPage() {
   return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-zinc-900">Comercios</h2>
-        <p className="text-zinc-600">
-          Moderación de comercios registrados y estado de verificación.
-        </p>
-      </div>
-
+    <section>
+      <AdminPageHeader
+        badge="Operaciones"
+        title="Comercios"
+        description="Revisa registros, verifica correos electrónicos, suspende tiendas problemáticas o reactiva comercios que cumplan las políticas."
+      />
       <MerchantsManager />
     </section>
   );

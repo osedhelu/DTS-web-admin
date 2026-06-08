@@ -1,15 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { AppShell } from "@/components/layout/AppShell";
+import { AdminShell } from "@/features/admin/components/AdminShell";
 import { getServerSession } from "@/lib/auth/session";
-
-const adminNav = [
-  { href: "/admin", label: "Inicio" },
-  { href: "/admin/commissions", label: "Comisiones" },
-  { href: "/admin/coupons", label: "Cupones" },
-  { href: "/admin/banners", label: "Banners" },
-  { href: "/admin/merchants", label: "Comercios" },
-];
 
 export default async function AdminLayout({
   children,
@@ -22,14 +14,5 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  return (
-    <AppShell
-      title="Panel administrador"
-      sidebarTestId="admin-sidebar"
-      navItems={adminNav}
-      userEmail={session.email}
-    >
-      {children}
-    </AppShell>
-  );
+  return <AdminShell userEmail={session.email}>{children}</AdminShell>;
 }
