@@ -1,13 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
 import { DynamicProductFields } from "@/features/products/components/DynamicProductFields";
-import { FoodCatalogFields } from "@/features/products/components/FoodCatalogFields";
 import {
+  isMultiSelectRule,
+  normalizeDynamicValueForForm,
   resolveProductFieldConfig,
+  syncDynamicValues,
   type DynamicValues,
 } from "@/features/products/lib/dynamic-fields";
 import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
@@ -17,8 +19,6 @@ import { useProductsStore } from "@/features/products/stores/products-store";
 import type {
   ProductDetail,
   ProductImage,
-  ProductIngredient,
-  ProductVariant,
   UpdateProductInput,
 } from "@/features/products/types";
 import { useUiStore } from "@/lib/stores/ui-store";
@@ -36,8 +36,6 @@ interface ProductFormFields {
   description: string;
   categoryId: number | null;
   subcategoryId: number | null;
-  variants: ProductVariant[];
-  ingredients: ProductIngredient[];
   images: ProductImage[];
 }
 
@@ -50,17 +48,6 @@ function mapDetailToForm(detail: ProductDetail): ProductFormFields {
     description: detail.description,
     categoryId: detail.category_id,
     subcategoryId: detail.subcategory_id,
-    variants: detail.variants.map((variant) => ({
-      id: variant.id,
-      name: variant.name,
-      price: String(variant.price),
-      sort_order: variant.sort_order,
-    })),
-    ingredients: detail.ingredients.map((ingredient) => ({
-      id: ingredient.id,
-      name: ingredient.name,
-      is_allergen: ingredient.is_allergen,
-    })),
     images: detail.images,
   };
 }
@@ -80,37 +67,51 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dynamicValues, setDynamicValues] = useState<DynamicValues>({});
+  const hydratedProductIdRef = useRef<number | null>(null);
+  const lastCategoryKeyRef = useRef("");
 
-  const activeFieldConfig =
-    fields === null
-      ? {}
-      : resolveProductFieldConfig(
-          categories,
-          fields.categoryId,
-          fields.subcategoryId,
-        );
+  const categoryKey =
+    fields === null ? "" : `${fields.categoryId ?? "null"}:${fields.subcategoryId ?? "null"}`;
+
+  const activeFieldConfig = useMemo(() => {
+    if (fields === null) {
+      return {};
+    }
+    return resolveProductFieldConfig(
+      categories,
+      fields.categoryId,
+      fields.subcategoryId,
+    );
+  }, [categories, fields]);
 
   useEffect(() => {
     void loadCategories(storeId);
   }, [loadCategories, storeId]);
 
   useEffect(() => {
-    if (!detail) {
+    if (!detail || fields === null || !categoryKey) {
       return;
     }
 
-    setDynamicValues(detail.dynamic_values ?? {});
-  }, [detail]);
-
-  useEffect(() => {
-    setDynamicValues((current) => {
-      const next: DynamicValues = {};
-      for (const key of Object.keys(activeFieldConfig)) {
-        next[key] = current[key] ?? "";
+    if (hydratedProductIdRef.current !== detail.id) {
+      hydratedProductIdRef.current = detail.id;
+      lastCategoryKeyRef.current = categoryKey;
+      const initial: DynamicValues = {};
+      for (const [key, rule] of Object.entries(activeFieldConfig)) {
+        initial[key] = normalizeDynamicValueForForm(
+          rule,
+          detail.dynamic_values?.[key],
+        );
       }
-      return next;
-    });
-  }, [fields?.categoryId, fields?.subcategoryId, categories]);
+      setDynamicValues(initial);
+      return;
+    }
+
+    if (lastCategoryKeyRef.current !== categoryKey) {
+      lastCategoryKeyRef.current = categoryKey;
+      setDynamicValues((current) => syncDynamicValues(activeFieldConfig, current));
+    }
+  }, [detail, categoryKey, activeFieldConfig, fields]);
 
   useEffect(() => {
     let active = true;
@@ -161,24 +162,21 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     };
 
     if (Object.keys(activeFieldConfig).length > 0) {
+      for (const [key, rule] of Object.entries(activeFieldConfig)) {
+        if (isMultiSelectRule(rule)) {
+          const selected = dynamicValues[key];
+          if (!Array.isArray(selected) || selected.length === 0) {
+            setError(`Selecciona al menos una opción para «${key}».`);
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
       payload.dynamic_values = dynamicValues;
     }
 
     if (detail.product_type === "physical") {
       payload.stock = Number(fields.stock) || 0;
-      payload.variants = fields.variants
-        .filter((variant) => variant.name.trim() && variant.price)
-        .map((variant, index) => ({
-          name: variant.name.trim(),
-          price: variant.price,
-          sort_order: index,
-        }));
-      payload.ingredients = fields.ingredients
-        .filter((ingredient) => ingredient.name.trim())
-        .map((ingredient) => ({
-          name: ingredient.name.trim(),
-          is_allergen: ingredient.is_allergen,
-        }));
     } else {
       payload.duration_minutes = fields.durationMinutes
         ? Number(fields.durationMinutes)
@@ -219,7 +217,7 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   return (
     <ProductFormScreen
       title={detail.name}
-      subtitle={isPhysical ? "Producto físico / comida" : "Servicio a domicilio"}
+      subtitle={isPhysical ? "Producto físico" : "Servicio a domicilio"}
     >
       <UiFeedback successTestId="product-edit-success-message" />
 
@@ -286,36 +284,21 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
         />
 
         {isPhysical ? (
-          <>
-            <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
-              Stock
-              <input
-                data-testid="product-edit-stock"
-                type="number"
-                min="0"
-                value={fields.stock}
-                onChange={(event) =>
-                  setFields((current) =>
-                    current ? { ...current, stock: event.target.value } : current,
-                  )
-                }
-                className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
-              />
-            </label>
-
-            <FoodCatalogFields
-              variants={fields.variants}
-              ingredients={fields.ingredients}
-              onVariantsChange={(variants) =>
-                setFields((current) => (current ? { ...current, variants } : current))
-              }
-              onIngredientsChange={(ingredients) =>
+          <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+            Stock
+            <input
+              data-testid="product-edit-stock"
+              type="number"
+              min="0"
+              value={fields.stock}
+              onChange={(event) =>
                 setFields((current) =>
-                  current ? { ...current, ingredients } : current,
+                  current ? { ...current, stock: event.target.value } : current,
                 )
               }
+              className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
             />
-          </>
+          </label>
         ) : (
           <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
             Duración estimada (minutos)

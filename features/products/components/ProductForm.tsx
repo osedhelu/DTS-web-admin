@@ -1,24 +1,19 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
 import { DynamicProductFields } from "@/features/products/components/DynamicProductFields";
-import { FoodCatalogFields } from "@/features/products/components/FoodCatalogFields";
 import {
+  isMultiSelectRule,
   resolveProductFieldConfig,
+  syncDynamicValues,
   type DynamicValues,
 } from "@/features/products/lib/dynamic-fields";
 import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
-import type {
-  CreateProductInput,
-  Product,
-  ProductIngredient,
-  ProductVariant,
-} from "@/features/products/types";
-import { useProductsStore } from "@/features/products/stores/products-store";
+import type { CreateProductInput, Product } from "@/features/products/types";
 
 interface ProductFormProps {
   onCreated: (product: Product) => void;
@@ -33,12 +28,9 @@ const initialState = {
   description: "",
   categoryId: null as number | null,
   subcategoryId: null as number | null,
-  variants: [] as ProductVariant[],
-  ingredients: [] as ProductIngredient[],
 };
 
 export function ProductForm({ onCreated, storeId }: ProductFormProps) {
-  const updateProduct = useProductsStore((state) => state.updateProduct);
   const categories = useCategoriesStore((state) => state.categories);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
 
@@ -48,10 +40,10 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dynamicValues, setDynamicValues] = useState<DynamicValues>({});
 
-  const activeFieldConfig = resolveProductFieldConfig(
-    categories,
-    fields.categoryId,
-    fields.subcategoryId,
+  const activeFieldConfig = useMemo(
+    () =>
+      resolveProductFieldConfig(categories, fields.categoryId, fields.subcategoryId),
+    [categories, fields.categoryId, fields.subcategoryId],
   );
 
   useEffect(() => {
@@ -59,19 +51,24 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
   }, [loadCategories, storeId]);
 
   useEffect(() => {
-    setDynamicValues((current) => {
-      const next: DynamicValues = {};
-      for (const key of Object.keys(activeFieldConfig)) {
-        next[key] = current[key] ?? "";
-      }
-      return next;
-    });
-  }, [fields.categoryId, fields.subcategoryId, categories]);
+    setDynamicValues((current) => syncDynamicValues(activeFieldConfig, current));
+  }, [activeFieldConfig]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
+
+    for (const [key, rule] of Object.entries(activeFieldConfig)) {
+      if (isMultiSelectRule(rule)) {
+        const selected = dynamicValues[key];
+        if (!Array.isArray(selected) || selected.length === 0) {
+          setError(`Selecciona al menos una opción para «${key}».`);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+    }
 
     const dynamicPayload =
       Object.keys(activeFieldConfig).length > 0 ? dynamicValues : undefined;
@@ -116,29 +113,6 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
       if (!response.ok) {
         setError(data.detail ?? "No se pudo crear el ítem");
         return;
-      }
-
-      if (productType === "physical") {
-        const variants = fields.variants
-          .filter((variant) => variant.name.trim() && variant.price)
-          .map((variant, index) => ({
-            name: variant.name.trim(),
-            price: variant.price,
-            sort_order: index,
-          }));
-        const ingredients = fields.ingredients
-          .filter((ingredient) => ingredient.name.trim())
-          .map((ingredient) => ({
-            name: ingredient.name.trim(),
-            is_allergen: ingredient.is_allergen,
-          }));
-
-        if (variants.length > 0 || ingredients.length > 0) {
-          await updateProduct(storeId, data.id, {
-            variants,
-            ingredients,
-          });
-        }
       }
 
       onCreated(data);
@@ -239,32 +213,19 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
       />
 
       {productType === "physical" ? (
-        <>
-          <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
-            Stock inicial
-            <input
-              data-testid="product-stock"
-              type="number"
-              min="0"
-              value={fields.stock}
-              onChange={(event) =>
-                setFields((current) => ({ ...current, stock: event.target.value }))
-              }
-              className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
-            />
-          </label>
-
-          <FoodCatalogFields
-            variants={fields.variants}
-            ingredients={fields.ingredients}
-            onVariantsChange={(variants) =>
-              setFields((current) => ({ ...current, variants }))
+        <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+          Stock inicial
+          <input
+            data-testid="product-stock"
+            type="number"
+            min="0"
+            value={fields.stock}
+            onChange={(event) =>
+              setFields((current) => ({ ...current, stock: event.target.value }))
             }
-            onIngredientsChange={(ingredients) =>
-              setFields((current) => ({ ...current, ingredients }))
-            }
+            className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
           />
-        </>
+        </label>
       ) : (
         <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
           Duración estimada (minutos)

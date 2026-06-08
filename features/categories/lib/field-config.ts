@@ -1,17 +1,46 @@
-import type { CategoryFieldConfig, CategoryFieldConfigRow } from "@/features/categories/types";
+import type {
+  CategoryFieldConfig,
+  CategoryFieldConfigRow,
+  CategoryFieldMode,
+  CategoryFieldRule,
+} from "@/features/categories/types";
 
 export const FREE_TEXT_RULE = "texto_libre";
 
+export function parseFieldRule(rule: CategoryFieldRule): {
+  mode: "multi" | "single" | "free_text";
+  options: string[];
+} {
+  if (rule === FREE_TEXT_RULE) {
+    return { mode: "free_text", options: [] };
+  }
+
+  if (Array.isArray(rule)) {
+    return { mode: "multi", options: uniqueOptions(rule) };
+  }
+
+  return {
+    mode: rule.mode,
+    options: uniqueOptions(rule.options),
+  };
+}
+
+export function uniqueOptions(options: string[]): string[] {
+  return [...new Set(options.map((option) => option.trim()).filter(Boolean))];
+}
+
 export function fieldConfigToRows(config: CategoryFieldConfig): CategoryFieldConfigRow[] {
   return Object.entries(config).map(([key, value]) => {
-    if (value === FREE_TEXT_RULE) {
+    const parsed = parseFieldRule(value);
+
+    if (parsed.mode === "free_text") {
       return { key, type: "free_text" as const, options: "" };
     }
 
     return {
       key,
-      type: "select" as const,
-      options: value.join(", "),
+      type: parsed.mode === "single" ? ("single_select" as const) : ("multi_select" as const),
+      options: parsed.options.join(", "),
     };
   });
 }
@@ -30,13 +59,11 @@ export function rowsToFieldConfig(rows: CategoryFieldConfigRow[]): CategoryField
       continue;
     }
 
-    const options = row.options
-      .split(",")
-      .map((option) => option.trim())
-      .filter(Boolean);
+    const options = uniqueOptions(row.options.split(","));
 
     if (options.length > 0) {
-      config[key] = options;
+      const mode: CategoryFieldMode = row.type === "single_select" ? "single" : "multi";
+      config[key] = { mode, options };
     }
   }
 

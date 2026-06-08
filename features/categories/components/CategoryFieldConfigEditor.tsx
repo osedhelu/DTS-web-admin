@@ -9,7 +9,7 @@ interface CategoryFieldConfigEditorProps {
 
 const emptyRow = (): CategoryFieldConfigRow => ({
   key: "",
-  type: "select",
+  type: "multi_select",
   options: "",
 });
 
@@ -29,8 +29,8 @@ export function CategoryFieldConfigEditor({
       <div>
         <p className="text-sm font-medium text-zinc-800">Parámetros del producto</p>
         <p className="text-xs text-zinc-500">
-          Define qué datos pedir al crear productos en esta categoría (ej. masa, talla,
-          color).
+          Define las opciones disponibles en la categoría. Los productos elegirán cuáles
+          ofrecen (ej. tallas S, M, L en &quot;Ropa&quot; se heredan en pantalones y camisas).
         </p>
       </div>
 
@@ -50,7 +50,7 @@ export function CategoryFieldConfigEditor({
               data-testid={`category-field-key-${index}`}
               value={row.key}
               onChange={(event) => updateRow(index, { key: event.target.value })}
-              placeholder="masa, talla, color"
+              placeholder="talla, masa, color"
               className="rounded border border-zinc-300 px-2 py-1.5 text-sm font-normal"
             />
           </label>
@@ -67,7 +67,8 @@ export function CategoryFieldConfigEditor({
               }
               className="rounded border border-zinc-300 px-2 py-1.5 text-sm font-normal"
             >
-              <option value="select">Lista de opciones</option>
+              <option value="multi_select">Varias opciones (tallas, colores…)</option>
+              <option value="single_select">Una sola opción</option>
               <option value="free_text">Texto libre</option>
             </select>
           </label>
@@ -79,7 +80,7 @@ export function CategoryFieldConfigEditor({
               value={row.options}
               disabled={row.type === "free_text"}
               onChange={(event) => updateRow(index, { options: event.target.value })}
-              placeholder="tradicional, delgada"
+              placeholder="S, M, L, XL"
               className="rounded border border-zinc-300 px-2 py-1.5 text-sm font-normal disabled:bg-zinc-100"
             />
           </label>

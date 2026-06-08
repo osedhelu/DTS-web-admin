@@ -1,10 +1,18 @@
-export type CategoryFieldRule = string[] | "texto_libre";
+export type CategoryFieldMode = "multi" | "single";
+
+export interface CategoryFieldOptionRule {
+  mode: CategoryFieldMode;
+  options: string[];
+}
+
+/** Regla en API: lista legacy = multi, objeto con mode, o texto_libre */
+export type CategoryFieldRule = string[] | CategoryFieldOptionRule | "texto_libre";
 
 export type CategoryFieldConfig = Record<string, CategoryFieldRule>;
 
 export interface CategoryFieldConfigRow {
   key: string;
-  type: "select" | "free_text";
+  type: "multi_select" | "single_select" | "free_text";
   options: string;
 }
 
