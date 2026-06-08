@@ -1,23 +1,50 @@
 "use client";
 
-import type { FormEvent } from "react";
+import dynamic from "next/dynamic";
+import { useState, type FormEvent } from "react";
 
 import {
   CATEGORY_TEMPLATES,
   VERTICAL_OPTIONS,
 } from "@/features/onboarding/constants";
+import { hasValidCoordinates } from "@/features/onboarding/lib/geolocation";
 import { useOnboardingStore } from "@/features/onboarding/stores/onboarding-store";
+
+const StoreLocationPicker = dynamic(
+  () =>
+    import("@/features/onboarding/components/StoreLocationPicker").then(
+      (module) => module.StoreLocationPicker,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
+        Cargando mapa de ubicación…
+      </div>
+    ),
+  },
+);
 
 export function BusinessStep() {
   const form = useOnboardingStore((state) => state.form);
-  const updateForm = useOnboardingStore((state) => state.updateForm);
+  const updateFormPatch = useOnboardingStore((state) => state.updateForm);
   const setVertical = useOnboardingStore((state) => state.setVertical);
   const setStep = useOnboardingStore((state) => state.setStep);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const templates = CATEGORY_TEMPLATES[form.vertical];
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!hasValidCoordinates(form.latitude, form.longitude)) {
+      setLocationError(
+        "Debes capturar la ubicación GPS o marcar tu tienda en el mapa antes de continuar.",
+      );
+      return;
+    }
+
+    setLocationError(null);
     setStep(3);
   }
 
@@ -30,7 +57,7 @@ export function BusinessStep() {
           type="text"
           required
           value={form.storeName}
-          onChange={(event) => updateForm({ storeName: event.target.value })}
+          onChange={(event) => updateFormPatch({ storeName: event.target.value })}
           className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
         />
       </label>
@@ -74,7 +101,7 @@ export function BusinessStep() {
           required
           value={form.categoryTemplate}
           onChange={(event) =>
-            updateForm({ categoryTemplate: event.target.value })
+            updateFormPatch({ categoryTemplate: event.target.value })
           }
           className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
         >
@@ -86,6 +113,16 @@ export function BusinessStep() {
         </select>
       </label>
 
+      <StoreLocationPicker
+        latitude={form.latitude}
+        longitude={form.longitude}
+        locationSource={form.locationSource}
+        onChange={(patch) => {
+          updateFormPatch(patch);
+          setLocationError(null);
+        }}
+      />
+
       <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
         Teléfono de contacto
         <input
@@ -93,22 +130,29 @@ export function BusinessStep() {
           type="tel"
           required
           value={form.phone}
-          onChange={(event) => updateForm({ phone: event.target.value })}
+          onChange={(event) => updateFormPatch({ phone: event.target.value })}
           placeholder="+57 300 123 4567"
           className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
         />
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
-        Dirección base (opcional)
+        Dirección escrita (opcional)
         <input
           data-testid="onboarding-address"
           type="text"
           value={form.address}
-          onChange={(event) => updateForm({ address: event.target.value })}
+          onChange={(event) => updateFormPatch({ address: event.target.value })}
+          placeholder="Calle, barrio, referencia"
           className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
         />
       </label>
+
+      {locationError ? (
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          {locationError}
+        </p>
+      ) : null}
 
       <div className="flex gap-3 pt-2">
         <button

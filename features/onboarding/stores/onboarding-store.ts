@@ -21,6 +21,10 @@ const initialForm: OnboardingFormData = {
   categoryTemplate: getDefaultTemplate("FOOD"),
   phone: "",
   address: "",
+  latitude: null,
+  longitude: null,
+  locationSource: null,
+  locationAccuracy: null,
   acceptTerms: false,
 };
 
@@ -91,6 +95,17 @@ export const useOnboardingStore = create<OnboardingState>()(
         },
       }),
       storage: createJSONStorage(() => sessionStorage),
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<OnboardingState> | undefined;
+        return {
+          ...current,
+          ...saved,
+          form: {
+            ...initialForm,
+            ...saved?.form,
+          },
+        };
+      },
     },
   ),
 );

@@ -16,6 +16,10 @@ export interface BusinessStepData {
   categoryTemplate: string;
   phone: string;
   address: string;
+  latitude: number | null;
+  longitude: number | null;
+  locationSource: "gps" | "manual" | null;
+  locationAccuracy: number | null;
 }
 
 export interface OnboardingFormData extends AccountStepData, BusinessStepData {
@@ -32,6 +36,8 @@ export interface MerchantRegisterPayload {
   category_template: string;
   phone: string;
   address?: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface MerchantRegisterResponse {

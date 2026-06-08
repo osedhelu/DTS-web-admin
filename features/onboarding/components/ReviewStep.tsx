@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 
 import { VERTICAL_OPTIONS } from "@/features/onboarding/constants";
+import { hasValidCoordinates } from "@/features/onboarding/lib/geolocation";
 import type { MerchantRegisterPayload } from "@/features/onboarding/types";
 import { useOnboardingStore } from "@/features/onboarding/stores/onboarding-store";
 
@@ -30,6 +31,11 @@ export function ReviewStep() {
       return;
     }
 
+    if (!hasValidCoordinates(form.latitude, form.longitude)) {
+      setSubmitError("Falta la ubicación de la tienda. Vuelve al paso anterior.");
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
@@ -43,6 +49,8 @@ export function ReviewStep() {
       category_template: form.categoryTemplate,
       phone: form.phone.trim(),
       address: form.address.trim() || undefined,
+      latitude: form.latitude,
+      longitude: form.longitude,
     };
 
     try {
@@ -87,6 +95,14 @@ export function ReviewStep() {
         <p className="mt-2">
           <span className="font-medium text-zinc-900">Vertical:</span>{" "}
           {verticalLabel(form.vertical)} · {form.categoryTemplate}
+        </p>
+        <p className="mt-2">
+          <span className="font-medium text-zinc-900">Ubicación:</span>{" "}
+          {form.latitude !== null && form.longitude !== null
+            ? `${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)} (${
+                form.locationSource === "gps" ? "GPS" : "mapa"
+              })`
+            : "Sin ubicación"}
         </p>
         <p className="mt-2">
           <span className="font-medium text-zinc-900">Contacto:</span>{" "}
