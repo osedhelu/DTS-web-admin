@@ -1,15 +1,14 @@
 import { MerchantDashboardPanel } from "@/features/merchant-dashboard/components/MerchantDashboardPanel";
+import { MerchantPageHeader } from "@/features/merchant-dashboard/components/MerchantPageHeader";
 
 export default function MerchantHomePage() {
   return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-zinc-900">Resumen de tu tienda</h2>
-        <p className="text-zinc-600">
-          Ventas, pedidos y productos activos del período seleccionado.
-        </p>
-      </div>
-
+    <section>
+      <MerchantPageHeader
+        badge="Resumen"
+        title="Resumen de tu tienda"
+        description="Visualiza ventas, pedidos y productos activos. Accede rápido a catálogo, inventario y operaciones del día."
+      />
       <MerchantDashboardPanel />
     </section>
   );

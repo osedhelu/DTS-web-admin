@@ -9,9 +9,10 @@ test("merchant_layout_renders_test", async ({ page, context }) => {
 
   await expect(page.getByTestId("merchant-sidebar")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Panel comercio" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Resumen" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Resumen de tu tienda" })).toBeVisible();
   await expect(page.getByText("merchant@test.com")).toBeVisible();
   await expect(
     page.getByText("Gestiona productos, inventario y pedidos desde este panel."),
   ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
 });
