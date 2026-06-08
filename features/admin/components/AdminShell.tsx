@@ -59,6 +59,13 @@ function NavIcon({ name }: { name: string }) {
           <path d="M9 22V12h6v10" />
         </svg>
       );
+    case "Mapa":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" />
+          <path d="M8 2v16M16 6v16" />
+        </svg>
+      );
     default:
       return null;
   }

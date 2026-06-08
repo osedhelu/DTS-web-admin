@@ -49,6 +49,11 @@ export const adminNavGroups: AdminNavGroup[] = [
     title: "Operaciones",
     items: [
       {
+        href: "/admin/map",
+        label: "Mapa",
+        description: "Tiendas y deliveries en vivo",
+      },
+      {
         href: "/admin/merchants",
         label: "Comercios",
         description: "Moderación y verificación",
@@ -58,6 +63,12 @@ export const adminNavGroups: AdminNavGroup[] = [
 ];
 
 export const adminQuickActions = [
+  {
+    href: "/admin/map",
+    title: "Ver mapa operativo",
+    description: "Ubicación de tiendas y deliveries activos en tiempo real",
+    testId: "admin-action-map",
+  },
   {
     href: "/admin/merchants",
     title: "Moderar comercios",
