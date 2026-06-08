@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "title": "DTS Delivery — Local commerce, deliveries & services",
+    "description": "List your products, receive orders, and grow your business. Join DTS Delivery as a merchant or delivery driver."
+  },
+  "nav": {
+    "brand": "DTS Delivery",
+    "howItWorks": "How it works",
+    "merchants": "Merchants",
+    "drivers": "Drivers",
+    "login": "Sign in",
+    "register": "Register store"
+  },
+  "hero": {
+    "badge": "Delivery & local commerce platform",
+    "title": "Your business, your products, delivered",
+    "subtitle": "DTS Delivery connects merchants, customers, and drivers on one platform. Publish your catalog, receive real-time orders, and scale with tools built for food, retail, and home services.",
+    "ctaMerchant": "Start selling",
+    "ctaDriver": "Become a driver",
+    "ctaSecondary": "See how it works"
+  },
+  "stats": [
+    { "value": "3-in-1", "label": "Merchant, customer & driver" },
+    { "value": "24/7", "label": "Orders & merchant dashboard" },
+    { "value": "Multi", "label": "Food, retail & services" }
+  ],
+  "howItWorks": {
+    "title": "How DTS works",
+    "subtitle": "A simple flow for every platform participant",
+    "steps": [
+      {
+        "title": "1. Sign up",
+        "description": "Merchants complete a guided wizard with category templates for their vertical. Drivers register with identity verification."
+      },
+      {
+        "title": "2. Publish & configure",
+        "description": "Upload products with photos, category-driven variants (sizes, portions, colors), and set schedules, zones, and promotions."
+      },
+      {
+        "title": "3. Receive orders",
+        "description": "Customers order from the app. You manage status, inventory, and deliveries from the merchant panel or driver app."
+      }
+    ]
+  },
+  "merchants": {
+    "id": "merchants",
+    "badge": "For merchants",
+    "title": "Join our network and start publishing",
+    "description": "Restaurants, clothing stores, bakeries, and home services: DTS gives you rich catalogs, orders, inventory, and analytics without locked-in marketplaces.",
+    "features": [
+      "Registration wizard with vertical templates (food, retail, services)",
+      "Categories with inheritable parameters (sizes, colors, dough types)",
+      "Merchant panel: products, orders, promotions & inventory",
+      "Product photos, stock, and on-site service orders",
+      "Email verification and quality moderation"
+    ],
+    "cta": "Register my store — free"
+  },
+  "drivers": {
+    "id": "drivers",
+    "badge": "For drivers",
+    "title": "Earn by delivering with DTS",
+    "description": "Want flexible income delivering local orders? DTS connects you with merchants and customers in your area.",
+    "features": [
+      "Flexible hours: you choose when to go online",
+      "Orders assigned by proximity and availability",
+      "GPS tracking and real-time delivery status",
+      "Transparent pay per completed delivery",
+      "Dedicated driver mobile app (coming soon)"
+    ],
+    "cta": "I want to drive",
+    "note": "Driver registration will be available in the DTS Driver mobile app. Contact us for early access."
+  },
+  "customers": {
+    "title": "For customers",
+    "description": "Discover local merchants, order food, products, or home services, and track your order to your door. The DTS customer app is coming soon to iOS and Android."
+  },
+  "platform": {
+    "title": "One platform, multiple verticals",
+    "features": [
+      {
+        "title": "Food & beverages",
+        "description": "Menus with variants, dynamic category fields, and appetizing product photos."
+      },
+      {
+        "title": "Retail & fashion",
+        "description": "Sizes and colors inherited across parent and child categories (pants, shirts, etc.)."
+      },
+      {
+        "title": "Home services",
+        "description": "Cleaning, repairs, and more: estimated duration and scheduled visits."
+      },
+      {
+        "title": "Real-time",
+        "description": "Order status, push notifications, and operational dashboard for merchants."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to grow with DTS?",
+    "subtitle": "Local customers are looking for businesses like yours. Sign up today and publish your first product in minutes.",
+    "button": "Get started"
+  },
+  "footer": {
+    "tagline": "Local delivery powered by modern technology for merchants, drivers, and customers.",
+    "product": "Product",
+    "legal": "Legal",
+    "links": {
+      "merchants": "Merchants",
+      "drivers": "Drivers",
+      "login": "Merchant login",
+      "licenses": "Licenses",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "rights": "© {year} DTS Delivery. All rights reserved."
+  },
+  "licenses": {
+    "title": "Software licenses",
+    "intro": "DTS Delivery is built with open-source software. We thank the communities that make it possible.",
+    "platform": {
+      "title": "DTS platform",
+      "content": "Proprietary DTS Delivery code — including the backend API, web panels, and mobile apps — is owned by DTS and its licensors. Use is subject to merchant or driver terms of service."
+    },
+    "opensource": {
+      "title": "Open-source dependencies",
+      "items": [
+        { "name": "Next.js", "license": "MIT", "url": "https://nextjs.org/" },
+        { "name": "React", "license": "MIT", "url": "https://react.dev/" },
+        { "name": "Django", "license": "BSD-3-Clause", "url": "https://www.djangoproject.com/" },
+        { "name": "Tailwind CSS", "license": "MIT", "url": "https://tailwindcss.com/" },
+        { "name": "PostgreSQL / PostGIS", "license": "PostgreSQL License", "url": "https://www.postgresql.org/" },
+        { "name": "Redis", "license": "BSD-3-Clause", "url": "https://redis.io/" }
+      ]
+    },
+    "back": "Back to home"
+  }
+}

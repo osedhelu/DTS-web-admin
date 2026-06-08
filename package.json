@@ -32,6 +32,8 @@
     "test:e2e:fase6-6.10": "playwright test e2e/admin_merchant_moderation_test.spec.ts"
   },
   "dependencies": {
+    "@formatjs/intl-localematcher": "^0.8.10",
+    "negotiator": "^1.0.0",
     "next": "16.2.7",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -41,6 +43,7 @@
   "devDependencies": {
     "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4",
+    "@types/negotiator": "^0.6.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

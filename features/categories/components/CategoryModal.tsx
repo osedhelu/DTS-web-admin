@@ -114,7 +114,7 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
   }
 
   async function handleCreateSubcategory() {
-    if (state.mode !== "create-subcategory") {
+    if (!state || state.mode !== "create-subcategory") {
       return false;
     }
 
@@ -141,7 +141,7 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
   }
 
   async function handleEdit() {
-    if (state.mode !== "edit") {
+    if (!state || state.mode !== "edit") {
       return false;
     }
 
@@ -168,6 +168,10 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
     setIsSubmitting(true);
 
     let ok = false;
+    if (!state) {
+      setIsSubmitting(false);
+      return;
+    }
     if (state.mode === "create-category") {
       ok = await handleCreateCategory();
     } else if (state.mode === "create-subcategory") {
@@ -183,7 +187,7 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
   }
 
   async function handleDelete() {
-    if (state.mode !== "edit") {
+    if (!state || state.mode !== "edit") {
       return;
     }
 

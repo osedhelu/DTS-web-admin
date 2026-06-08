@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DTS Web Admin",
-  description: "Consola web para comercios y administradores DTS",
+  title: "DTS Delivery",
+  description: "Local commerce, delivery and services platform",
 };
 
 export default function RootLayout({

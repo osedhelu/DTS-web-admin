@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "title": "DTS Delivery — Comercio local, entregas y servicios",
+    "description": "Publica productos, recibe pedidos y haz crecer tu negocio. Únete como comercio o conductor en la plataforma DTS Delivery."
+  },
+  "nav": {
+    "brand": "DTS Delivery",
+    "howItWorks": "Cómo funciona",
+    "merchants": "Comercios",
+    "drivers": "Conductores",
+    "login": "Iniciar sesión",
+    "register": "Registrar comercio"
+  },
+  "hero": {
+    "badge": "Plataforma de delivery y comercio local",
+    "title": "Tu negocio, tus productos, entregas a domicilio",
+    "subtitle": "DTS Delivery conecta comercios, clientes y conductores en una sola plataforma. Publica tu catálogo, recibe pedidos en tiempo real y escala con herramientas pensadas para comida, retail y servicios.",
+    "ctaMerchant": "Publicar mis productos",
+    "ctaDriver": "Ser conductor",
+    "ctaSecondary": "Ver cómo funciona"
+  },
+  "stats": [
+    { "value": "3 en 1", "label": "Comercio, cliente y conductor" },
+    { "value": "24/7", "label": "Pedidos y panel merchant" },
+    { "value": "Multi", "label": "Comida, retail y servicios" }
+  ],
+  "howItWorks": {
+    "title": "Cómo funciona DTS",
+    "subtitle": "Un flujo simple para cada actor de la plataforma",
+    "steps": [
+      {
+        "title": "1. Regístrate",
+        "description": "El comercio completa un wizard guiado con categorías según su vertical. Los conductores se registran con verificación de identidad."
+      },
+      {
+        "title": "2. Publica y configura",
+        "description": "Carga productos con fotos, variantes por categoría (tallas, porciones, colores) y define horarios, zonas y promociones."
+      },
+      {
+        "title": "3. Recibe pedidos",
+        "description": "Los clientes ordenan desde la app. Tú gestionas estados, inventario y entregas desde el panel merchant o la app conductor."
+      }
+    ]
+  },
+  "merchants": {
+    "id": "merchants",
+    "badge": "Para comercios",
+    "title": "Únete a nuestra red y comienza a publicar",
+    "description": "Restaurantes, tiendas de ropa, reposterías y servicios a domicilio: DTS te da catálogo enriquecido, pedidos, inventario y métricas sin depender de marketplaces cerrados.",
+    "features": [
+      "Wizard de registro con plantillas por vertical (comida, retail, servicios)",
+      "Categorías con parámetros heredables (tallas, colores, masas)",
+      "Panel merchant: productos, pedidos, promociones e inventario",
+      "Fotos de producto, stock y pedidos de servicio a domicilio",
+      "Verificación de correo y moderación de calidad"
+    ],
+    "cta": "Registrar mi comercio gratis"
+  },
+  "drivers": {
+    "id": "drivers",
+    "badge": "Para conductores",
+    "title": "Gana entregando con DTS",
+    "description": "Si quieres generar ingresos flexibles repartiendo pedidos locales, DTS te conecta con comercios y clientes de tu zona.",
+    "features": [
+      "Horarios flexibles: tú decides cuándo estar disponible",
+      "Pedidos asignados según proximidad y disponibilidad",
+      "Seguimiento GPS y estados de entrega en tiempo real",
+      "Pagos transparentes por entrega completada",
+      "App móvil dedicada para conductores (próximamente)"
+    ],
+    "cta": "Quiero ser conductor",
+    "note": "El registro de conductores estará disponible en la app móvil DTS Driver. Contáctanos si quieres acceso anticipado."
+  },
+  "customers": {
+    "title": "Para clientes",
+    "description": "Descubre comercios locales, pide comida, productos o servicios a domicilio y sigue tu pedido hasta la puerta. La app cliente DTS estará disponible pronto en iOS y Android."
+  },
+  "platform": {
+    "title": "Una plataforma, múltiples verticales",
+    "features": [
+      {
+        "title": "Comida y bebidas",
+        "description": "Menús con variantes, ingredientes dinámicos por categoría y fotos apetitosas."
+      },
+      {
+        "title": "Retail y moda",
+        "description": "Tallas y colores heredables entre categorías padre e hijas (pantalones, camisas, etc.)."
+      },
+      {
+        "title": "Servicios a domicilio",
+        "description": "Limpieza, reparaciones y más: duración estimada y visitas programadas."
+      },
+      {
+        "title": "Tiempo real",
+        "description": "Estados de pedido, notificaciones push y panel operativo para comercios."
+      }
+    ]
+  },
+  "cta": {
+    "title": "¿Listo para crecer con DTS?",
+    "subtitle": "Miles de clientes locales buscan comercios como el tuyo. Regístrate hoy y publica tu primer producto en minutos.",
+    "button": "Empezar ahora"
+  },
+  "footer": {
+    "tagline": "Delivery local con tecnología de punta para comercios, conductores y clientes.",
+    "product": "Producto",
+    "legal": "Legal",
+    "links": {
+      "merchants": "Comercios",
+      "drivers": "Conductores",
+      "login": "Acceso merchant",
+      "licenses": "Licencias",
+      "privacy": "Privacidad",
+      "terms": "Términos"
+    },
+    "rights": "© {year} DTS Delivery. Todos los derechos reservados."
+  },
+  "licenses": {
+    "title": "Licencias de software",
+    "intro": "DTS Delivery utiliza software de código abierto. Agradecemos a las comunidades que lo hacen posible.",
+    "platform": {
+      "title": "Plataforma DTS",
+      "content": "El código propietario de DTS Delivery, incluyendo la API backend, paneles web y aplicaciones móviles, es propiedad de DTS y sus licenciatarios. Su uso está sujeto a los términos de servicio del comercio o conductor."
+    },
+    "opensource": {
+      "title": "Dependencias de código abierto",
+      "items": [
+        { "name": "Next.js", "license": "MIT", "url": "https://nextjs.org/" },
+        { "name": "React", "license": "MIT", "url": "https://react.dev/" },
+        { "name": "Django", "license": "BSD-3-Clause", "url": "https://www.djangoproject.com/" },
+        { "name": "Tailwind CSS", "license": "MIT", "url": "https://tailwindcss.com/" },
+        { "name": "PostgreSQL / PostGIS", "license": "PostgreSQL License", "url": "https://www.postgresql.org/" },
+        { "name": "Redis", "license": "BSD-3-Clause", "url": "https://redis.io/" }
+      ]
+    },
+    "back": "Volver al inicio"
+  }
+}

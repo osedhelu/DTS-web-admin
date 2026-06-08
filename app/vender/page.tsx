@@ -1,5 +1,7 @@
-import { MerchantLanding } from "@/features/onboarding/components/MerchantLanding";
+import { redirect } from "next/navigation";
+
+import { defaultLocale } from "@/lib/i18n/config";
 
 export default function VenderPage() {
-  return <MerchantLanding />;
+  redirect(`/${defaultLocale}#merchants`);
 }
