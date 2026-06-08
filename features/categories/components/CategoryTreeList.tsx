@@ -1,13 +1,28 @@
-import Link from "next/link";
+"use client";
 
-import type { CategoryTreeNode } from "@/features/categories/types";
+import type { CategoryFieldConfig, CategoryTreeNode } from "@/features/categories/types";
 
 interface CategoryTreeListProps {
   categories: CategoryTreeNode[];
   storeId: number;
+  onCreateCategory: () => void;
+  onCreateSubcategory: (parentId: number, parentName: string) => void;
+  onEdit: (params: {
+    categoryId: number;
+    parentId: number | null;
+    parentName?: string;
+    initialName: string;
+    initialFieldConfig?: CategoryFieldConfig;
+  }) => void;
 }
 
-export function CategoryTreeList({ categories, storeId }: CategoryTreeListProps) {
+export function CategoryTreeList({
+  categories,
+  storeId,
+  onCreateCategory,
+  onCreateSubcategory,
+  onEdit,
+}: CategoryTreeListProps) {
   if (categories.length === 0) {
     return (
       <div
@@ -16,15 +31,16 @@ export function CategoryTreeList({ categories, storeId }: CategoryTreeListProps)
       >
         <p className="text-sm font-medium text-zinc-700">Aún no tienes categorías</p>
         <p className="mt-1 text-sm text-zinc-500">
-          Crea una categoría raíz (ej. Comida) y luego agrega subcategorías (ej.
-          Hamburguesas).
+          Empieza con una categoría raíz (ej. Comida). Luego agrega subcategorías
+          (ej. Hamburguesas) sin salir de esta pantalla.
         </p>
-        <Link
-          href="/merchant/categories/new"
+        <button
+          type="button"
+          onClick={onCreateCategory}
           className="mt-4 inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
         >
           Crear primera categoría
-        </Link>
+        </button>
       </div>
     );
   }
@@ -46,20 +62,29 @@ export function CategoryTreeList({ categories, storeId }: CategoryTreeListProps)
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href={`/merchant/categories/new-subcategory/${category.id}`}
+              <button
+                type="button"
+                onClick={() => onCreateSubcategory(category.id, category.name)}
                 data-testid={`subcategory-create-link-${category.id}`}
                 className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
               >
                 + Subcategoría
-              </Link>
-              <Link
-                href={`/merchant/categories/${category.id}/edit`}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  onEdit({
+                    categoryId: category.id,
+                    parentId: null,
+                    initialName: category.name,
+                    initialFieldConfig: category.field_config,
+                  })
+                }
                 data-testid={`category-edit-${category.id}`}
                 className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
               >
                 Editar
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -77,13 +102,22 @@ export function CategoryTreeList({ categories, storeId }: CategoryTreeListProps)
                       {subcategory.name}
                     </p>
                   </div>
-                  <Link
-                    href={`/merchant/categories/${subcategory.id}/edit`}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onEdit({
+                        categoryId: subcategory.id,
+                        parentId: subcategory.parent_id,
+                        parentName: category.name,
+                        initialName: subcategory.name,
+                        initialFieldConfig: subcategory.field_config,
+                      })
+                    }
                     data-testid={`category-edit-${subcategory.id}`}
                     className="text-sm font-medium text-zinc-700 hover:underline"
                   >
                     Editar
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>

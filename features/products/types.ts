@@ -33,6 +33,7 @@ export interface Product {
   requires_on_site_visit: boolean;
   duration_minutes: number | null;
   tracks_stock: boolean;
+  dynamic_values?: Record<string, string>;
   primary_image_url?: string | null;
 }
 
@@ -50,6 +51,7 @@ export interface CreatePhysicalProductInput {
   description?: string;
   category_id?: number | null;
   subcategory_id?: number | null;
+  dynamic_values?: Record<string, string>;
   variants?: ProductVariant[];
   ingredients?: ProductIngredient[];
 }
@@ -62,6 +64,7 @@ export interface CreateServiceInput {
   description?: string;
   category_id?: number | null;
   subcategory_id?: number | null;
+  dynamic_values?: Record<string, string>;
 }
 
 export type CreateProductInput = CreatePhysicalProductInput | CreateServiceInput;
@@ -74,6 +77,7 @@ export interface UpdateProductInput {
   category_id?: number | null;
   subcategory_id?: number | null;
   duration_minutes?: number | null;
+  dynamic_values?: Record<string, string>;
   variants?: ProductVariant[];
   ingredients?: ProductIngredient[];
 }

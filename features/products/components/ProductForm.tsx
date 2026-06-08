@@ -4,7 +4,12 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
+import { DynamicProductFields } from "@/features/products/components/DynamicProductFields";
 import { FoodCatalogFields } from "@/features/products/components/FoodCatalogFields";
+import {
+  resolveProductFieldConfig,
+  type DynamicValues,
+} from "@/features/products/lib/dynamic-fields";
 import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import type {
@@ -41,15 +46,35 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
   const [fields, setFields] = useState(initialState);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dynamicValues, setDynamicValues] = useState<DynamicValues>({});
+
+  const activeFieldConfig = resolveProductFieldConfig(
+    categories,
+    fields.categoryId,
+    fields.subcategoryId,
+  );
 
   useEffect(() => {
     void loadCategories(storeId);
   }, [loadCategories, storeId]);
 
+  useEffect(() => {
+    setDynamicValues((current) => {
+      const next: DynamicValues = {};
+      for (const key of Object.keys(activeFieldConfig)) {
+        next[key] = current[key] ?? "";
+      }
+      return next;
+    });
+  }, [fields.categoryId, fields.subcategoryId, categories]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
+
+    const dynamicPayload =
+      Object.keys(activeFieldConfig).length > 0 ? dynamicValues : undefined;
 
     const payload: CreateProductInput =
       productType === "service"
@@ -63,6 +88,7 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
               : null,
             category_id: fields.categoryId,
             subcategory_id: fields.subcategoryId,
+            dynamic_values: dynamicPayload,
           }
         : {
             product_type: "physical",
@@ -72,6 +98,7 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
             description: fields.description,
             category_id: fields.categoryId,
             subcategory_id: fields.subcategoryId,
+            dynamic_values: dynamicPayload,
           };
 
     try {
@@ -203,6 +230,12 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
         onSubcategoryChange={(subcategoryId) =>
           setFields((current) => ({ ...current, subcategoryId }))
         }
+      />
+
+      <DynamicProductFields
+        fieldConfig={activeFieldConfig}
+        values={dynamicValues}
+        onChange={setDynamicValues}
       />
 
       {productType === "physical" ? (

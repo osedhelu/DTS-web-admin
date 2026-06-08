@@ -54,13 +54,18 @@ test("merchant_edit_category_test", async ({ page, context }) => {
     });
   });
 
-  await page.goto("/merchant/categories/5/edit");
+  await page.goto("/merchant/categories");
 
+  await expect(page.getByTestId("category-row-5")).toBeVisible();
+  await page.getByTestId("category-edit-5").click();
+
+  await expect(page.getByTestId("category-modal")).toBeVisible();
   await expect(page.getByTestId("category-edit-form")).toBeVisible();
+
   await page.getByTestId("category-edit-input-5").fill("Comida rápida");
   await page.getByTestId("category-save-5").click();
 
-  await expect(page).toHaveURL(/\/merchant\/categories$/);
+  await expect(page.getByTestId("category-modal")).not.toBeVisible();
   await expect(page.getByTestId("categories-success-message")).toContainText(
     'Categoría "Comida rápida" actualizada correctamente.',
   );

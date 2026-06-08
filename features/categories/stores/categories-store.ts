@@ -17,6 +17,7 @@ interface CategoriesState {
     categoryId: number,
     name: string,
     parentId: number | null,
+    fieldConfig?: CategoryTreeNode["field_config"],
   ) => Promise<boolean>;
   deleteCategory: (
     storeId: number,
@@ -74,7 +75,7 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
     });
   },
 
-  updateCategory: async (storeId, categoryId, name, parentId) => {
+  updateCategory: async (storeId, categoryId, name, parentId, fieldConfig) => {
     useUiStore.getState().clearMessages();
 
     try {
@@ -83,7 +84,10 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name }),
+          body: JSON.stringify({
+            name,
+            ...(fieldConfig !== undefined ? { field_config: fieldConfig } : {}),
+          }),
         },
       );
       const data = (await response.json()) as CategoryRecord & { detail?: string };
@@ -98,7 +102,13 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
       if (parentId === null) {
         set({
           categories: get().categories.map((category) =>
-            category.id === categoryId ? { ...category, name: data.name } : category,
+            category.id === categoryId
+              ? {
+                  ...category,
+                  name: data.name,
+                  field_config: data.field_config ?? category.field_config,
+                }
+              : category,
           ),
         });
       } else {
@@ -109,7 +119,11 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
                   ...category,
                   subcategories: category.subcategories.map((subcategory) =>
                     subcategory.id === categoryId
-                      ? { ...subcategory, name: data.name }
+                      ? {
+                          ...subcategory,
+                          name: data.name,
+                          field_config: data.field_config ?? subcategory.field_config,
+                        }
                       : subcategory,
                   ),
                 }

@@ -46,15 +46,18 @@ test("merchant_create_category_flow_test", async ({ page, context }) => {
     });
   });
 
-  await page.goto("/merchant/categories/new");
+  await page.goto("/merchant/categories");
 
+  await expect(page.getByTestId("categories-empty")).toBeVisible();
+  await page.getByTestId("categories-create-link").click();
+
+  await expect(page.getByTestId("category-modal")).toBeVisible();
   await expect(page.getByTestId("create-category-form")).toBeVisible();
-  await expect(page.getByTestId("category-form-back")).toBeVisible();
 
   await page.getByTestId("category-name").fill("Comida");
   await page.getByTestId("category-submit").click();
 
-  await expect(page).toHaveURL(/\/merchant\/categories$/);
+  await expect(page.getByTestId("category-modal")).not.toBeVisible();
   await expect(page.getByTestId("categories-success-message")).toContainText(
     'Categoría "Comida" creada correctamente.',
   );

@@ -4,7 +4,12 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
+import { DynamicProductFields } from "@/features/products/components/DynamicProductFields";
 import { FoodCatalogFields } from "@/features/products/components/FoodCatalogFields";
+import {
+  resolveProductFieldConfig,
+  type DynamicValues,
+} from "@/features/products/lib/dynamic-fields";
 import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
 import { ProductImageGallery } from "@/features/products/components/ProductImageGallery";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
@@ -74,10 +79,38 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dynamicValues, setDynamicValues] = useState<DynamicValues>({});
+
+  const activeFieldConfig =
+    fields === null
+      ? {}
+      : resolveProductFieldConfig(
+          categories,
+          fields.categoryId,
+          fields.subcategoryId,
+        );
 
   useEffect(() => {
     void loadCategories(storeId);
   }, [loadCategories, storeId]);
+
+  useEffect(() => {
+    if (!detail) {
+      return;
+    }
+
+    setDynamicValues(detail.dynamic_values ?? {});
+  }, [detail]);
+
+  useEffect(() => {
+    setDynamicValues((current) => {
+      const next: DynamicValues = {};
+      for (const key of Object.keys(activeFieldConfig)) {
+        next[key] = current[key] ?? "";
+      }
+      return next;
+    });
+  }, [fields?.categoryId, fields?.subcategoryId, categories]);
 
   useEffect(() => {
     let active = true;
@@ -126,6 +159,10 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
       category_id: fields.categoryId,
       subcategory_id: fields.subcategoryId,
     };
+
+    if (Object.keys(activeFieldConfig).length > 0) {
+      payload.dynamic_values = dynamicValues;
+    }
 
     if (detail.product_type === "physical") {
       payload.stock = Number(fields.stock) || 0;
@@ -240,6 +277,12 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
               current ? { ...current, subcategoryId } : current,
             )
           }
+        />
+
+        <DynamicProductFields
+          fieldConfig={activeFieldConfig}
+          values={dynamicValues}
+          onChange={setDynamicValues}
         />
 
         {isPhysical ? (

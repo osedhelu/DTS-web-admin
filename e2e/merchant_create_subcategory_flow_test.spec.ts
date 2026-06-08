@@ -54,15 +54,18 @@ test("merchant_create_subcategory_flow_test", async ({ page, context }) => {
     });
   });
 
-  await page.goto("/merchant/categories/new-subcategory/10");
+  await page.goto("/merchant/categories");
 
+  await page.getByTestId("subcategory-create-link-10").click();
+
+  await expect(page.getByTestId("category-modal")).toBeVisible();
   await expect(page.getByTestId("create-subcategory-form")).toBeVisible();
   await expect(page.getByTestId("subcategory-parent")).toHaveValue("10");
 
   await page.getByTestId("subcategory-name").fill("Hamburguesas");
   await page.getByTestId("subcategory-submit").click();
 
-  await expect(page).toHaveURL(/\/merchant\/categories$/);
+  await expect(page.getByTestId("category-modal")).not.toBeVisible();
   await expect(page.getByTestId("categories-success-message")).toContainText(
     'Subcategoría "Hamburguesas" creada correctamente.',
   );
