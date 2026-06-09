@@ -39,7 +39,7 @@ export function StoreSettingsManager() {
   return (
     <div data-testid="store-settings-manager">
       <StoreSettingsForm
-        key={`${profile.id}-${profile.name}-${profile.description}-${profile.phone}-${profile.address}-${profile.is_open}-${profile.logo_url}`}
+        key={`${profile.id}-${profile.name}-${profile.description}-${profile.phone}-${profile.address}-${profile.latitude}-${profile.longitude}-${profile.is_open}-${profile.logo_url}`}
         storeId={storeId}
         initial={profile}
       />

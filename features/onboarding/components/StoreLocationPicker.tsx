@@ -21,7 +21,8 @@ const DEFAULT_CENTER: LatLngExpression = [4.711, -74.072];
 interface StoreLocationPickerProps {
   latitude: number | null;
   longitude: number | null;
-  locationSource: "gps" | "manual" | null;
+  locationSource?: "gps" | "manual" | null;
+  variant?: "onboarding" | "settings";
   onChange: (patch: {
     latitude: number;
     longitude: number;
@@ -59,7 +60,8 @@ function MapClickHandler({
 export function StoreLocationPicker({
   latitude,
   longitude,
-  locationSource,
+  locationSource = null,
+  variant = "onboarding",
   onChange,
 }: StoreLocationPickerProps) {
   const [isLoadingGps, setIsLoadingGps] = useState(false);
@@ -102,12 +104,12 @@ export function StoreLocationPicker({
   }
 
   useEffect(() => {
-    if (autoRequested || hasPosition) {
+    if (autoRequested || hasPosition || variant === "settings") {
       return;
     }
     setAutoRequested(true);
     void captureGps(false);
-  }, [autoRequested, hasPosition]);
+  }, [autoRequested, hasPosition, variant]);
 
   function handleManualPick(lat: number, lng: number) {
     onChange({
@@ -119,16 +121,29 @@ export function StoreLocationPicker({
     setGpsError(null);
   }
 
+  const isSettings = variant === "settings";
+  const containerClass = isSettings
+    ? "space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4"
+    : "space-y-3 rounded-xl border border-white/10 bg-zinc-900/40 p-4";
+  const titleClass = isSettings ? "text-sm font-semibold text-zinc-900" : "text-sm font-semibold text-white";
+  const subtitleClass = isSettings ? "text-xs text-zinc-600" : "text-xs text-zinc-400";
+  const statusClass = isSettings ? "text-xs text-emerald-800" : "text-xs text-emerald-300";
+  const hintClass = isSettings ? "text-xs text-zinc-500" : "text-xs text-zinc-500";
+  const mapBorderClass = isSettings ? "border-zinc-200" : "border-white/10";
+  const gpsButtonClass = isSettings
+    ? "rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
+    : `${onboardingPrimaryBtnClass} px-3 py-2 text-xs`;
+  const alertClass = isSettings
+    ? "rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900"
+    : onboardingAlertWarningClass;
+
   return (
-    <div
-      data-testid="onboarding-location-picker"
-      className="space-y-3 rounded-xl border border-white/10 bg-zinc-900/40 p-4"
-    >
+    <div data-testid="onboarding-location-picker" className={containerClass}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-white">Ubicación de la tienda</p>
-          <p className="text-xs text-zinc-400">
-            Necesitamos tu GPS para mostrar el comercio en el mapa operativo del administrador.
+          <p className={titleClass}>Ubicación de la tienda</p>
+          <p className={subtitleClass}>
+            Marca en el mapa dónde queda tu local. Se usa en el mapa operativo del administrador.
           </p>
         </div>
         <button
@@ -136,14 +151,14 @@ export function StoreLocationPicker({
           data-testid="onboarding-request-gps"
           onClick={() => void captureGps(true)}
           disabled={isLoadingGps}
-          className={`${onboardingPrimaryBtnClass} px-3 py-2 text-xs`}
+          className={gpsButtonClass}
         >
           {isLoadingGps ? "Obteniendo GPS…" : "Usar mi ubicación"}
         </button>
       </div>
 
       {gpsError ? (
-        <p role="alert" className={onboardingAlertWarningClass}>
+        <p role="alert" className={alertClass}>
           {gpsError}
         </p>
       ) : null}
@@ -151,18 +166,18 @@ export function StoreLocationPicker({
       {hasPosition ? (
         <p
           data-testid="onboarding-location-status"
-          className="text-xs text-emerald-300"
+          className={statusClass}
         >
           Ubicación {locationSource === "gps" ? "GPS capturada" : "marcada en mapa"}:{" "}
           {latitude.toFixed(5)}, {longitude.toFixed(5)}
         </p>
       ) : (
-        <p className="text-xs text-zinc-500">
+        <p className={hintClass}>
           Esperando permiso de ubicación o selecciona un punto en el mapa.
         </p>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-white/10">
+      <div className={`overflow-hidden rounded-xl border ${mapBorderClass}`}>
         <MapContainer
           center={markerPosition ?? DEFAULT_CENTER}
           zoom={hasPosition ? 16 : 12}
@@ -190,7 +205,7 @@ export function StoreLocationPicker({
         </MapContainer>
       </div>
 
-      <p className="text-xs text-zinc-500">
+      <p className={hintClass}>
         Tip: si el GPS no es exacto, haz clic en el mapa para ajustar dónde queda tu local.
       </p>
     </div>

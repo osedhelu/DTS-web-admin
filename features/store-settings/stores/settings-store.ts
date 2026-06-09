@@ -61,6 +61,12 @@ export const useStoreSettingsStore = create<StoreSettingsState>((set) => ({
         if (payload.address !== undefined) {
           formData.append("address", payload.address);
         }
+        if (payload.latitude !== undefined) {
+          formData.append("latitude", String(payload.latitude));
+        }
+        if (payload.longitude !== undefined) {
+          formData.append("longitude", String(payload.longitude));
+        }
         if (payload.status !== undefined) {
           formData.append("status", payload.status);
         }

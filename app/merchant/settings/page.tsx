@@ -8,7 +8,7 @@ export default function MerchantSettingsPage() {
           Configuración de la tienda
         </h2>
         <p className="text-zinc-600">
-          Actualiza los datos públicos de tu comercio, logo y disponibilidad.
+          Actualiza los datos públicos de tu comercio, logo, ubicación en mapa y disponibilidad.
         </p>
       </div>
 

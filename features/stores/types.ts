@@ -20,6 +20,8 @@ export interface UpdateStoreProfilePayload {
   description?: string;
   phone?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   status?: string;
   logo?: File | null;
 }
