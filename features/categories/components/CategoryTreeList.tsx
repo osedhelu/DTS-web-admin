@@ -3,6 +3,21 @@
 import { resolveMediaUrl } from "@/lib/media-url";
 import type { CategoryFieldConfig, CategoryTreeNode } from "@/features/categories/types";
 
+function resolvePrimaryImageUrl(
+  node: Pick<CategoryTreeNode, "primary_image_url" | "images">,
+): string | null {
+  if (node.primary_image_url) {
+    return node.primary_image_url;
+  }
+
+  const primary = node.images?.find((image) => image.is_primary);
+  if (primary?.url) {
+    return primary.url;
+  }
+
+  return node.images?.[0]?.url ?? null;
+}
+
 function CategoryThumbnail({ url }: { url?: string | null }) {
   if (!url) {
     return (
@@ -77,7 +92,7 @@ export function CategoryTreeList({
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-3">
-              <CategoryThumbnail url={category.primary_image_url} />
+              <CategoryThumbnail url={resolvePrimaryImageUrl(category)} />
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
                   Categoría
@@ -122,7 +137,7 @@ export function CategoryTreeList({
                   className="flex flex-col gap-2 rounded-lg bg-zinc-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <CategoryThumbnail url={subcategory.primary_image_url} />
+                    <CategoryThumbnail url={resolvePrimaryImageUrl(subcategory)} />
                     <div>
                       <p className="text-xs text-zinc-400">Subcategoría</p>
                       <p className="text-sm font-medium text-zinc-800">
