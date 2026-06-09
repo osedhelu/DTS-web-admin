@@ -102,15 +102,16 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const editCategoryId = state.mode === "edit" ? state.categoryId : null;
+
   useEffect(() => {
-    if (state.mode !== "edit") {
+    if (editCategoryId == null) {
       return;
     }
 
-    const categoryId = state.categoryId;
     let active = true;
 
-    void loadCategoryImages(storeId, categoryId).then((loaded) => {
+    void loadCategoryImages(storeId, editCategoryId).then((loaded) => {
       if (!active) {
         return;
       }
@@ -121,7 +122,7 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
     return () => {
       active = false;
     };
-  }, [state.categoryId, state.mode, storeId, loadCategoryImages]);
+  }, [editCategoryId, storeId, loadCategoryImages]);
 
   async function refreshCategoryTree() {
     await loadCategories(storeId);
