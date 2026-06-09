@@ -11,11 +11,9 @@ import type { CategoryFieldConfig } from "@/features/categories/types";
 import { CategoryTreeList } from "@/features/categories/components/CategoryTreeList";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
-import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
 
 export function CategoriesManager() {
   const guard = useMerchantStoreGuard();
-  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
   const categories = useCategoriesStore((state) => state.categories);
   const isLoading = useCategoriesStore((state) => state.isLoading);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
@@ -23,18 +21,18 @@ export function CategoriesManager() {
   const [modalState, setModalState] = useState<CategoryModalState | null>(null);
 
   useEffect(() => {
-    if (activeStoreId === null) {
+    if (!guard.ready) {
       return;
     }
 
-    void loadCategories(activeStoreId);
-  }, [activeStoreId, loadCategories]);
+    void loadCategories(guard.activeStoreId);
+  }, [guard.ready, guard.activeStoreId, loadCategories]);
 
   if (!guard.ready) {
     return guard.content;
   }
 
-  const storeId = activeStoreId as number;
+  const storeId = guard.activeStoreId;
   const modalOpen = modalState !== null;
 
   function openCreateCategory() {

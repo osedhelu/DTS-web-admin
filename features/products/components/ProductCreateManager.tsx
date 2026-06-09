@@ -5,19 +5,17 @@ import { useRouter } from "next/navigation";
 import { ProductForm } from "@/features/products/components/ProductForm";
 import { useProductsStore } from "@/features/products/stores/products-store";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
-import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
 import type { Product } from "@/features/products/types";
 
 export function ProductCreateManager() {
   const router = useRouter();
   const guard = useMerchantStoreGuard();
-  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
   const addProduct = useProductsStore((state) => state.addProduct);
   if (!guard.ready) {
     return guard.content;
   }
 
-  const storeId = activeStoreId as number;
+  const storeId = guard.activeStoreId;
 
   function handleCreated(product: Product) {
     addProduct(product);

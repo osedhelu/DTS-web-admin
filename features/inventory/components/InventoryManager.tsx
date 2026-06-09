@@ -7,23 +7,21 @@ import { InventoryTable } from "@/features/inventory/components/InventoryTable";
 import { ServicesWithoutStock } from "@/features/inventory/components/ServicesWithoutStock";
 import { useInventoryStore } from "@/features/inventory/stores/inventory-store";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
-import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
 
 export function InventoryManager() {
   const guard = useMerchantStoreGuard();
-  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
   const products = useInventoryStore((state) => state.products);
   const isLoading = useInventoryStore((state) => state.isLoading);
   const loadInventory = useInventoryStore((state) => state.loadInventory);
   const updateProductStock = useInventoryStore((state) => state.updateProductStock);
 
   useEffect(() => {
-    if (activeStoreId === null) {
+    if (!guard.ready) {
       return;
     }
 
-    void loadInventory(activeStoreId);
-  }, [activeStoreId, loadInventory]);
+    void loadInventory(guard.activeStoreId);
+  }, [guard.ready, guard.activeStoreId, loadInventory]);
 
   const physicalProducts = useMemo(
     () => products.filter((product) => product.product_type === "physical"),
@@ -38,7 +36,7 @@ export function InventoryManager() {
     return guard.content;
   }
 
-  const storeId = activeStoreId as number;
+  const storeId = guard.activeStoreId;
 
   return (
     <div className="space-y-6">

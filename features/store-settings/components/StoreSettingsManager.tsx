@@ -5,28 +5,26 @@ import { useEffect } from "react";
 import { StoreSettingsForm } from "@/features/store-settings/components/StoreSettingsForm";
 import { useStoreSettingsStore } from "@/features/store-settings/stores/settings-store";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
-import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
 
 export function StoreSettingsManager() {
   const guard = useMerchantStoreGuard();
-  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
   const profile = useStoreSettingsStore((state) => state.profile);
   const isLoading = useStoreSettingsStore((state) => state.isLoading);
   const loadProfile = useStoreSettingsStore((state) => state.loadProfile);
 
   useEffect(() => {
-    if (activeStoreId === null) {
+    if (!guard.ready) {
       return;
     }
 
-    void loadProfile(activeStoreId);
-  }, [activeStoreId, loadProfile]);
+    void loadProfile(guard.activeStoreId);
+  }, [guard.ready, guard.activeStoreId, loadProfile]);
 
   if (!guard.ready) {
     return guard.content;
   }
 
-  const storeId = activeStoreId as number;
+  const storeId = guard.activeStoreId;
 
   if (isLoading || profile === null) {
     return (

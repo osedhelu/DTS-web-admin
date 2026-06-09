@@ -15,11 +15,9 @@ import type {
   UpdatePromotionPayload,
 } from "@/features/promotions/types";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
-import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
 
 export function PromotionsManager() {
   const guard = useMerchantStoreGuard();
-  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
   const promotions = usePromotionsStore((state) => state.promotions);
   const isLoading = usePromotionsStore((state) => state.isLoading);
   const loadPromotions = usePromotionsStore((state) => state.loadPromotions);
@@ -30,18 +28,18 @@ export function PromotionsManager() {
   const [editing, setEditing] = useState<StorePromotion | null>(null);
 
   useEffect(() => {
-    if (activeStoreId === null) {
+    if (!guard.ready) {
       return;
     }
 
-    void loadPromotions(activeStoreId);
-  }, [activeStoreId, loadPromotions]);
+    void loadPromotions(guard.activeStoreId);
+  }, [guard.ready, guard.activeStoreId, loadPromotions]);
 
   if (!guard.ready) {
     return guard.content;
   }
 
-  const storeId = activeStoreId as number;
+  const storeId = guard.activeStoreId;
 
   return (
     <div data-testid="promotions-manager" className="space-y-6">

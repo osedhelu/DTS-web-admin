@@ -7,27 +7,26 @@ import { MerchantDashboardWidgets } from "@/features/merchant-dashboard/componen
 import { MerchantQuickActions } from "@/features/merchant-dashboard/components/MerchantQuickActions";
 import { useMerchantDashboardStore } from "@/features/merchant-dashboard/stores/dashboard-store";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
-import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
 
 export function MerchantDashboardPanel() {
   const guard = useMerchantStoreGuard();
-  const stores = useMerchantSessionStore((state) => state.stores);
-  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
   const metrics = useMerchantDashboardStore((state) => state.metrics);
   const isLoading = useMerchantDashboardStore((state) => state.isLoading);
   const loadDashboard = useMerchantDashboardStore((state) => state.loadDashboard);
   const resetDashboard = useMerchantDashboardStore((state) => state.reset);
 
-  const activeStore = stores.find((store) => store.id === activeStoreId);
+  const activeStore = guard.ready
+    ? guard.stores.find((store) => store.id === guard.activeStoreId)
+    : null;
 
   useEffect(() => {
-    if (activeStoreId === null) {
+    if (!guard.ready) {
       resetDashboard();
       return;
     }
 
-    void loadDashboard(activeStoreId);
-  }, [activeStoreId, loadDashboard, resetDashboard]);
+    void loadDashboard(guard.activeStoreId);
+  }, [guard.ready, guard.activeStoreId, loadDashboard, resetDashboard]);
 
   if (!guard.ready) {
     return guard.content;

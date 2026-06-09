@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
+import { resetMerchantSession } from "@/features/stores/stores/merchant-session-store";
+
 interface LoginSuccess {
   ok: boolean;
   redirectTo: string;
@@ -39,6 +41,8 @@ export function LoginForm() {
         setError(payload.detail ?? "No se pudo iniciar sesión");
         return;
       }
+
+      resetMerchantSession();
 
       const nextPath = searchParams.get("next");
       const destination =

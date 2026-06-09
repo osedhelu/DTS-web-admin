@@ -7,10 +7,11 @@ export function useMerchantStoreGuard() {
   const isLoadingStores = useMerchantSessionStore(
     (state) => state.isLoadingStores,
   );
+  const storesLoaded = useMerchantSessionStore((state) => state.storesLoaded);
   const storesError = useMerchantSessionStore((state) => state.storesError);
   const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
 
-  if (isLoadingStores) {
+  if (!storesLoaded || isLoadingStores) {
     return {
       ready: false as const,
       content: <p className="text-sm text-zinc-500">Cargando tienda…</p>,
@@ -40,12 +41,16 @@ export function useMerchantStoreGuard() {
     };
   }
 
-  if (activeStoreId === null) {
+  const validatedStoreId = stores.some((store) => store.id === activeStoreId)
+    ? activeStoreId
+    : null;
+
+  if (validatedStoreId === null) {
     return {
       ready: false as const,
       content: <p className="text-sm text-zinc-500">Selecciona una tienda…</p>,
     };
   }
 
-  return { ready: true as const, activeStoreId, stores };
+  return { ready: true as const, activeStoreId: validatedStoreId, stores };
 }

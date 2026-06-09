@@ -10,11 +10,9 @@ import {
 import { ProductList } from "@/features/products/components/ProductList";
 import { useProductsStore } from "@/features/products/stores/products-store";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
-import { useMerchantSessionStore } from "@/features/stores/stores/merchant-session-store";
 
 export function ProductsManager() {
   const guard = useMerchantStoreGuard();
-  const activeStoreId = useMerchantSessionStore((state) => state.activeStoreId);
   const products = useProductsStore((state) => state.products);
   const isLoading = useProductsStore((state) => state.isLoading);
   const loadProducts = useProductsStore((state) => state.loadProducts);
@@ -24,25 +22,25 @@ export function ProductsManager() {
   const [typeFilter, setTypeFilter] = useState<ProductTypeFilter>("all");
 
   useEffect(() => {
-    if (activeStoreId === null) {
+    if (!guard.ready) {
       return;
     }
 
     const timeout = setTimeout(() => {
-      void loadProducts(activeStoreId, {
+      void loadProducts(guard.activeStoreId, {
         search,
         type: typeFilter === "all" ? undefined : typeFilter,
       });
     }, 250);
 
     return () => clearTimeout(timeout);
-  }, [activeStoreId, loadProducts, search, typeFilter]);
+  }, [guard.ready, guard.activeStoreId, loadProducts, search, typeFilter]);
 
   if (!guard.ready) {
     return guard.content;
   }
 
-  const storeId = activeStoreId as number;
+  const storeId = guard.activeStoreId;
 
   async function handleDeactivate(productId: number) {
     await deactivateProduct(storeId, productId);

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { MerchantStoreSelector } from "@/features/stores/components/MerchantStoreSelector";
+import { resetMerchantSession } from "@/features/stores/stores/merchant-session-store";
 import { merchantNavGroups } from "@/features/stores/config/merchant-nav";
 
 interface MerchantShellProps {
@@ -88,6 +89,7 @@ function NavIcon({ name }: { name: string }) {
 
 async function handleLogout() {
   await fetch("/api/auth/logout", { method: "POST" });
+  resetMerchantSession();
   window.location.href = "/login";
 }
 
