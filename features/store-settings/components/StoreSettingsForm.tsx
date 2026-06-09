@@ -70,7 +70,7 @@ export function StoreSettingsForm({ storeId, initial }: StoreSettingsFormProps) 
       phone,
       address,
       status: isOpen ? "open" : "closed",
-      logo: logoFile,
+      ...(logoFile ? { logo: logoFile } : {}),
       ...(locationChanged ? { latitude, longitude } : {}),
     });
 

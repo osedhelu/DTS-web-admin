@@ -77,18 +77,26 @@ export const useStoreSettingsStore = create<StoreSettingsState>((set) => ({
           body: formData,
         });
       } else {
+        const { logo: _logo, ...jsonPayload } = payload;
         response = await fetch(`/api/merchant/stores/${storeId}/profile`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(jsonPayload),
         });
       }
 
-      const data = (await response.json()) as Store & { detail?: string };
+      const data = (await response.json()) as Store & {
+        detail?: string;
+        logo?: string[];
+      };
 
       if (!response.ok) {
+        const fieldError =
+          typeof data === "object" && data !== null && "logo" in data
+            ? (data.logo as string[] | undefined)?.[0]
+            : undefined;
         useUiStore.getState().setError(
-          data.detail ?? "No se pudo guardar la configuración",
+          fieldError ?? data.detail ?? "No se pudo guardar la configuración",
         );
         set({ isSaving: false });
         return null;
