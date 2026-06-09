@@ -6,6 +6,7 @@ import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
 import { DynamicProductFields } from "@/features/products/components/DynamicProductFields";
 import {
+  getSelectedOptions,
   isMultiSelectRule,
   resolveProductFieldConfig,
   syncDynamicValues,
@@ -62,8 +63,8 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
 
     for (const [key, rule] of Object.entries(activeFieldConfig)) {
       if (isMultiSelectRule(rule)) {
-        const selected = dynamicValues[key];
-        if (!Array.isArray(selected) || selected.length === 0) {
+        const selected = getSelectedOptions(dynamicValues[key]);
+        if (selected.length === 0) {
           setError(`Selecciona al menos una opción para «${key}».`);
           setIsSubmitting(false);
           return;
