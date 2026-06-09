@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { IconActionButton } from "@/components/ui/IconActionButton";
-import { DeactivateIcon, EditIcon, PlusIcon } from "@/components/ui/icons";
+import { ActivateIcon, DeactivateIcon, EditIcon, PlusIcon } from "@/components/ui/icons";
 import {
   formatDiscountType,
   formatPromotionScope,
@@ -35,6 +35,7 @@ export function PromotionsManager() {
   const createPromotion = usePromotionsStore((state) => state.createPromotion);
   const updatePromotion = usePromotionsStore((state) => state.updatePromotion);
   const deactivatePromotion = usePromotionsStore((state) => state.deactivatePromotion);
+  const activatePromotion = usePromotionsStore((state) => state.activatePromotion);
 
   const [modalState, setModalState] = useState<PromotionModalState | null>(null);
   const handledPromotionIdRef = useRef<number | null>(null);
@@ -141,72 +142,82 @@ export function PromotionsManager() {
                 const scheduleStatus = getPromotionScheduleStatus(promotion);
 
                 return (
-                <tr
-                  key={promotion.id}
-                  data-testid={`promotion-row-${promotion.id}`}
-                  className="border-b border-zinc-100"
-                >
-                  <td className="px-4 py-3 font-medium">{promotion.name}</td>
-                  <td className="px-4 py-3">
-                    {formatDiscountType(promotion.discount_type)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {formatPromotionSummary(promotion)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {promotion.product_id ? (
-                      <Link
-                        href={`/merchant/products/${promotion.product_id}`}
-                        data-testid={`promotion-product-link-${promotion.id}`}
-                        className="text-zinc-900 underline-offset-2 hover:underline"
+                  <tr
+                    key={promotion.id}
+                    data-testid={`promotion-row-${promotion.id}`}
+                    className="border-b border-zinc-100"
+                  >
+                    <td className="px-4 py-3 font-medium">{promotion.name}</td>
+                    <td className="px-4 py-3">
+                      {formatDiscountType(promotion.discount_type)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {formatPromotionSummary(promotion)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {promotion.product_id ? (
+                        <Link
+                          href={`/merchant/products/${promotion.product_id}`}
+                          data-testid={`promotion-product-link-${promotion.id}`}
+                          className="text-zinc-900 underline-offset-2 hover:underline"
+                        >
+                          {formatPromotionScope(promotion)}
+                        </Link>
+                      ) : (
+                        formatPromotionScope(promotion)
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-zinc-600">
+                      {formatPromotionValidity(promotion)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        data-testid={`promotion-status-${promotion.id}`}
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                          scheduleStatus === "active"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : scheduleStatus === "scheduled"
+                              ? "bg-amber-100 text-amber-900"
+                              : scheduleStatus === "expired"
+                                ? "bg-zinc-200 text-zinc-600"
+                                : "bg-red-100 text-red-800"
+                        }`}
                       >
-                        {formatPromotionScope(promotion)}
-                      </Link>
-                    ) : (
-                      formatPromotionScope(promotion)
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-zinc-600">
-                    {formatPromotionValidity(promotion)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      data-testid={`promotion-status-${promotion.id}`}
-                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                        scheduleStatus === "active"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : scheduleStatus === "scheduled"
-                            ? "bg-amber-100 text-amber-900"
-                            : scheduleStatus === "expired"
-                              ? "bg-zinc-200 text-zinc-600"
-                              : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {formatPromotionScheduleStatus(scheduleStatus)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <IconActionButton
-                        label="Editar promoción"
-                        testId={`promotion-edit-${promotion.id}`}
-                        icon={<EditIcon />}
-                        onClick={() => setModalState({ mode: "edit", promotion })}
-                      />
-                      {promotion.is_active ? (
+                        {formatPromotionScheduleStatus(scheduleStatus)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
                         <IconActionButton
-                          label="Desactivar promoción"
-                          variant="danger"
-                          testId={`promotion-deactivate-${promotion.id}`}
-                          icon={<DeactivateIcon />}
-                          onClick={() =>
-                            void deactivatePromotion(storeId, promotion.id)
-                          }
+                          label="Editar promoción"
+                          testId={`promotion-edit-${promotion.id}`}
+                          icon={<EditIcon />}
+                          onClick={() => setModalState({ mode: "edit", promotion })}
                         />
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
+                        {promotion.is_active ? (
+                          <IconActionButton
+                            label="Desactivar promoción"
+                            variant="danger"
+                            testId={`promotion-deactivate-${promotion.id}`}
+                            icon={<DeactivateIcon />}
+                            onClick={() =>
+                              void deactivatePromotion(storeId, promotion.id)
+                            }
+                          />
+                        ) : (
+                          <IconActionButton
+                            label="Activar promoción"
+                            variant="primary"
+                            testId={`promotion-activate-${promotion.id}`}
+                            icon={<ActivateIcon />}
+                            onClick={() =>
+                              void activatePromotion(storeId, promotion.id)
+                            }
+                          />
+                        )}
+                      </div>
+                    </td>
+                  </tr>
                 );
               })}
             </tbody>

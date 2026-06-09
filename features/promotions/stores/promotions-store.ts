@@ -21,6 +21,7 @@ interface PromotionsState {
     payload: UpdatePromotionPayload,
   ) => Promise<boolean>;
   deactivatePromotion: (storeId: number, promotionId: number) => Promise<boolean>;
+  activatePromotion: (storeId: number, promotionId: number) => Promise<boolean>;
 }
 
 export const usePromotionsStore = create<PromotionsState>((set, get) => ({
@@ -116,6 +117,18 @@ export const usePromotionsStore = create<PromotionsState>((set, get) => ({
   },
 
   deactivatePromotion: async (storeId, promotionId) => {
-    return get().updatePromotion(storeId, promotionId, { is_active: false });
+    const ok = await get().updatePromotion(storeId, promotionId, { is_active: false });
+    if (ok) {
+      useUiStore.getState().setSuccess("Promoción desactivada.");
+    }
+    return ok;
+  },
+
+  activatePromotion: async (storeId, promotionId) => {
+    const ok = await get().updatePromotion(storeId, promotionId, { is_active: true });
+    if (ok) {
+      useUiStore.getState().setSuccess("Promoción activada de nuevo.");
+    }
+    return ok;
   },
 }));
