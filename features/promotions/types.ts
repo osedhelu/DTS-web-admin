@@ -7,6 +7,11 @@ export interface StorePromotion {
   discount_type: PromotionDiscountType;
   discount_value: string;
   product_id: number | null;
+  variant_id?: number | null;
+  param_key: string | null;
+  param_value: string | null;
+  product_name?: string | null;
+  variant_name?: string | null;
   valid_from: string | null;
   valid_until: string | null;
   is_active: boolean;
@@ -17,6 +22,9 @@ export interface CreatePromotionPayload {
   discount_type: PromotionDiscountType;
   discount_value: string;
   product_id?: number | null;
+  variant_id?: number | null;
+  param_key?: string | null;
+  param_value?: string | null;
   valid_from?: string | null;
   valid_until?: string | null;
 }
@@ -26,6 +34,9 @@ export interface UpdatePromotionPayload {
   discount_type?: PromotionDiscountType;
   discount_value?: string;
   product_id?: number | null;
+  variant_id?: number | null;
+  param_key?: string | null;
+  param_value?: string | null;
   valid_from?: string | null;
   valid_until?: string | null;
   is_active?: boolean;

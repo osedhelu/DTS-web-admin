@@ -35,6 +35,7 @@ export interface Product {
   tracks_stock: boolean;
   dynamic_values?: Record<string, string | string[]>;
   primary_image_url?: string | null;
+  promotion_badge?: string | null;
 }
 
 export interface ProductDetail extends Product {
@@ -76,4 +77,5 @@ export interface UpdateProductInput {
   subcategory_id?: number | null;
   duration_minutes?: number | null;
   dynamic_values?: Record<string, string | string[]>;
+  variants?: ProductVariant[];
 }

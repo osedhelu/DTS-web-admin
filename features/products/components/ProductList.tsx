@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { DiscountBadge } from "@/components/ui/DiscountBadge";
 import { IconActionButton, IconActionLink } from "@/components/ui/IconActionButton";
 import { DeactivateIcon, EditIcon } from "@/components/ui/icons";
 import { resolvePrimaryImageUrl } from "@/features/products/lib/primary-image";
@@ -80,7 +81,7 @@ export function ProductList({
                   <td className="px-4 py-3">
                     <div
                       data-testid={`product-thumbnail-${product.id}`}
-                      className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-zinc-100 text-xs text-zinc-400"
+                      className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-zinc-100 text-xs text-zinc-400"
                     >
                       {thumbnail ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -92,13 +93,36 @@ export function ProductList({
                       ) : (
                         "—"
                       )}
+                      {product.promotion_badge ? (
+                        <span className="absolute bottom-0 left-0 right-0 bg-amber-500/90 px-0.5 text-center text-[8px] font-bold leading-tight text-white">
+                          %
+                        </span>
+                      ) : null}
                     </div>
                   </td>
                   <td className="px-4 py-3 font-medium text-zinc-900">
-                    {product.name}
+                    <div className="flex flex-col gap-1">
+                      <span>{product.name}</span>
+                      {product.promotion_badge ? (
+                        <DiscountBadge
+                          label={product.promotion_badge}
+                          testId={`product-promotion-badge-${product.id}`}
+                        />
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-4 py-3">{formatProductType(product.product_type)}</td>
-                  <td className="px-4 py-3">${product.price}</td>
+                  <td className="px-4 py-3">
+                    <div className="relative inline-flex">
+                      ${product.price}
+                      {product.promotion_badge ? (
+                        <span
+                          className="absolute -right-2 -top-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white"
+                          aria-hidden
+                        />
+                      ) : null}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-zinc-600">
                     {product.product_type === "service"
                       ? product.duration_minutes

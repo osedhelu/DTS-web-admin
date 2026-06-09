@@ -8,6 +8,7 @@ import { DeactivateIcon, EditIcon } from "@/components/ui/icons";
 import {
   PromotionForm,
   formatDiscountType,
+  formatPromotionScope,
   formatPromotionSummary,
 } from "@/features/promotions/components/PromotionForm";
 import { usePromotionsStore } from "@/features/promotions/stores/promotions-store";
@@ -49,6 +50,7 @@ export function PromotionsManager() {
 
       {editing ? (
         <PromotionForm
+          storeId={storeId}
           initial={editing}
           submitLabel="Guardar cambios"
           onCancel={() => setEditing(null)}
@@ -62,6 +64,7 @@ export function PromotionsManager() {
         />
       ) : (
         <PromotionForm
+          storeId={storeId}
           onSubmit={async (payload) =>
             createPromotion(storeId, payload as CreatePromotionPayload)
           }
@@ -101,7 +104,7 @@ export function PromotionsManager() {
                     {formatPromotionSummary(promotion)}
                   </td>
                   <td className="px-4 py-3">
-                    {promotion.product_id ? "Producto" : "Tienda"}
+                    {formatPromotionScope(promotion)}
                   </td>
                   <td className="px-4 py-3">{promotion.is_active ? "Sí" : "No"}</td>
                   <td className="px-4 py-3">

@@ -4,7 +4,12 @@ import {
 } from "@/features/categories/lib/field-config";
 import type { CategoryFieldConfig, CategoryTreeNode } from "@/features/categories/types";
 
-export type DynamicValue = string | string[];
+export type DynamicMultiWithPrices = {
+  options: string[];
+  prices?: Record<string, string>;
+};
+
+export type DynamicValue = string | string[] | DynamicMultiWithPrices;
 export type DynamicValues = Record<string, DynamicValue>;
 
 export function mergeFieldConfig(
@@ -53,6 +58,47 @@ export function getRuleOptions(rule: CategoryFieldConfig[string]): string[] {
   return uniqueOptions(parseFieldRule(rule).options);
 }
 
+export function getSelectedOptions(value: DynamicValue | undefined): string[] {
+  if (value === undefined) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value ? [value] : [];
+  }
+
+  return value.options ?? [];
+}
+
+export function getOptionPrices(value: DynamicValue | undefined): Record<string, string> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value.prices ?? {};
+  }
+
+  return {};
+}
+
+export function buildMultiDynamicValue(
+  selected: string[],
+  prices: Record<string, string>,
+): DynamicValue {
+  const cleanedPrices = Object.fromEntries(
+    Object.entries(prices).filter(
+      ([option, price]) => selected.includes(option) && price.trim(),
+    ),
+  );
+
+  if (Object.keys(cleanedPrices).length > 0) {
+    return { options: selected, prices: cleanedPrices };
+  }
+
+  return selected;
+}
+
 export function normalizeDynamicValueForForm(
   rule: CategoryFieldConfig[string],
   value: DynamicValue | undefined,
@@ -62,18 +108,19 @@ export function normalizeDynamicValueForForm(
   }
 
   if (isMultiSelectRule(rule)) {
-    if (Array.isArray(value)) {
-      return value;
-    }
-    if (typeof value === "string" && value) {
-      return [value];
-    }
-    return [];
+    const selected = getSelectedOptions(value);
+    const prices = getOptionPrices(value);
+    return buildMultiDynamicValue(selected, prices);
   }
 
   if (Array.isArray(value)) {
     return value[0] ?? "";
   }
+
+  if (value && typeof value === "object") {
+    return getSelectedOptions(value)[0] ?? "";
+  }
+
   return value ?? "";
 }
 

@@ -8,6 +8,7 @@ import { DynamicProductFields } from "@/features/products/components/DynamicProd
 import {
   isMultiSelectRule,
   normalizeDynamicValueForForm,
+  getSelectedOptions,
   resolveProductFieldConfig,
   syncDynamicValues,
   type DynamicValues,
@@ -181,8 +182,8 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     if (Object.keys(activeFieldConfig).length > 0) {
       for (const [key, rule] of Object.entries(activeFieldConfig)) {
         if (isMultiSelectRule(rule)) {
-          const selected = dynamicValues[key];
-          if (!Array.isArray(selected) || selected.length === 0) {
+          const selected = getSelectedOptions(dynamicValues[key]);
+          if (selected.length === 0) {
             setError(`Selecciona al menos una opción para «${key}».`);
             setIsSubmitting(false);
             return;
