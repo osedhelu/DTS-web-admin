@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { MediaImageGallery } from "@/components/ui/MediaImageGallery";
 import { Modal } from "@/components/ui/Modal";
 import { CategoryFieldConfigEditor } from "@/features/categories/components/CategoryFieldConfigEditor";
 import {
@@ -9,9 +10,11 @@ import {
   rowsToFieldConfig,
 } from "@/features/categories/lib/field-config";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
+import { useCategoryImagesStore } from "@/features/categories/stores/category-images-store";
 import type {
   CategoryFieldConfig,
   CategoryFieldConfigRow,
+  CategoryImage,
   CategoryRecord,
   CategoryTreeNode,
   Subcategory,
@@ -42,10 +45,20 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
   const addSubcategory = useCategoriesStore((s) => s.addSubcategory);
   const updateCategory = useCategoriesStore((s) => s.updateCategory);
   const deleteCategory = useCategoriesStore((s) => s.deleteCategory);
+  const loadCategories = useCategoriesStore((s) => s.loadCategories);
+  const loadCategoryImages = useCategoryImagesStore((s) => s.loadCategoryImages);
+  const uploadCategoryImage = useCategoryImagesStore((s) => s.uploadCategoryImage);
+  const deleteCategoryImage = useCategoryImagesStore((s) => s.deleteCategoryImage);
+  const setPrimaryCategoryImage = useCategoryImagesStore((s) => s.setPrimaryCategoryImage);
+  const replaceCategoryImage = useCategoryImagesStore((s) => s.replaceCategoryImage);
   const setSuccess = useUiStore((s) => s.setSuccess);
 
   const [name, setName] = useState("");
   const [fieldRows, setFieldRows] = useState<CategoryFieldConfigRow[]>([]);
+  const [images, setImages] = useState<CategoryImage[]>([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [busyImageId, setBusyImageId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -64,7 +77,37 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
     setError(null);
     setIsSubmitting(false);
     setIsDeleting(false);
+    setImages([]);
+    setBusyImageId(null);
+    setIsUploadingImage(false);
   }, [state]);
+
+  useEffect(() => {
+    if (!open || !state || state.mode !== "edit") {
+      return;
+    }
+
+    let active = true;
+
+    async function loadImages() {
+      setIsLoadingImages(true);
+      const loaded = await loadCategoryImages(storeId, state.categoryId);
+      if (active) {
+        setImages(loaded);
+        setIsLoadingImages(false);
+      }
+    }
+
+    void loadImages();
+
+    return () => {
+      active = false;
+    };
+  }, [open, state, storeId, loadCategoryImages]);
+
+  async function refreshCategoryTree() {
+    await loadCategories(storeId);
+  }
 
   if (!state) {
     return null;
@@ -186,6 +229,98 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
     }
   }
 
+  async function handleUploadImage(file: File) {
+    if (!state || state.mode !== "edit") {
+      return null;
+    }
+
+    setIsUploadingImage(true);
+    const isPrimary = images.length === 0;
+    const image = await uploadCategoryImage(
+      storeId,
+      state.categoryId,
+      file,
+      isPrimary,
+    );
+    setIsUploadingImage(false);
+
+    if (image) {
+      setImages(
+        isPrimary
+          ? [image]
+          : [...images, image],
+      );
+      await refreshCategoryTree();
+    }
+
+    return image;
+  }
+
+  async function handleDeleteImage(imageId: number) {
+    if (!state || state.mode !== "edit") {
+      return false;
+    }
+
+    setBusyImageId(imageId);
+    const deleted = await deleteCategoryImage(storeId, state.categoryId, imageId);
+    setBusyImageId(null);
+
+    if (deleted) {
+      const remaining = images.filter((item) => item.id !== imageId);
+      const hasPrimary = remaining.some((item) => item.is_primary);
+      setImages(
+        hasPrimary
+          ? remaining
+          : remaining.map((item, index) => ({
+              ...item,
+              is_primary: index === 0,
+            })),
+      );
+      await refreshCategoryTree();
+    }
+
+    return deleted;
+  }
+
+  async function handleSetPrimaryImage(imageId: number) {
+    if (!state || state.mode !== "edit") {
+      return null;
+    }
+
+    setBusyImageId(imageId);
+    const updated = await setPrimaryCategoryImage(storeId, state.categoryId, imageId);
+    setBusyImageId(null);
+
+    if (updated) {
+      setImages(
+        images.map((item) => ({
+          ...item,
+          is_primary: item.id === imageId,
+        })),
+      );
+      await refreshCategoryTree();
+    }
+
+    return updated;
+  }
+
+  async function handleReplaceImage(imageId: number, file: File) {
+    if (!state || state.mode !== "edit") {
+      return null;
+    }
+
+    setBusyImageId(imageId);
+    const updated = await replaceCategoryImage(storeId, state.categoryId, imageId, file);
+    setBusyImageId(null);
+
+    if (updated) {
+      setImages(images.map((item) => (item.id === imageId ? updated : item)));
+      await refreshCategoryTree();
+    }
+
+    return updated;
+  }
+
   async function handleDelete() {
     if (!state || state.mode !== "edit") {
       return;
@@ -263,6 +398,25 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
 
         {isEdit ? (
           <CategoryFieldConfigEditor rows={fieldRows} onChange={setFieldRows} />
+        ) : null}
+
+        {isEdit ? (
+          isLoadingImages ? (
+            <p className="text-sm text-zinc-500">Cargando imágenes…</p>
+          ) : (
+            <MediaImageGallery
+              title="Imágenes de la categoría"
+              description="Ideal para carrusel o imagen estática en el catálogo. Marca una como principal."
+              images={images}
+              onUpload={handleUploadImage}
+              onDelete={handleDeleteImage}
+              onSetPrimary={handleSetPrimaryImage}
+              onReplace={handleReplaceImage}
+              isUploading={isUploadingImage}
+              busyImageId={busyImageId}
+              testIdPrefix="category-image"
+            />
+          )
         ) : null}
 
         {error ? (

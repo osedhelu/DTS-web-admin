@@ -16,11 +16,19 @@ export interface CategoryFieldConfigRow {
   options: string;
 }
 
+export interface CategoryImage {
+  id: number;
+  url: string;
+  is_primary: boolean;
+}
+
 export interface Subcategory {
   id: number;
   name: string;
   parent_id: number;
   field_config?: CategoryFieldConfig;
+  images?: CategoryImage[];
+  primary_image_url?: string | null;
 }
 
 export interface CategoryTreeNode {
@@ -28,6 +36,8 @@ export interface CategoryTreeNode {
   name: string;
   field_config?: CategoryFieldConfig;
   subcategories: Subcategory[];
+  images?: CategoryImage[];
+  primary_image_url?: string | null;
 }
 
 export interface CategoryRecord {

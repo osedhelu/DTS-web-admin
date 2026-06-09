@@ -1,0 +1,88 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import { ApiError } from "@/lib/api/client";
+import { getAccessToken } from "@/lib/api/server";
+import type { MediaImage } from "@/lib/types/media-image";
+
+interface RouteContext {
+  params: Promise<{ storeId: string; categoryId: string }>;
+}
+
+const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+function parseApiError(error: unknown, fallback: string) {
+  if (error instanceof ApiError) {
+    let detail = error.message;
+    try {
+      const parsed = JSON.parse(error.message) as { detail?: string };
+      detail = parsed.detail ?? detail;
+    } catch {
+      // keep raw message
+    }
+
+    return NextResponse.json({ detail }, { status: error.status });
+  }
+
+  return NextResponse.json({ detail: fallback }, { status: 502 });
+}
+
+export async function GET(_request: NextRequest, context: RouteContext) {
+  const token = await getAccessToken();
+
+  if (!token) {
+    return NextResponse.json({ detail: "No autenticado" }, { status: 401 });
+  }
+
+  const { storeId, categoryId } = await context.params;
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/stores/${storeId}/categories/${categoryId}/images/`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new ApiError(response.status, message);
+    }
+
+    const images = (await response.json()) as MediaImage[];
+    return NextResponse.json(images);
+  } catch (error) {
+    return parseApiError(error, "Error al cargar imágenes");
+  }
+}
+
+export async function POST(request: NextRequest, context: RouteContext) {
+  const token = await getAccessToken();
+
+  if (!token) {
+    return NextResponse.json({ detail: "No autenticado" }, { status: 401 });
+  }
+
+  const { storeId, categoryId } = await context.params;
+  const formData = await request.formData();
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/stores/${storeId}/categories/${categoryId}/images/`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      },
+    );
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new ApiError(response.status, message);
+    }
+
+    const image = (await response.json()) as MediaImage;
+    return NextResponse.json(image, { status: 201 });
+  } catch (error) {
+    return parseApiError(error, "Error al subir imagen");
+  }
+}
