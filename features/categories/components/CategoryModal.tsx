@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { MediaImageGallery } from "@/components/ui/MediaImageGallery";
 import { Modal } from "@/components/ui/Modal";
 import { CategoryFieldConfigEditor } from "@/features/categories/components/CategoryFieldConfigEditor";
+import { CategoryTemplatePicker } from "@/features/categories/components/CategoryTemplatePicker";
 import {
   fieldConfigToRows,
   rowsToFieldConfig,
@@ -22,6 +23,7 @@ import type {
 import { useUiStore } from "@/lib/stores/ui-store";
 
 export type CategoryModalState =
+  | { mode: "choose-root" }
   | { mode: "create-category" }
   | { mode: "create-subcategory"; parentId: number; parentName: string }
   | {
@@ -38,9 +40,14 @@ interface CategoryModalProps {
   state: CategoryModalState | null;
   storeId: number;
   onClose: () => void;
+  onSwitchToCreateCategory: () => void;
+  onTemplateImported: (templateName: string) => void;
 }
 
 function getCategoryModalKey(state: CategoryModalState): string {
+  if (state.mode === "choose-root") {
+    return "choose-root";
+  }
   if (state.mode === "edit") {
     return `edit-${state.categoryId}`;
   }
@@ -50,9 +57,35 @@ function getCategoryModalKey(state: CategoryModalState): string {
   return "create-category";
 }
 
-export function CategoryModal({ open, state, storeId, onClose }: CategoryModalProps) {
+export function CategoryModal({
+  open,
+  state,
+  storeId,
+  onClose,
+  onSwitchToCreateCategory,
+  onTemplateImported,
+}: CategoryModalProps) {
   if (!open || !state) {
     return null;
+  }
+
+  if (state.mode === "choose-root") {
+    return (
+      <Modal
+        open
+        title="Nueva categoría"
+        description="Importa una plantilla del catálogo DTS o crea una categoría personalizada."
+        onClose={onClose}
+        testId="category-modal"
+        panelClassName="max-w-lg"
+      >
+        <CategoryTemplatePicker
+          storeId={storeId}
+          onImportSuccess={onTemplateImported}
+          onCreateManual={onSwitchToCreateCategory}
+        />
+      </Modal>
+    );
   }
 
   return (

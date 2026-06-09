@@ -2,8 +2,6 @@
 
 import type { CategoryFieldConfig } from "@/features/categories/types";
 import {
-  buildMultiDynamicValue,
-  getOptionPrices,
   getRuleOptions,
   getSelectedOptions,
   isFreeTextRule,
@@ -33,33 +31,14 @@ export function DynamicProductFields({
   }
 
   function toggleMultiOption(fieldKey: string, option: string, checked: boolean) {
-    const current = values[fieldKey];
-    const selected = getSelectedOptions(current);
-    const prices = getOptionPrices(current);
-
+    const selected = getSelectedOptions(values[fieldKey]);
     const nextSelected = checked
       ? [...selected, option]
       : selected.filter((item) => item !== option);
 
-    const nextPrices = { ...prices };
-    if (!checked) {
-      delete nextPrices[option];
-    }
-
     onChange({
       ...values,
-      [fieldKey]: buildMultiDynamicValue(nextSelected, nextPrices),
-    });
-  }
-
-  function updateOptionPrice(fieldKey: string, option: string, price: string) {
-    const current = values[fieldKey];
-    const selected = getSelectedOptions(current);
-    const prices = { ...getOptionPrices(current), [option]: price };
-
-    onChange({
-      ...values,
-      [fieldKey]: buildMultiDynamicValue(selected, prices),
+      [fieldKey]: nextSelected,
     });
   }
 
@@ -71,7 +50,9 @@ export function DynamicProductFields({
       <div>
         <h4 className="text-sm font-semibold text-zinc-900">Parámetros de la categoría</h4>
         <p className="text-xs text-zinc-500">
-          Marca las opciones que ofrece este producto y define el precio de cada una.
+          Elige qué opciones vende este producto (ej. tallas S, M, XL). Usa el campo
+          Precio del producto para el valor base. Los descuentos se configuran en
+          Promociones.
         </p>
       </div>
 
@@ -130,32 +111,6 @@ export function DynamicProductFields({
                   );
                 })}
               </div>
-
-              {getSelectedOptions(values[key]).length > 0 ? (
-                <div className="space-y-2 border-t border-zinc-100 pt-3">
-                  <p className="text-xs font-medium text-zinc-600">Precio por opción</p>
-                  {getSelectedOptions(values[key]).map((option) => (
-                    <label
-                      key={`${key}-price-${option}`}
-                      className="flex items-center gap-3 text-sm"
-                    >
-                      <span className="w-16 shrink-0 font-medium text-zinc-700">{option}</span>
-                      <input
-                        data-testid={`product-dynamic-price-${key}-${option}`}
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        placeholder="Precio"
-                        value={getOptionPrices(values[key])[option] ?? ""}
-                        onChange={(event) =>
-                          updateOptionPrice(key, option, event.target.value)
-                        }
-                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 font-normal"
-                      />
-                    </label>
-                  ))}
-                </div>
-              ) : null}
             </>
           ) : (
             <select

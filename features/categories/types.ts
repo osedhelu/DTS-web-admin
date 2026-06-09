@@ -60,3 +60,14 @@ export interface CreateSubcategoryInput {
 export interface UpdateCategoryInput {
   name: string;
 }
+
+export interface CategoryTemplateItem {
+  name: string;
+  subcategories: string[];
+  already_imported: boolean;
+}
+
+export interface CategoryTemplateListResponse {
+  vertical: string;
+  templates: CategoryTemplateItem[];
+}

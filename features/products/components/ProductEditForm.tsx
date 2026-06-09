@@ -24,6 +24,11 @@ import type {
   UpdateProductInput,
 } from "@/features/products/types";
 import { useUiStore } from "@/lib/stores/ui-store";
+import {
+  clearFormDraft,
+  readFormDraft,
+  useFormDraftPersistence,
+} from "@/lib/hooks/use-form-draft";
 
 interface ProductEditFormProps {
   storeId: number;
@@ -40,6 +45,23 @@ interface ProductFormFields {
   subcategoryId: number | null;
   images: ProductImage[];
 }
+
+type ProductEditDraftFields = Omit<ProductFormFields, "images">;
+
+type ProductEditDraft = {
+  fields: ProductEditDraftFields;
+  dynamicValues: DynamicValues;
+};
+
+const emptyEditDraftFields = (): ProductEditDraftFields => ({
+  name: "",
+  price: "",
+  stock: "0",
+  durationMinutes: "",
+  description: "",
+  categoryId: null,
+  subcategoryId: null,
+});
 
 function mapDetailToForm(detail: ProductDetail): ProductFormFields {
   return {
@@ -79,6 +101,26 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
 
   const categoryKey =
     fields === null ? "" : `${fields.categoryId ?? "null"}:${fields.subcategoryId ?? "null"}`;
+
+  const draftScope = `product-edit:${storeId}:${productId}`;
+
+  const editDraft = useMemo((): ProductEditDraft | null => {
+    if (fields === null) {
+      return null;
+    }
+
+    const { images: _images, ...fieldDraft } = fields;
+    return {
+      fields: fieldDraft,
+      dynamicValues,
+    };
+  }, [dynamicValues, fields]);
+
+  const { clearDraft } = useFormDraftPersistence(
+    draftScope,
+    editDraft ?? { fields: emptyEditDraftFields(), dynamicValues: {} },
+    { enabled: !isLoading && editDraft !== null },
+  );
 
   function syncListThumbnail(images: ProductImage[]) {
     if (!detail) {
@@ -143,11 +185,26 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
 
       if (loaded) {
         setDetail(loaded);
-        setFields(mapDetailToForm(loaded));
+        const base = mapDetailToForm(loaded);
+        const draft = readFormDraft<ProductEditDraft>(draftScope);
+
+        if (draft?.fields) {
+          setFields({
+            ...base,
+            ...draft.fields,
+            images: base.images,
+          });
+          setDynamicValues(draft.dynamicValues ?? {});
+          hydratedProductIdRef.current = loaded.id;
+          lastCategoryKeyRef.current = `${draft.fields.categoryId ?? "null"}:${draft.fields.subcategoryId ?? "null"}`;
+        } else {
+          setFields(base);
+        }
 
         const pendingSuccess = sessionStorage.getItem("product-create-success");
         if (pendingSuccess) {
           sessionStorage.removeItem("product-create-success");
+          clearFormDraft(draftScope);
           setSuccess(pendingSuccess);
         }
       }
@@ -205,6 +262,7 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     setIsSubmitting(false);
 
     if (updated) {
+      clearDraft();
       setDetail(updated);
       setFields(mapDetailToForm(updated));
       setSuccess(`Producto "${updated.name}" actualizado correctamente.`);

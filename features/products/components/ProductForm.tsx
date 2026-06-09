@@ -15,6 +15,10 @@ import {
 import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import type { CreateProductInput, Product } from "@/features/products/types";
+import {
+  readFormDraft,
+  useFormDraftPersistence,
+} from "@/lib/hooks/use-form-draft";
 
 interface ProductFormProps {
   onCreated: (product: Product) => void;
@@ -31,15 +35,36 @@ const initialState = {
   subcategoryId: null as number | null,
 };
 
+type ProductFormDraft = {
+  productType: "physical" | "service";
+  fields: typeof initialState;
+  rawDynamicValues: DynamicValues;
+};
+
+function readProductCreateDraft(storeId: number): ProductFormDraft | null {
+  return readFormDraft<ProductFormDraft>(`product-create:${storeId}`);
+}
+
 export function ProductForm({ onCreated, storeId }: ProductFormProps) {
   const categories = useCategoriesStore((state) => state.categories);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
 
-  const [productType, setProductType] = useState<"physical" | "service">("physical");
-  const [fields, setFields] = useState(initialState);
+  const [productType, setProductType] = useState<"physical" | "service">(
+    () => readProductCreateDraft(storeId)?.productType ?? "physical",
+  );
+  const [fields, setFields] = useState(
+    () => readProductCreateDraft(storeId)?.fields ?? initialState,
+  );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [rawDynamicValues, setRawDynamicValues] = useState<DynamicValues>({});
+  const [rawDynamicValues, setRawDynamicValues] = useState<DynamicValues>(
+    () => readProductCreateDraft(storeId)?.rawDynamicValues ?? {},
+  );
+
+  const { clearDraft } = useFormDraftPersistence<ProductFormDraft>(
+    `product-create:${storeId}`,
+    { productType, fields, rawDynamicValues },
+  );
 
   const activeFieldConfig = useMemo(
     () =>
@@ -117,8 +142,11 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
         return;
       }
 
+      clearDraft();
       onCreated(data);
       setFields(initialState);
+      setRawDynamicValues({});
+      setProductType("physical");
     } catch {
       setError("Error de conexión. Intenta de nuevo.");
     } finally {

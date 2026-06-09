@@ -13,12 +13,14 @@ import type { CategoryFieldConfig } from "@/features/categories/types";
 import { CategoryTreeList } from "@/features/categories/components/CategoryTreeList";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
+import { useUiStore } from "@/lib/stores/ui-store";
 
 export function CategoriesManager() {
   const guard = useMerchantStoreGuard();
   const categories = useCategoriesStore((state) => state.categories);
   const isLoading = useCategoriesStore((state) => state.isLoading);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
+  const setSuccess = useUiStore((state) => state.setSuccess);
 
   const [modalState, setModalState] = useState<CategoryModalState | null>(null);
 
@@ -38,7 +40,17 @@ export function CategoriesManager() {
   const modalOpen = modalState !== null;
 
   function openCreateCategory() {
+    setModalState({ mode: "choose-root" });
+  }
+
+  function openCreateCategoryManual() {
     setModalState({ mode: "create-category" });
+  }
+
+  async function handleTemplateImported(templateName: string) {
+    await loadCategories(storeId);
+    setSuccess(`Plantilla «${templateName}» importada correctamente.`);
+    setModalState(null);
   }
 
   function openCreateSubcategory(parentId: number, parentName: string) {
@@ -99,6 +111,8 @@ export function CategoriesManager() {
           setModalState(null);
           void loadCategories(storeId);
         }}
+        onSwitchToCreateCategory={openCreateCategoryManual}
+        onTemplateImported={(templateName) => void handleTemplateImported(templateName)}
       />
     </section>
   );

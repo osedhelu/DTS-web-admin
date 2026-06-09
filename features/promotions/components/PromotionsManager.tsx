@@ -4,18 +4,18 @@ import { useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { IconActionButton } from "@/components/ui/IconActionButton";
-import { DeactivateIcon, EditIcon } from "@/components/ui/icons";
+import { DeactivateIcon, EditIcon, PlusIcon } from "@/components/ui/icons";
 import {
-  PromotionForm,
   formatDiscountType,
   formatPromotionScope,
   formatPromotionSummary,
 } from "@/features/promotions/components/PromotionForm";
+import {
+  PromotionModal,
+  type PromotionModalState,
+} from "@/features/promotions/components/PromotionModal";
 import { usePromotionsStore } from "@/features/promotions/stores/promotions-store";
-import type {
-  CreatePromotionPayload,
-  StorePromotion,
-} from "@/features/promotions/types";
+import type { CreatePromotionPayload } from "@/features/promotions/types";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
 
 export function PromotionsManager() {
@@ -27,7 +27,7 @@ export function PromotionsManager() {
   const updatePromotion = usePromotionsStore((state) => state.updatePromotion);
   const deactivatePromotion = usePromotionsStore((state) => state.deactivatePromotion);
 
-  const [editing, setEditing] = useState<StorePromotion | null>(null);
+  const [modalState, setModalState] = useState<PromotionModalState | null>(null);
 
   useEffect(() => {
     if (!guard.ready) {
@@ -42,33 +42,40 @@ export function PromotionsManager() {
   }
 
   const storeId = guard.activeStoreId;
+  const modalOpen = modalState !== null;
+
+  function openCreateModal() {
+    setModalState({ mode: "create" });
+  }
 
   return (
     <div data-testid="promotions-manager" className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-zinc-600">
+          Gestiona descuentos activos de tu tienda. Crea o edita desde el modal.
+        </p>
+        <IconActionButton
+          label="Nueva promoción"
+          variant="primary"
+          size="md"
+          testId="promotion-create-button"
+          icon={<PlusIcon />}
+          onClick={openCreateModal}
+        />
+      </div>
+
       <UiFeedback successTestId="promotions-success-message" />
 
-      {editing ? (
-        <PromotionForm
-          storeId={storeId}
-          initial={editing}
-          submitLabel="Guardar cambios"
-          onCancel={() => setEditing(null)}
-          onSubmit={async (payload) => {
-            const saved = await updatePromotion(storeId, editing.id, payload);
-            if (saved) {
-              setEditing(null);
-            }
-            return saved;
-          }}
-        />
-      ) : (
-        <PromotionForm
-          storeId={storeId}
-          onSubmit={async (payload) =>
-            createPromotion(storeId, payload as CreatePromotionPayload)
-          }
-        />
-      )}
+      <PromotionModal
+        open={modalOpen}
+        state={modalState}
+        storeId={storeId}
+        onClose={() => setModalState(null)}
+        onCreate={async (payload) => createPromotion(storeId, payload as CreatePromotionPayload)}
+        onUpdate={async (promotionId, payload) =>
+          updatePromotion(storeId, promotionId, payload)
+        }
+      />
 
       {isLoading ? (
         <p className="text-sm text-zinc-500">Cargando promociones…</p>
@@ -112,7 +119,7 @@ export function PromotionsManager() {
                         label="Editar promoción"
                         testId={`promotion-edit-${promotion.id}`}
                         icon={<EditIcon />}
-                        onClick={() => setEditing(promotion)}
+                        onClick={() => setModalState({ mode: "edit", promotion })}
                       />
                       {promotion.is_active ? (
                         <IconActionButton
@@ -133,7 +140,7 @@ export function PromotionsManager() {
           </table>
           {promotions.length === 0 ? (
             <p className="px-4 py-3 text-sm text-zinc-500">
-              No hay promociones creadas.
+              No hay promociones creadas. Usa el botón + para agregar la primera.
             </p>
           ) : null}
         </div>

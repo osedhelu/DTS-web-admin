@@ -18,6 +18,7 @@ import type {
 interface PromotionFormProps {
   storeId: number;
   initial?: StorePromotion | null;
+  layout?: "card" | "plain";
   onSubmit: (
     payload: CreatePromotionPayload | UpdatePromotionPayload,
   ) => Promise<boolean>;
@@ -41,6 +42,7 @@ function formatDiscountType(type: StorePromotion["discount_type"]): string {
 export function PromotionForm({
   storeId,
   initial = null,
+  layout = "card",
   onSubmit,
   onCancel,
   submitLabel,
@@ -160,13 +162,20 @@ export function PromotionForm({
     <form
       data-testid={initial ? "promotion-edit-form" : "promotion-form"}
       onSubmit={(event) => void handleSubmit(event)}
-      className="space-y-4 rounded-xl border border-zinc-200 bg-white p-4"
+      className={
+        layout === "plain"
+          ? "flex min-h-0 flex-col gap-4"
+          : "space-y-4 rounded-xl border border-zinc-200 bg-white p-4"
+      }
     >
-      <h3 className="text-sm font-semibold text-zinc-900">
-        {initial ? "Editar promoción" : "Nueva promoción"}
-      </h3>
+      {layout === "card" ? (
+        <h3 className="text-sm font-semibold text-zinc-900">
+          {initial ? "Editar promoción" : "Nueva promoción"}
+        </h3>
+      ) : null}
 
-      <label className="flex flex-col gap-1 text-sm">
+      <div className="min-w-0 space-y-4">
+      <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
         Nombre
         <input
           data-testid="promotion-name"
@@ -175,11 +184,11 @@ export function PromotionForm({
           onChange={(event) =>
             setPayload((current) => ({ ...current, name: event.target.value }))
           }
-          className="rounded-lg border border-zinc-300 px-3 py-2"
+          className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
         Tipo de descuento
         <select
           data-testid="promotion-discount-type"
@@ -190,14 +199,14 @@ export function PromotionForm({
               discount_type: event.target.value as CreatePromotionPayload["discount_type"],
             }))
           }
-          className="rounded-lg border border-zinc-300 px-3 py-2"
+          className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
         >
           <option value="PERCENTAGE">Porcentaje</option>
           <option value="FIXED">Monto fijo</option>
         </select>
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
         Valor
         <input
           data-testid="promotion-discount-value"
@@ -212,11 +221,11 @@ export function PromotionForm({
               discount_value: event.target.value,
             }))
           }
-          className="rounded-lg border border-zinc-300 px-3 py-2"
+          className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
         Producto
         <select
           data-testid="promotion-product"
@@ -231,7 +240,7 @@ export function PromotionForm({
             }));
             setLoadedProductId(null);
           }}
-          className="rounded-lg border border-zinc-300 px-3 py-2"
+          className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
         >
           <option value="">Toda la tienda</option>
           {products.map((product) => (
@@ -244,7 +253,7 @@ export function PromotionForm({
 
       {payload.product_id ? (
         <>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
             Parámetro de categoría (opcional)
             <select
               data-testid="promotion-param-key"
@@ -257,7 +266,7 @@ export function PromotionForm({
                   param_value: null,
                 }));
               }}
-              className="rounded-lg border border-zinc-300 px-3 py-2"
+              className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
             >
               <option value="">Todo el producto</option>
               {paramKeys.map((key) => (
@@ -269,7 +278,7 @@ export function PromotionForm({
           </label>
 
           {payload.param_key ? (
-            <label className="flex flex-col gap-1 text-sm">
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
               Opción con descuento
               <select
                 data-testid="promotion-param-value"
@@ -281,7 +290,7 @@ export function PromotionForm({
                     param_value: value || null,
                   }));
                 }}
-                className="rounded-lg border border-zinc-300 px-3 py-2"
+                className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
               >
                 <option value="">Selecciona opción…</option>
                 {paramOptions.map((option) => (
@@ -291,7 +300,7 @@ export function PromotionForm({
                 ))}
               </select>
               {paramOptions.length === 0 ? (
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs font-normal text-zinc-500">
                   Este producto no tiene opciones marcadas para «{payload.param_key}».
                   Edita el producto y configura los parámetros de la categoría.
                 </span>
@@ -304,8 +313,15 @@ export function PromotionForm({
       <p className="text-xs text-zinc-500" data-testid="promotion-scope-label">
         Aplicará a: {scopeLabel}
       </p>
+      </div>
 
-      <div className="flex gap-2">
+      <div
+        className={
+          layout === "plain"
+            ? "sticky bottom-0 -mx-5 flex shrink-0 flex-wrap gap-2 border-t border-zinc-100 bg-white px-5 py-3 sm:-mx-6 sm:px-6"
+            : "flex flex-wrap gap-2"
+        }
+      >
         <button
           type="submit"
           data-testid="promotion-submit"

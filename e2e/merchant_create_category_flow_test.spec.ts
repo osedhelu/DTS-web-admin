@@ -21,6 +21,23 @@ test("merchant_create_category_flow_test", async ({ page, context }) => {
     subcategories: [];
   }> = [];
 
+  await page.route("**/api/merchant/stores/1/category-templates**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        vertical: "food",
+        templates: [
+          {
+            name: "Restaurante",
+            subcategories: ["Entradas", "Platos fuertes", "Bebidas"],
+            already_imported: false,
+          },
+        ],
+      }),
+    });
+  });
+
   await page.route("**/api/merchant/stores/1/categories", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({
@@ -52,6 +69,8 @@ test("merchant_create_category_flow_test", async ({ page, context }) => {
   await page.getByTestId("categories-create-link").click();
 
   await expect(page.getByTestId("category-modal")).toBeVisible();
+  await expect(page.getByTestId("category-template-picker")).toBeVisible();
+  await page.getByTestId("category-create-manual").click();
   await expect(page.getByTestId("create-category-form")).toBeVisible();
 
   await page.getByTestId("category-name").fill("Comida");

@@ -49,6 +49,8 @@ test("merchant_create_promotion_test", async ({ page, context }) => {
   await page.goto("/merchant/promotions");
 
   await expect(page.getByTestId("promotions-manager")).toBeVisible();
+  await page.getByTestId("promotion-create-button").click();
+  await expect(page.getByTestId("promotion-modal")).toBeVisible();
   await page.getByTestId("promotion-name").fill("10% en toda la tienda");
   await page.getByTestId("promotion-discount-value").fill("10");
   await page.getByTestId("promotion-submit").click();

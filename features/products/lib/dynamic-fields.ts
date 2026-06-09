@@ -108,9 +108,7 @@ export function normalizeDynamicValueForForm(
   }
 
   if (isMultiSelectRule(rule)) {
-    const selected = getSelectedOptions(value);
-    const prices = getOptionPrices(value);
-    return buildMultiDynamicValue(selected, prices);
+    return getSelectedOptions(value);
   }
 
   if (Array.isArray(value)) {
