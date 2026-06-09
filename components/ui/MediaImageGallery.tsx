@@ -80,11 +80,11 @@ export function MediaImageGallery({
   return (
     <section
       data-testid={`${testIdPrefix}-gallery`}
-      className="space-y-4 rounded-xl border border-zinc-200 bg-zinc-50/50 p-5"
+      className="min-w-0 space-y-4 rounded-xl border border-zinc-200 bg-zinc-50/50 p-4"
     >
-      <div>
-        <h3 className="text-base font-semibold text-zinc-900">{title}</h3>
-        <p className="mt-1 text-sm text-zinc-600">{description}</p>
+      <div className="min-w-0 space-y-1">
+        <h3 className="text-sm font-semibold text-zinc-900">{title}</h3>
+        <p className="text-xs leading-relaxed text-zinc-500">{description}</p>
       </div>
 
       <div className="flex flex-wrap gap-4">

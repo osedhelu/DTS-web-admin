@@ -383,9 +383,14 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
       description={description}
       onClose={onClose}
       testId="category-modal"
-      panelClassName={isEdit ? "max-w-2xl" : "max-w-md"}
+      panelClassName={isEdit ? "max-w-2xl" : "max-w-lg"}
     >
-      <form onSubmit={handleSubmit} data-testid={formTestId} className="space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        data-testid={formTestId}
+        className="flex min-h-0 flex-col gap-4"
+      >
+        <div className="min-w-0 space-y-4">
         {isSubcategoryCreate ? (
           <input
             type="hidden"
@@ -395,7 +400,7 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
           />
         ) : null}
 
-        <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+        <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
           Nombre
           <input
             data-testid={nameTestId}
@@ -407,7 +412,7 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
                 ? "Ej. Hamburguesas, Pizzas"
                 : "Ej. Comida, Bebidas, Limpieza"
             }
-            className="rounded-lg border border-zinc-300 px-3 py-2 font-normal"
+            className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
           />
         </label>
 
@@ -421,7 +426,7 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
           ) : (
             <MediaImageGallery
               title="Imágenes de la categoría"
-              description="Ideal para carrusel o imagen estática en el catálogo. Marca una como principal."
+              description="Sube fotos y marca una como principal."
               images={images}
               onUpload={handleUploadImage}
               onDelete={handleDeleteImage}
@@ -435,12 +440,13 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
         ) : null}
 
         {error ? (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="break-words text-sm text-red-600">
             {error}
           </p>
         ) : null}
+        </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="sticky bottom-0 -mx-5 flex shrink-0 flex-wrap items-center gap-2 border-t border-zinc-100 bg-white px-5 py-3 sm:-mx-6 sm:px-6">
           <button
             type="submit"
             data-testid={submitTestId}
