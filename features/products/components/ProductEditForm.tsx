@@ -56,6 +56,9 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   const loadProductDetail = useProductsStore((state) => state.loadProductDetail);
   const updateProduct = useProductsStore((state) => state.updateProduct);
   const uploadProductImage = useProductsStore((state) => state.uploadProductImage);
+  const deleteProductImage = useProductsStore((state) => state.deleteProductImage);
+  const setPrimaryProductImage = useProductsStore((state) => state.setPrimaryProductImage);
+  const replaceProductImage = useProductsStore((state) => state.replaceProductImage);
   const categories = useCategoriesStore((state) => state.categories);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
   const setSuccess = useUiStore((state) => state.setSuccess);
@@ -65,6 +68,7 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [busyImageId, setBusyImageId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dynamicValues, setDynamicValues] = useState<DynamicValues>({});
   const hydratedProductIdRef = useRef<number | null>(null);
@@ -194,18 +198,97 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   }
 
   async function handleUpload(file: File): Promise<ProductImage | null> {
+    if (!fields) {
+      return null;
+    }
+
     setIsUploading(true);
-    const image = await uploadProductImage(storeId, productId, file, true);
+    const isPrimary = fields.images.length === 0;
+    const image = await uploadProductImage(storeId, productId, file, isPrimary);
     setIsUploading(false);
 
-    if (image && fields) {
+    if (image) {
       setFields({
         ...fields,
-        images: [...fields.images.filter((item) => item.id !== image.id), image],
+        images: isPrimary
+          ? [image]
+          : [...fields.images, image],
       });
     }
 
     return image;
+  }
+
+  async function handleDeleteImage(imageId: number): Promise<boolean> {
+    if (!fields) {
+      return false;
+    }
+
+    setBusyImageId(imageId);
+    const deleted = await deleteProductImage(storeId, productId, imageId);
+    setBusyImageId(null);
+
+    if (deleted) {
+      const remaining = fields.images.filter((item) => item.id !== imageId);
+      const hasPrimary = remaining.some((item) => item.is_primary);
+      setFields({
+        ...fields,
+        images: hasPrimary
+          ? remaining
+          : remaining.map((item, index) => ({
+              ...item,
+              is_primary: index === 0,
+            })),
+      });
+    }
+
+    return deleted;
+  }
+
+  async function handleSetPrimary(imageId: number): Promise<ProductImage | null> {
+    if (!fields) {
+      return null;
+    }
+
+    setBusyImageId(imageId);
+    const updated = await setPrimaryProductImage(storeId, productId, imageId);
+    setBusyImageId(null);
+
+    if (updated) {
+      setFields({
+        ...fields,
+        images: fields.images.map((item) => ({
+          ...item,
+          is_primary: item.id === imageId,
+        })),
+      });
+    }
+
+    return updated;
+  }
+
+  async function handleReplaceImage(
+    imageId: number,
+    file: File,
+  ): Promise<ProductImage | null> {
+    if (!fields) {
+      return null;
+    }
+
+    setBusyImageId(imageId);
+    const updated = await replaceProductImage(storeId, productId, imageId, file);
+    setBusyImageId(null);
+
+    if (updated) {
+      setFields({
+        ...fields,
+        images: fields.images.map((item) =>
+          item.id === imageId ? updated : item,
+        ),
+      });
+    }
+
+    return updated;
   }
 
   if (isLoading || !fields || !detail) {
@@ -334,6 +417,16 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
           />
         </label>
 
+        <ProductImageGallery
+          images={fields.images}
+          onUpload={handleUpload}
+          onDelete={handleDeleteImage}
+          onSetPrimary={handleSetPrimary}
+          onReplace={handleReplaceImage}
+          isUploading={isUploading}
+          busyImageId={busyImageId}
+        />
+
         {error ? (
           <p role="alert" className="text-sm text-red-600">
             {error}
@@ -349,12 +442,6 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
           {isSubmitting ? "Guardando…" : "Guardar cambios"}
         </button>
       </form>
-
-      <ProductImageGallery
-        images={fields.images}
-        onUpload={handleUpload}
-        isUploading={isUploading}
-      />
     </ProductFormScreen>
   );
 }

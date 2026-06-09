@@ -33,6 +33,22 @@ interface ProductsState {
     file: File,
     isPrimary?: boolean,
   ) => Promise<ProductImage | null>;
+  deleteProductImage: (
+    storeId: number,
+    productId: number,
+    imageId: number,
+  ) => Promise<boolean>;
+  setPrimaryProductImage: (
+    storeId: number,
+    productId: number,
+    imageId: number,
+  ) => Promise<ProductImage | null>;
+  replaceProductImage: (
+    storeId: number,
+    productId: number,
+    imageId: number,
+    file: File,
+  ) => Promise<ProductImage | null>;
 }
 
 export const useProductsStore = create<ProductsState>((set, get) => ({
@@ -197,6 +213,84 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
       return data;
     } catch {
       useUiStore.getState().setError("Error de conexión al subir la imagen.");
+      return null;
+    }
+  },
+
+  deleteProductImage: async (storeId, productId, imageId) => {
+    useUiStore.getState().clearMessages();
+
+    try {
+      const response = await fetch(
+        `/api/merchant/stores/${storeId}/products/${productId}/images/${imageId}`,
+        { method: "DELETE" },
+      );
+
+      if (!response.ok) {
+        const data = (await response.json()) as { detail?: string };
+        useUiStore.getState().setError(data.detail ?? "No se pudo eliminar la imagen");
+        return false;
+      }
+
+      return true;
+    } catch {
+      useUiStore.getState().setError("Error de conexión al eliminar la imagen.");
+      return false;
+    }
+  },
+
+  setPrimaryProductImage: async (storeId, productId, imageId) => {
+    useUiStore.getState().clearMessages();
+
+    const formData = new FormData();
+    formData.append("is_primary", "true");
+
+    try {
+      const response = await fetch(
+        `/api/merchant/stores/${storeId}/products/${productId}/images/${imageId}`,
+        {
+          method: "PATCH",
+          body: formData,
+        },
+      );
+      const data = (await response.json()) as ProductImage & { detail?: string };
+
+      if (!response.ok) {
+        useUiStore.getState().setError(data.detail ?? "No se pudo marcar la imagen principal");
+        return null;
+      }
+
+      return data;
+    } catch {
+      useUiStore.getState().setError("Error de conexión al actualizar la imagen.");
+      return null;
+    }
+  },
+
+  replaceProductImage: async (storeId, productId, imageId, file) => {
+    useUiStore.getState().clearMessages();
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch(
+        `/api/merchant/stores/${storeId}/products/${productId}/images/${imageId}`,
+        {
+          method: "PATCH",
+          body: formData,
+        },
+      );
+      const data = (await response.json()) as ProductImage & { detail?: string };
+
+      if (!response.ok) {
+        useUiStore.getState().setError(data.detail ?? "No se pudo reemplazar la imagen");
+        return null;
+      }
+
+      return data;
+    } catch {
+      useUiStore.getState().setError("Error de conexión al reemplazar la imagen.");
       return null;
     }
   },
