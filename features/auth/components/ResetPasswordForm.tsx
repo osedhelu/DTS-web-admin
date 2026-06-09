@@ -1,51 +1,51 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-interface LoginSuccess {
-  ok: boolean;
-  redirectTo: string;
+interface ResetPasswordFormProps {
+  token: string;
 }
 
-export function LoginForm() {
+export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const verified = searchParams.get("verified") === "1";
-  const reset = searchParams.get("reset") === "1";
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/public/password-reset/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ token, password }),
       });
 
-      const payload = (await response.json()) as LoginSuccess & {
-        detail?: string;
-      };
+      const data = (await response.json()) as { detail?: string };
 
       if (!response.ok) {
-        setError(payload.detail ?? "No se pudo iniciar sesión");
+        setError(data.detail ?? "No se pudo restablecer la contraseña");
         return;
       }
 
-      const nextPath = searchParams.get("next");
-      const destination =
-        nextPath && nextPath.startsWith("/") ? nextPath : payload.redirectTo;
-
-      router.replace(destination);
-      router.refresh();
+      router.replace("/login?reset=1");
     } catch {
       setError("Error de conexión. Intenta de nuevo.");
     } finally {
@@ -56,56 +56,26 @@ export function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      data-testid="login-form"
+      data-testid="reset-password-form"
       className="flex w-full flex-col gap-5 rounded-2xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl shadow-black/40 backdrop-blur-xl"
     >
       <div className="hidden lg:block">
-        <h1 className="text-2xl font-bold tracking-tight text-white">Iniciar sesión</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-white">
+          Nueva contraseña
+        </h1>
         <p className="mt-1 text-sm text-zinc-400">
-          Acceso para comercios y administradores DTS.
+          Elige una contraseña segura de al menos 8 caracteres.
         </p>
       </div>
 
-      {verified ? (
-        <p
-          data-testid="login-verified-banner"
-          className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
-        >
-          Tu correo fue confirmado. Inicia sesión con el usuario generado a partir
-          de tu email.
-        </p>
-      ) : null}
-
-      {reset ? (
-        <p
-          data-testid="login-reset-banner"
-          className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
-        >
-          Tu contraseña fue actualizada. Ya puedes iniciar sesión.
-        </p>
-      ) : null}
-
       <label className="flex flex-col gap-2 text-sm font-medium text-zinc-300">
-        Usuario
-        <input
-          name="username"
-          type="text"
-          autoComplete="username"
-          required
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          placeholder="nombre@empresa.com"
-          className="rounded-xl border border-white/10 bg-zinc-900/60 px-4 py-2.5 font-normal text-white placeholder:text-zinc-600 outline-none ring-emerald-500/40 transition focus:border-emerald-500/50 focus:ring-2"
-        />
-      </label>
-
-      <label className="flex flex-col gap-2 text-sm font-medium text-zinc-300">
-        Contraseña
+        Nueva contraseña
         <input
           name="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           required
+          minLength={8}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="••••••••"
@@ -113,19 +83,25 @@ export function LoginForm() {
         />
       </label>
 
-      <div className="text-right">
-        <Link
-          href="/recuperar-contrasena"
-          data-testid="login-forgot-password"
-          className="text-xs font-medium text-emerald-400 transition hover:text-emerald-300"
-        >
-          ¿Olvidaste tu contraseña?
-        </Link>
-      </div>
+      <label className="flex flex-col gap-2 text-sm font-medium text-zinc-300">
+        Confirmar contraseña
+        <input
+          name="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={8}
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          placeholder="••••••••"
+          className="rounded-xl border border-white/10 bg-zinc-900/60 px-4 py-2.5 font-normal text-white placeholder:text-zinc-600 outline-none ring-emerald-500/40 transition focus:border-emerald-500/50 focus:ring-2"
+        />
+      </label>
 
       {error ? (
         <p
           role="alert"
+          data-testid="reset-password-error"
           className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
         >
           {error}
@@ -137,16 +113,16 @@ export function LoginForm() {
         disabled={isSubmitting}
         className="mt-1 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Ingresando…" : "Ingresar"}
+        {isSubmitting ? "Guardando…" : "Restablecer contraseña"}
       </button>
 
       <p className="text-center text-xs text-zinc-500">
-        ¿Aún no tienes comercio?{" "}
+        ¿Necesitas otro enlace?{" "}
         <Link
-          href="/registro-comercio"
+          href="/recuperar-contrasena"
           className="font-medium text-emerald-400 transition hover:text-emerald-300"
         >
-          Regístrate aquí
+          Solicitar de nuevo
         </Link>
       </p>
     </form>
