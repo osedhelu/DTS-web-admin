@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { CategorySelector } from "@/features/products/components/CategorySelector";
 import { DynamicProductFields } from "@/features/products/components/DynamicProductFields";
+import { ProductPromotionsSection } from "@/features/products/components/ProductPromotionsSection";
 import {
   isMultiSelectRule,
   normalizeDynamicValueForForm,
@@ -18,6 +19,8 @@ import { ProductImageGallery } from "@/features/products/components/ProductImage
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
 import { resolvePrimaryImageUrl } from "@/features/products/lib/primary-image";
 import { useProductsStore } from "@/features/products/stores/products-store";
+import { buildProductPromotionMaps } from "@/features/promotions/lib/product-promotion-map";
+import { usePromotionsStore } from "@/features/promotions/stores/promotions-store";
 import type {
   ProductDetail,
   ProductImage,
@@ -86,6 +89,8 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   const upsertProduct = useProductsStore((state) => state.upsertProduct);
   const categories = useCategoriesStore((state) => state.categories);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
+  const loadPromotions = usePromotionsStore((state) => state.loadPromotions);
+  const promotions = usePromotionsStore((state) => state.promotions);
   const setSuccess = useUiStore((state) => state.setSuccess);
 
   const [detail, setDetail] = useState<ProductDetail | null>(null);
@@ -146,7 +151,13 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
 
   useEffect(() => {
     void loadCategories(storeId);
-  }, [loadCategories, storeId]);
+    void loadPromotions(storeId);
+  }, [loadCategories, loadPromotions, storeId]);
+
+  const productPromotionMaps = useMemo(
+    () => buildProductPromotionMaps(promotions, productId),
+    [promotions, productId],
+  );
 
   useEffect(() => {
     if (!detail || fields === null || !categoryKey) {
@@ -440,10 +451,15 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
           }
         />
 
+        <ProductPromotionsSection
+          productWidePromotions={productPromotionMaps.productWide}
+        />
+
         <DynamicProductFields
           fieldConfig={activeFieldConfig}
           values={dynamicValues}
           onChange={setDynamicValues}
+          optionPromotions={productPromotionMaps.byOption}
         />
 
         {isPhysical ? (

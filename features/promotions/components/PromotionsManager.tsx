@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { IconActionButton } from "@/components/ui/IconActionButton";
@@ -19,6 +21,8 @@ import type { CreatePromotionPayload } from "@/features/promotions/types";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
 
 export function PromotionsManager() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const guard = useMerchantStoreGuard();
   const promotions = usePromotionsStore((state) => state.promotions);
   const isLoading = usePromotionsStore((state) => state.isLoading);
@@ -28,6 +32,10 @@ export function PromotionsManager() {
   const deactivatePromotion = usePromotionsStore((state) => state.deactivatePromotion);
 
   const [modalState, setModalState] = useState<PromotionModalState | null>(null);
+  const handledPromotionIdRef = useRef<number | null>(null);
+
+  const promotionIdParam = searchParams.get("promotionId");
+  const requestedPromotionId = promotionIdParam ? Number(promotionIdParam) : null;
 
   useEffect(() => {
     if (!guard.ready) {
@@ -36,6 +44,33 @@ export function PromotionsManager() {
 
     void loadPromotions(guard.activeStoreId);
   }, [guard.ready, guard.activeStoreId, loadPromotions]);
+
+  useEffect(() => {
+    if (
+      isLoading ||
+      !requestedPromotionId ||
+      Number.isNaN(requestedPromotionId) ||
+      handledPromotionIdRef.current === requestedPromotionId
+    ) {
+      return;
+    }
+
+    const promotion = promotions.find((item) => item.id === requestedPromotionId);
+    if (!promotion) {
+      return;
+    }
+
+    handledPromotionIdRef.current = requestedPromotionId;
+    setModalState({ mode: "edit", promotion });
+
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`[data-testid="promotion-row-${requestedPromotionId}"]`)
+        ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    router.replace("/merchant/promotions", { scroll: false });
+  }, [isLoading, promotions, requestedPromotionId, router]);
 
   if (!guard.ready) {
     return guard.content;
@@ -110,7 +145,17 @@ export function PromotionsManager() {
                     {formatPromotionSummary(promotion)}
                   </td>
                   <td className="px-4 py-3">
-                    {formatPromotionScope(promotion)}
+                    {promotion.product_id ? (
+                      <Link
+                        href={`/merchant/products/${promotion.product_id}`}
+                        data-testid={`promotion-product-link-${promotion.id}`}
+                        className="text-zinc-900 underline-offset-2 hover:underline"
+                      >
+                        {formatPromotionScope(promotion)}
+                      </Link>
+                    ) : (
+                      formatPromotionScope(promotion)
+                    )}
                   </td>
                   <td className="px-4 py-3">{promotion.is_active ? "Sí" : "No"}</td>
                   <td className="px-4 py-3">

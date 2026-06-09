@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { PromotionsManager } from "@/features/promotions/components/PromotionsManager";
 
 export default function MerchantPromotionsPage() {
@@ -11,7 +13,9 @@ export default function MerchantPromotionsPage() {
         </p>
       </div>
 
-      <PromotionsManager />
+      <Suspense fallback={<p className="text-sm text-zinc-500">Cargando promociones…</p>}>
+        <PromotionsManager />
+      </Suspense>
     </section>
   );
 }
