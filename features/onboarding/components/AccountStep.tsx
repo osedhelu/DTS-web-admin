@@ -2,6 +2,12 @@
 
 import type { FormEvent } from "react";
 
+import {
+  onboardingAlertErrorClass,
+  onboardingInputClass,
+  onboardingLabelClass,
+  onboardingPrimaryBtnClass,
+} from "@/features/onboarding/lib/form-styles";
 import { useOnboardingStore } from "@/features/onboarding/stores/onboarding-store";
 
 export function AccountStep() {
@@ -29,7 +35,7 @@ export function AccountStep() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+        <label className={onboardingLabelClass}>
           Nombre
           <input
             data-testid="onboarding-first-name"
@@ -37,10 +43,10 @@ export function AccountStep() {
             required
             value={form.firstName}
             onChange={(event) => updateForm({ firstName: event.target.value })}
-            className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
+            className={onboardingInputClass}
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+        <label className={onboardingLabelClass}>
           Apellido
           <input
             data-testid="onboarding-last-name"
@@ -48,12 +54,12 @@ export function AccountStep() {
             required
             value={form.lastName}
             onChange={(event) => updateForm({ lastName: event.target.value })}
-            className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
+            className={onboardingInputClass}
           />
         </label>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className={onboardingLabelClass}>
         Email
         <input
           data-testid="onboarding-email"
@@ -62,11 +68,11 @@ export function AccountStep() {
           required
           value={form.email}
           onChange={(event) => updateForm({ email: event.target.value })}
-          className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
+          className={onboardingInputClass}
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className={onboardingLabelClass}>
         Contraseña
         <input
           data-testid="onboarding-password"
@@ -76,11 +82,11 @@ export function AccountStep() {
           minLength={8}
           value={form.password}
           onChange={(event) => updateForm({ password: event.target.value })}
-          className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
+          className={onboardingInputClass}
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className={onboardingLabelClass}>
         Confirmar contraseña
         <input
           data-testid="onboarding-confirm-password"
@@ -92,12 +98,12 @@ export function AccountStep() {
           onChange={(event) =>
             updateForm({ confirmPassword: event.target.value })
           }
-          className="rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none ring-zinc-400 focus:ring-2"
+          className={onboardingInputClass}
         />
       </label>
 
       {passwordsMismatch ? (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className={onboardingAlertErrorClass}>
           Las contraseñas no coinciden.
         </p>
       ) : null}
@@ -106,7 +112,7 @@ export function AccountStep() {
         type="submit"
         data-testid="onboarding-step1-next"
         disabled={passwordsMismatch}
-        className="mt-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className={`mt-2 ${onboardingPrimaryBtnClass}`}
       >
         Continuar
       </button>

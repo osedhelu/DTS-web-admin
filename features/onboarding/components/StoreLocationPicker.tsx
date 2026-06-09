@@ -9,6 +9,10 @@ import {
   hasValidCoordinates,
   requestDeviceLocation,
 } from "@/features/onboarding/lib/geolocation";
+import {
+  onboardingAlertWarningClass,
+  onboardingPrimaryBtnClass,
+} from "@/features/onboarding/lib/form-styles";
 
 import "leaflet/dist/leaflet.css";
 
@@ -118,12 +122,12 @@ export function StoreLocationPicker({
   return (
     <div
       data-testid="onboarding-location-picker"
-      className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4"
+      className="space-y-3 rounded-xl border border-white/10 bg-zinc-900/40 p-4"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-zinc-900">Ubicación de la tienda</p>
-          <p className="text-xs text-zinc-600">
+          <p className="text-sm font-semibold text-white">Ubicación de la tienda</p>
+          <p className="text-xs text-zinc-400">
             Necesitamos tu GPS para mostrar el comercio en el mapa operativo del administrador.
           </p>
         </div>
@@ -132,14 +136,14 @@ export function StoreLocationPicker({
           data-testid="onboarding-request-gps"
           onClick={() => void captureGps(true)}
           disabled={isLoadingGps}
-          className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
+          className={`${onboardingPrimaryBtnClass} px-3 py-2 text-xs`}
         >
           {isLoadingGps ? "Obteniendo GPS…" : "Usar mi ubicación"}
         </button>
       </div>
 
       {gpsError ? (
-        <p role="alert" className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <p role="alert" className={onboardingAlertWarningClass}>
           {gpsError}
         </p>
       ) : null}
@@ -147,7 +151,7 @@ export function StoreLocationPicker({
       {hasPosition ? (
         <p
           data-testid="onboarding-location-status"
-          className="text-xs text-emerald-800"
+          className="text-xs text-emerald-300"
         >
           Ubicación {locationSource === "gps" ? "GPS capturada" : "marcada en mapa"}:{" "}
           {latitude.toFixed(5)}, {longitude.toFixed(5)}
@@ -158,7 +162,7 @@ export function StoreLocationPicker({
         </p>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-zinc-200">
+      <div className="overflow-hidden rounded-xl border border-white/10">
         <MapContainer
           center={markerPosition ?? DEFAULT_CENTER}
           zoom={hasPosition ? 16 : 12}

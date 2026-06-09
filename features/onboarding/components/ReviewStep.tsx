@@ -5,6 +5,12 @@ import type { FormEvent } from "react";
 
 import { VERTICAL_OPTIONS } from "@/features/onboarding/constants";
 import { hasValidCoordinates } from "@/features/onboarding/lib/geolocation";
+import {
+  onboardingAlertErrorClass,
+  onboardingPrimaryBtnClass,
+  onboardingSecondaryBtnClass,
+  onboardingSummaryClass,
+} from "@/features/onboarding/lib/form-styles";
 import type { MerchantRegisterPayload } from "@/features/onboarding/types";
 import { useOnboardingStore } from "@/features/onboarding/stores/onboarding-store";
 
@@ -23,6 +29,8 @@ export function ReviewStep() {
   const setSubmitError = useOnboardingStore((state) => state.setSubmitError);
   const reset = useOnboardingStore((state) => state.reset);
 
+  const hasLocation = hasValidCoordinates(form.latitude, form.longitude);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -31,7 +39,7 @@ export function ReviewStep() {
       return;
     }
 
-    if (!hasValidCoordinates(form.latitude, form.longitude)) {
+    if (!hasLocation) {
       setSubmitError("Falta la ubicación de la tienda. Vuelve al paso anterior.");
       return;
     }
@@ -49,8 +57,8 @@ export function ReviewStep() {
       category_template: form.categoryTemplate,
       phone: form.phone.trim(),
       address: form.address.trim() || undefined,
-      latitude: form.latitude,
-      longitude: form.longitude,
+      latitude: form.latitude!,
+      longitude: form.longitude!,
     };
 
     try {
@@ -80,38 +88,35 @@ export function ReviewStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div
-        data-testid="onboarding-summary"
-        className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700"
-      >
+      <div data-testid="onboarding-summary" className={onboardingSummaryClass}>
         <p>
-          <span className="font-medium text-zinc-900">Cuenta:</span>{" "}
+          <span className="font-medium text-white">Cuenta:</span>{" "}
           {form.firstName} {form.lastName} · {form.email}
         </p>
         <p className="mt-2">
-          <span className="font-medium text-zinc-900">Tienda:</span>{" "}
+          <span className="font-medium text-white">Tienda:</span>{" "}
           {form.storeName}
         </p>
         <p className="mt-2">
-          <span className="font-medium text-zinc-900">Vertical:</span>{" "}
+          <span className="font-medium text-white">Vertical:</span>{" "}
           {verticalLabel(form.vertical)} · {form.categoryTemplate}
         </p>
         <p className="mt-2">
-          <span className="font-medium text-zinc-900">Ubicación:</span>{" "}
-          {form.latitude !== null && form.longitude !== null
-            ? `${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)} (${
+          <span className="font-medium text-white">Ubicación:</span>{" "}
+          {hasLocation
+            ? `${form.latitude!.toFixed(5)}, ${form.longitude!.toFixed(5)} (${
                 form.locationSource === "gps" ? "GPS" : "mapa"
               })`
             : "Sin ubicación"}
         </p>
         <p className="mt-2">
-          <span className="font-medium text-zinc-900">Contacto:</span>{" "}
+          <span className="font-medium text-white">Contacto:</span>{" "}
           {form.phone}
           {form.address ? ` · ${form.address}` : ""}
         </p>
       </div>
 
-      <label className="flex items-start gap-2 text-sm text-zinc-700">
+      <label className="flex items-start gap-2 text-sm text-zinc-300">
         <input
           data-testid="onboarding-accept-terms"
           type="checkbox"
@@ -119,7 +124,7 @@ export function ReviewStep() {
           onChange={(event) =>
             updateForm({ acceptTerms: event.target.checked })
           }
-          className="mt-1"
+          className="mt-1 accent-emerald-500"
         />
         <span>
           Acepto los términos del servicio y la política de tratamiento de datos
@@ -128,7 +133,7 @@ export function ReviewStep() {
       </label>
 
       {submitError ? (
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className={onboardingAlertErrorClass}>
           {submitError}
         </p>
       ) : null}
@@ -139,7 +144,7 @@ export function ReviewStep() {
           data-testid="onboarding-step3-back"
           onClick={() => setStep(2)}
           disabled={isSubmitting}
-          className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-60"
+          className={onboardingSecondaryBtnClass}
         >
           Atrás
         </button>
@@ -147,7 +152,7 @@ export function ReviewStep() {
           type="submit"
           data-testid="onboarding-submit"
           disabled={isSubmitting || !form.acceptTerms}
-          className="flex-1 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className={`flex-1 ${onboardingPrimaryBtnClass}`}
         >
           {isSubmitting ? "Registrando…" : "Crear mi comercio"}
         </button>

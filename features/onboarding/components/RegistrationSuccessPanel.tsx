@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+
+import { onboardingCardClass, onboardingPrimaryBtnClass } from "@/features/onboarding/lib/form-styles";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -10,32 +13,30 @@ function SuccessContent() {
   return (
     <div
       data-testid="registration-success"
-      className="mx-auto max-w-md rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-sm"
+      className={`${onboardingCardClass} text-center`}
     >
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-2xl text-emerald-300 ring-1 ring-emerald-500/30">
         ✓
       </div>
-      <h1 className="mt-4 text-2xl font-semibold text-zinc-900">
-        Revisa tu correo
-      </h1>
-      <p className="mt-2 text-sm text-zinc-600">
+      <h1 className="mt-4 text-2xl font-bold text-white">Revisa tu correo</h1>
+      <p className="mt-2 text-sm leading-relaxed text-zinc-400">
         Enviamos un enlace de confirmación
         {email ? (
           <>
             {" "}
-            a <strong className="text-zinc-900">{email}</strong>
+            a <strong className="text-white">{email}</strong>
           </>
         ) : (
           " a tu email"
         )}
         . Haz clic en el enlace para activar tu cuenta de comercio.
       </p>
-      <a
+      <Link
         href="/login"
-        className="mt-6 inline-flex text-sm font-medium text-zinc-900 underline"
+        className={`mt-6 inline-flex ${onboardingPrimaryBtnClass}`}
       >
         Ir a iniciar sesión
-      </a>
+      </Link>
     </div>
   );
 }
@@ -44,7 +45,7 @@ export function RegistrationSuccessPanel() {
   return (
     <Suspense
       fallback={
-        <div className="text-center text-sm text-zinc-500">Cargando…</div>
+        <div className="text-center text-sm text-zinc-400">Cargando…</div>
       }
     >
       <SuccessContent />

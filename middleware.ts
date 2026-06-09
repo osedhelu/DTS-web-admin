@@ -13,6 +13,8 @@ const PUBLIC_PATHS = [
   "/vender",
   "/registro-comercio",
   "/confirmar-email",
+  "/recuperar-contrasena",
+  "/restablecer-contrasena",
 ];
 
 function pathnameHasLocale(pathname: string): boolean {

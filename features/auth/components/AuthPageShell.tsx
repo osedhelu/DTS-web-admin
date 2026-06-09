@@ -6,6 +6,8 @@ interface AuthPageShellProps {
   subtitle: string;
   asideTitle?: string;
   asideDescription?: string;
+  contentClassName?: string;
+  asideFooter?: React.ReactNode;
 }
 
 export function AuthPageShell({
@@ -14,6 +16,8 @@ export function AuthPageShell({
   subtitle,
   asideTitle = "Gestiona tu negocio con una sola cuenta",
   asideDescription = "Accede al panel de comercio o a la consola de administración para operar pedidos, catálogo y métricas en tiempo real.",
+  contentClassName = "max-w-md",
+  asideFooter,
 }: AuthPageShellProps) {
   return (
     <div className="relative flex min-h-screen bg-zinc-950 text-zinc-100">
@@ -52,20 +56,22 @@ export function AuthPageShell({
           </p>
         </div>
 
-        <div className="relative px-12 pb-16">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-            <p className="text-sm font-semibold text-white">Acceso seguro</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-400">
-              Protegemos tu cuenta con verificación por correo y enlaces de un solo uso.
-            </p>
-          </div>
+        <div className="relative space-y-4 px-12 pb-16">
+          {asideFooter ?? (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+              <p className="text-sm font-semibold text-white">Acceso seguro</p>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-400">
+                Protegemos tu cuenta con verificación por correo y enlaces de un solo uso.
+              </p>
+            </div>
+          )}
         </div>
       </aside>
 
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-20 sm:px-8">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-emerald-950/30 via-zinc-950 to-zinc-950 lg:hidden" />
 
-        <div className="relative w-full max-w-md">
+        <div className={`relative w-full ${contentClassName}`}>
           <div className="mb-8 text-center lg:hidden">
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">
               DTS Platform
