@@ -19,7 +19,7 @@ export function DiscountBadge({
       <span
         data-testid={testId}
         title={`Descuento: ${label}`}
-        className={`inline-flex min-h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-violet-200 px-1.5 py-0.5 text-[10px] font-bold leading-none text-violet-950 shadow-sm ring-2 ring-white ${className}`}
+        className={`inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-violet-500 px-1 py-0.5 text-[9px] font-bold leading-none text-white shadow-md ring-2 ring-white ${className}`}
       >
         {label}
       </span>

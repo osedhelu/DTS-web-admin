@@ -93,7 +93,7 @@ export function DynamicProductFields({
               </p>
               <div
                 data-testid={`product-dynamic-${key}`}
-                className="flex flex-wrap gap-2"
+                className="flex flex-wrap items-center gap-3 pt-1"
               >
                 {getRuleOptions(rule).map((option, index) => {
                   const selected = getSelectedOptions(values[key]);
@@ -107,7 +107,7 @@ export function DynamicProductFields({
                     >
                       <label
                         data-testid={`product-dynamic-${key}-${option}`}
-                        className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                        className={`inline-flex min-h-[2.25rem] min-w-[2.75rem] cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-center text-sm ${
                           isChecked
                             ? "border-zinc-900 bg-zinc-900 text-white"
                             : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400"
@@ -129,7 +129,7 @@ export function DynamicProductFields({
                           data-testid={`product-option-promotion-${promotion.id}`}
                           onClick={(event) => event.stopPropagation()}
                           onMouseDown={(event) => event.stopPropagation()}
-                          className="absolute -right-1.5 -top-1.5 z-10"
+                          className="absolute -right-2 -top-2 z-10"
                           title={promotion.name}
                         >
                           <DiscountBadge

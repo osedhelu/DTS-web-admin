@@ -97,12 +97,12 @@ export function MerchantShell({ userEmail, children }: MerchantShellProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-zinc-100 text-zinc-900">
+    <div className="flex h-screen overflow-hidden bg-zinc-100 text-zinc-900">
       <aside
         data-testid="merchant-sidebar"
-        className="flex w-72 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950 text-zinc-100"
+        className="flex h-screen w-72 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950 text-zinc-100"
       >
-        <div className="border-b border-white/10 px-5 py-6">
+        <div className="shrink-0 border-b border-white/10 px-5 py-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">
             DTS Platform
           </p>
@@ -112,7 +112,7 @@ export function MerchantShell({ userEmail, children }: MerchantShellProps) {
           </p>
         </div>
 
-        <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+        <nav className="min-h-0 flex-1 space-y-6 overflow-y-auto px-3 py-5">
           {merchantNavGroups.map((group) => (
             <div key={group.title}>
               <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
@@ -146,7 +146,7 @@ export function MerchantShell({ userEmail, children }: MerchantShellProps) {
           ))}
         </nav>
 
-        <div className="border-t border-white/10 px-5 py-4">
+        <div className="shrink-0 border-t border-white/10 px-5 py-4">
           {userEmail ? (
             <p className="truncate text-xs text-zinc-400">{userEmail}</p>
           ) : null}
@@ -160,8 +160,8 @@ export function MerchantShell({ userEmail, children }: MerchantShellProps) {
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="border-b border-zinc-200 bg-white/80 px-8 py-4 backdrop-blur-md">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="shrink-0 border-b border-zinc-200 bg-white/80 px-8 py-4 backdrop-blur-md">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-emerald-700">
@@ -180,7 +180,7 @@ export function MerchantShell({ userEmail, children }: MerchantShellProps) {
           </div>
         </header>
 
-        <main className="flex-1 px-8 py-8">{children}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto px-8 py-8">{children}</main>
       </div>
     </div>
   );
