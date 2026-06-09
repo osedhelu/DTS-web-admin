@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { MarketingLanding } from "@/features/marketing/components/MarketingLanding";
 import { locales, type Locale } from "@/lib/i18n/config";
 import { getDictionary, hasLocale } from "@/lib/i18n/dictionaries";
 

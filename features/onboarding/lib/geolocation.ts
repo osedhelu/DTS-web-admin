@@ -21,7 +21,7 @@ export function isGeolocationSupported(): boolean {
 export function hasValidCoordinates(
   latitude: number | null | undefined,
   longitude: number | null | undefined,
-): latitude is number {
+): boolean {
   return (
     typeof latitude === "number" &&
     typeof longitude === "number" &&

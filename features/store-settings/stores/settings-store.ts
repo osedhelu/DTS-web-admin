@@ -77,7 +77,8 @@ export const useStoreSettingsStore = create<StoreSettingsState>((set) => ({
           body: formData,
         });
       } else {
-        const { logo: _logo, ...jsonPayload } = payload;
+        const jsonPayload = { ...payload };
+        delete jsonPayload.logo;
         response = await fetch(`/api/merchant/stores/${storeId}/profile`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

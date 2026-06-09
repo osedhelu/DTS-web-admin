@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CircleMarker, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { LatLngExpression } from "leaflet";
 
@@ -66,12 +66,13 @@ export function StoreLocationPicker({
 }: StoreLocationPickerProps) {
   const [isLoadingGps, setIsLoadingGps] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
-  const [autoRequested, setAutoRequested] = useState(false);
+  const autoRequestedRef = useRef(false);
 
   const hasPosition = hasValidCoordinates(latitude, longitude);
-  const markerPosition: LatLngExpression | null = hasPosition
-    ? [latitude, longitude]
-    : null;
+  const markerPosition: LatLngExpression | null =
+    hasPosition && latitude !== null && longitude !== null
+      ? [latitude, longitude]
+      : null;
 
   async function captureGps(manualTrigger = false) {
     setIsLoadingGps(true);
@@ -104,12 +105,14 @@ export function StoreLocationPicker({
   }
 
   useEffect(() => {
-    if (autoRequested || hasPosition || variant === "settings") {
+    if (autoRequestedRef.current || hasPosition || variant === "settings") {
       return;
     }
-    setAutoRequested(true);
+    autoRequestedRef.current = true;
     void captureGps(false);
-  }, [autoRequested, hasPosition, variant]);
+    // captureGps is stable enough for one-time auto-request on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPosition, variant]);
 
   function handleManualPick(lat: number, lng: number) {
     onChange({
@@ -163,13 +166,13 @@ export function StoreLocationPicker({
         </p>
       ) : null}
 
-      {hasPosition ? (
+      {markerPosition ? (
         <p
           data-testid="onboarding-location-status"
           className={statusClass}
         >
           Ubicación {locationSource === "gps" ? "GPS capturada" : "marcada en mapa"}:{" "}
-          {latitude.toFixed(5)}, {longitude.toFixed(5)}
+          {markerPosition[0].toFixed(5)}, {markerPosition[1].toFixed(5)}
         </p>
       ) : (
         <p className={hintClass}>

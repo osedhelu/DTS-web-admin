@@ -38,7 +38,7 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
   const [fields, setFields] = useState(initialState);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [dynamicValues, setDynamicValues] = useState<DynamicValues>({});
+  const [rawDynamicValues, setRawDynamicValues] = useState<DynamicValues>({});
 
   const activeFieldConfig = useMemo(
     () =>
@@ -46,13 +46,14 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
     [categories, fields.categoryId, fields.subcategoryId],
   );
 
+  const dynamicValues = useMemo(
+    () => syncDynamicValues(activeFieldConfig, rawDynamicValues),
+    [activeFieldConfig, rawDynamicValues],
+  );
+
   useEffect(() => {
     void loadCategories(storeId);
   }, [loadCategories, storeId]);
-
-  useEffect(() => {
-    setDynamicValues((current) => syncDynamicValues(activeFieldConfig, current));
-  }, [activeFieldConfig]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -209,7 +210,7 @@ export function ProductForm({ onCreated, storeId }: ProductFormProps) {
       <DynamicProductFields
         fieldConfig={activeFieldConfig}
         values={dynamicValues}
-        onChange={setDynamicValues}
+        onChange={setRawDynamicValues}
       />
 
       {productType === "physical" ? (

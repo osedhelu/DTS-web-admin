@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/auth/cookies";
-import { getRoleHomePath, isUserRole } from "@/lib/auth/roles";
+import { isUserRole } from "@/lib/auth/roles";
 import { refreshAccessToken } from "@/lib/auth/refresh";
 import { decodeJwtPayload, isSessionExpired } from "@/lib/auth/session";
 import { locales } from "@/lib/i18n/config";

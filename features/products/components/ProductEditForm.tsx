@@ -160,7 +160,7 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     return () => {
       active = false;
     };
-  }, [loadProductDetail, productId, storeId]);
+  }, [loadProductDetail, productId, setSuccess, storeId]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

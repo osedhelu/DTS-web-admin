@@ -15,7 +15,6 @@ import { usePromotionsStore } from "@/features/promotions/stores/promotions-stor
 import type {
   CreatePromotionPayload,
   StorePromotion,
-  UpdatePromotionPayload,
 } from "@/features/promotions/types";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
 

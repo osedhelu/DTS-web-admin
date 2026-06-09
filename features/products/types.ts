@@ -19,6 +19,15 @@ export interface ProductImage {
   is_primary: boolean;
 }
 
+export type DynamicMultiWithPrices = {
+  options: string[];
+  prices?: Record<string, string>;
+};
+
+export type DynamicValuePayload = string | string[] | DynamicMultiWithPrices;
+
+export type DynamicValuesPayload = Record<string, DynamicValuePayload>;
+
 export interface Product {
   id: number;
   name: string;
@@ -33,7 +42,7 @@ export interface Product {
   requires_on_site_visit: boolean;
   duration_minutes: number | null;
   tracks_stock: boolean;
-  dynamic_values?: Record<string, string | string[]>;
+  dynamic_values?: DynamicValuesPayload;
   primary_image_url?: string | null;
   promotion_badge?: string | null;
 }
@@ -52,7 +61,7 @@ export interface CreatePhysicalProductInput {
   description?: string;
   category_id?: number | null;
   subcategory_id?: number | null;
-  dynamic_values?: Record<string, string | string[]>;
+  dynamic_values?: DynamicValuesPayload;
 }
 
 export interface CreateServiceInput {
@@ -63,7 +72,7 @@ export interface CreateServiceInput {
   description?: string;
   category_id?: number | null;
   subcategory_id?: number | null;
-  dynamic_values?: Record<string, string | string[]>;
+  dynamic_values?: DynamicValuesPayload;
 }
 
 export type CreateProductInput = CreatePhysicalProductInput | CreateServiceInput;
@@ -76,6 +85,6 @@ export interface UpdateProductInput {
   category_id?: number | null;
   subcategory_id?: number | null;
   duration_minutes?: number | null;
-  dynamic_values?: Record<string, string | string[]>;
+  dynamic_values?: DynamicValuesPayload;
   variants?: ProductVariant[];
 }

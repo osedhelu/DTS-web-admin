@@ -7,7 +7,7 @@ import { IconActionButton } from "@/components/ui/IconActionButton";
 import { EditIcon, TrashIcon } from "@/components/ui/icons";
 import { BannerForm } from "@/features/banners/components/BannerForm";
 import { useBannersStore } from "@/features/banners/stores/banners-store";
-import type { Banner, CreateBannerPayload, UpdateBannerPayload } from "@/features/banners/types";
+import type { Banner, CreateBannerPayload } from "@/features/banners/types";
 
 export function BannersManager() {
   const banners = useBannersStore((state) => state.banners);

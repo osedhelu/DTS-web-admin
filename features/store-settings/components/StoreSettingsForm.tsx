@@ -71,7 +71,9 @@ export function StoreSettingsForm({ storeId, initial }: StoreSettingsFormProps) 
       address,
       status: isOpen ? "open" : "closed",
       ...(logoFile ? { logo: logoFile } : {}),
-      ...(locationChanged ? { latitude, longitude } : {}),
+      ...(locationChanged && latitude !== null && longitude !== null
+        ? { latitude, longitude }
+        : {}),
     });
 
     if (saved) {

@@ -66,7 +66,13 @@ export function PromotionForm({
       : defaultPayload,
   );
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
+  const [loadedProductId, setLoadedProductId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const activeProductDetail =
+    payload.product_id != null && payload.product_id === loadedProductId
+      ? productDetail
+      : null;
 
   useEffect(() => {
     void loadProducts(storeId);
@@ -74,17 +80,18 @@ export function PromotionForm({
   }, [loadCategories, loadProducts, storeId]);
 
   useEffect(() => {
-    if (!payload.product_id) {
-      setProductDetail(null);
+    const productId = payload.product_id;
+    if (!productId) {
       return;
     }
 
     let active = true;
-    void loadProductDetail(storeId, payload.product_id).then((detail) => {
+    void loadProductDetail(storeId, productId).then((detail) => {
       if (!active) {
         return;
       }
       setProductDetail(detail);
+      setLoadedProductId(productId);
     });
 
     return () => {
@@ -93,16 +100,16 @@ export function PromotionForm({
   }, [loadProductDetail, payload.product_id, storeId]);
 
   const fieldConfig = useMemo(() => {
-    if (!productDetail) {
+    if (!activeProductDetail) {
       return {};
     }
 
     return resolveProductFieldConfig(
       categories,
-      productDetail.category_id,
-      productDetail.subcategory_id,
+      activeProductDetail.category_id,
+      activeProductDetail.subcategory_id,
     );
-  }, [categories, productDetail]);
+  }, [activeProductDetail, categories]);
 
   const paramKeys = useMemo(
     () => Object.keys(fieldConfig),
@@ -110,12 +117,12 @@ export function PromotionForm({
   );
 
   const paramOptions = useMemo(() => {
-    if (!payload.param_key || !productDetail?.dynamic_values) {
+    if (!payload.param_key || !activeProductDetail?.dynamic_values) {
       return [] as string[];
     }
 
-    return getSelectedOptions(productDetail.dynamic_values[payload.param_key]);
-  }, [payload.param_key, productDetail?.dynamic_values]);
+    return getSelectedOptions(activeProductDetail.dynamic_values[payload.param_key]);
+  }, [payload.param_key, activeProductDetail]);
 
   const scopeLabel = useMemo(() => {
     if (!payload.product_id) {
@@ -222,6 +229,7 @@ export function PromotionForm({
               param_key: null,
               param_value: null,
             }));
+            setLoadedProductId(null);
           }}
           className="rounded-lg border border-zinc-300 px-3 py-2"
         >

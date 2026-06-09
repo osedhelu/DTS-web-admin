@@ -40,7 +40,38 @@ interface CategoryModalProps {
   onClose: () => void;
 }
 
+function getCategoryModalKey(state: CategoryModalState): string {
+  if (state.mode === "edit") {
+    return `edit-${state.categoryId}`;
+  }
+  if (state.mode === "create-subcategory") {
+    return `create-sub-${state.parentId}`;
+  }
+  return "create-category";
+}
+
 export function CategoryModal({ open, state, storeId, onClose }: CategoryModalProps) {
+  if (!open || !state) {
+    return null;
+  }
+
+  return (
+    <CategoryModalForm
+      key={getCategoryModalKey(state)}
+      state={state}
+      storeId={storeId}
+      onClose={onClose}
+    />
+  );
+}
+
+interface CategoryModalFormProps {
+  state: CategoryModalState;
+  storeId: number;
+  onClose: () => void;
+}
+
+function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) {
   const addCategory = useCategoriesStore((s) => s.addCategory);
   const addSubcategory = useCategoriesStore((s) => s.addSubcategory);
   const updateCategory = useCategoriesStore((s) => s.updateCategory);
@@ -53,10 +84,18 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
   const replaceCategoryImage = useCategoryImagesStore((s) => s.replaceCategoryImage);
   const setSuccess = useUiStore((s) => s.setSuccess);
 
-  const [name, setName] = useState("");
-  const [fieldRows, setFieldRows] = useState<CategoryFieldConfigRow[]>([]);
+  const [name, setName] = useState(() =>
+    state.mode === "edit" ? state.initialName : "",
+  );
+  const [fieldRows, setFieldRows] = useState<CategoryFieldConfigRow[]>(() =>
+    state.mode === "edit"
+      ? fieldConfigToRows(state.initialFieldConfig ?? {})
+      : [],
+  );
   const [images, setImages] = useState<CategoryImage[]>([]);
-  const [isLoadingImages, setIsLoadingImages] = useState(false);
+  const [isLoadingImages, setIsLoadingImages] = useState(
+    () => state.mode === "edit",
+  );
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [busyImageId, setBusyImageId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,53 +103,28 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (!state) {
+    if (state.mode !== "edit") {
       return;
     }
 
-    setName(state.mode === "edit" ? state.initialName : "");
-    setFieldRows(
-      state.mode === "edit"
-        ? fieldConfigToRows(state.initialFieldConfig ?? {})
-        : [],
-    );
-    setError(null);
-    setIsSubmitting(false);
-    setIsDeleting(false);
-    setImages([]);
-    setBusyImageId(null);
-    setIsUploadingImage(false);
-  }, [state]);
-
-  useEffect(() => {
-    if (!open || !state || state.mode !== "edit") {
-      return;
-    }
-
+    const categoryId = state.categoryId;
     let active = true;
 
-    async function loadImages() {
-      setIsLoadingImages(true);
-      const loaded = await loadCategoryImages(storeId, state.categoryId);
-      if (active) {
-        setImages(loaded);
-        setIsLoadingImages(false);
+    void loadCategoryImages(storeId, categoryId).then((loaded) => {
+      if (!active) {
+        return;
       }
-    }
-
-    void loadImages();
+      setImages(loaded);
+      setIsLoadingImages(false);
+    });
 
     return () => {
       active = false;
     };
-  }, [open, state, storeId, loadCategoryImages]);
+  }, [state.categoryId, state.mode, storeId, loadCategoryImages]);
 
   async function refreshCategoryTree() {
     await loadCategories(storeId);
-  }
-
-  if (!state) {
-    return null;
   }
 
   const isEdit = state.mode === "edit";
@@ -363,7 +377,7 @@ export function CategoryModal({ open, state, storeId, onClose }: CategoryModalPr
 
   return (
     <Modal
-      open={open}
+      open
       title={title}
       description={description}
       onClose={onClose}

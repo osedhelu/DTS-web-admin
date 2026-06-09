@@ -20,7 +20,7 @@ interface ProductsState {
   loadProducts: (storeId: number, filters?: ProductListFilters) => Promise<void>;
   loadProductDetail: (storeId: number, productId: number) => Promise<ProductDetail | null>;
   addProduct: (product: Product) => void;
-  upsertProduct: (product: Product) => void;
+  upsertProduct: (product: Product | ProductDetail) => void;
   removeProduct: (productId: number) => void;
   deactivateProduct: (storeId: number, productId: number) => Promise<boolean>;
   updateProduct: (
@@ -117,12 +117,13 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
   },
 
   upsertProduct: (product) => {
+    const images = "images" in product ? product.images : undefined;
     const primary_image_url = resolvePrimaryImageUrl(
-      "images" in product ? product.images : undefined,
+      images,
       product.primary_image_url,
     );
-    const normalized = {
-      ...product,
+    const normalized: Product = {
+      ...(product as Product),
       primary_image_url: primary_image_url ?? null,
     };
     const exists = get().products.some((item) => item.id === product.id);
