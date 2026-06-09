@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { resolveMediaUrl } from "@/lib/media-url";
+import { resolvePrimaryImageUrl } from "@/features/products/lib/primary-image";
 import type { Product } from "@/features/products/types";
 
 interface ProductListProps {
@@ -68,7 +69,10 @@ export function ProductList({
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {visibleProducts.map((product) => {
-              const thumbnail = product.primary_image_url;
+              const thumbnail = resolvePrimaryImageUrl(
+                undefined,
+                product.primary_image_url,
+              );
 
               return (
                 <tr key={product.id} data-testid={`product-row-${product.id}`}>
@@ -80,7 +84,7 @@ export function ProductList({
                       {thumbnail ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={resolveMediaUrl(thumbnail)}
+                          src={resolveMediaUrl(thumbnail) || thumbnail}
                           alt=""
                           className="h-full w-full object-cover"
                         />

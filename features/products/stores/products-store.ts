@@ -6,6 +6,7 @@ import type {
   ProductImage,
   UpdateProductInput,
 } from "@/features/products/types";
+import { resolvePrimaryImageUrl } from "@/features/products/lib/primary-image";
 import type { PaginatedResponse } from "@/lib/api/types";
 
 export interface ProductListFilters {
@@ -116,17 +117,25 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
   },
 
   upsertProduct: (product) => {
+    const primary_image_url = resolvePrimaryImageUrl(
+      "images" in product ? product.images : undefined,
+      product.primary_image_url,
+    );
+    const normalized = {
+      ...product,
+      primary_image_url: primary_image_url ?? null,
+    };
     const exists = get().products.some((item) => item.id === product.id);
     if (exists) {
       set({
         products: get().products.map((item) =>
-          item.id === product.id ? { ...item, ...product } : item,
+          item.id === product.id ? { ...item, ...normalized } : item,
         ),
       });
       return;
     }
 
-    set({ products: [product, ...get().products] });
+    set({ products: [normalized, ...get().products] });
   },
 
   removeProduct: (productId) => {

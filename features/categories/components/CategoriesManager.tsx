@@ -93,7 +93,10 @@ export function CategoriesManager() {
         open={modalOpen}
         state={modalState}
         storeId={storeId}
-        onClose={() => setModalState(null)}
+        onClose={() => {
+          setModalState(null);
+          void loadCategories(storeId);
+        }}
       />
     </section>
   );

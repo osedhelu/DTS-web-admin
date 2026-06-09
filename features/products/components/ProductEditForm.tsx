@@ -15,6 +15,7 @@ import {
 import { ProductFormScreen } from "@/features/products/components/ProductFormScreen";
 import { ProductImageGallery } from "@/features/products/components/ProductImageGallery";
 import { useCategoriesStore } from "@/features/categories/stores/categories-store";
+import { resolvePrimaryImageUrl } from "@/features/products/lib/primary-image";
 import { useProductsStore } from "@/features/products/stores/products-store";
 import type {
   ProductDetail,
@@ -59,6 +60,7 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
   const deleteProductImage = useProductsStore((state) => state.deleteProductImage);
   const setPrimaryProductImage = useProductsStore((state) => state.setPrimaryProductImage);
   const replaceProductImage = useProductsStore((state) => state.replaceProductImage);
+  const upsertProduct = useProductsStore((state) => state.upsertProduct);
   const categories = useCategoriesStore((state) => state.categories);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
   const setSuccess = useUiStore((state) => state.setSuccess);
@@ -76,6 +78,17 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
 
   const categoryKey =
     fields === null ? "" : `${fields.categoryId ?? "null"}:${fields.subcategoryId ?? "null"}`;
+
+  function syncListThumbnail(images: ProductImage[]) {
+    if (!detail) {
+      return;
+    }
+
+    upsertProduct({
+      ...detail,
+      primary_image_url: resolvePrimaryImageUrl(images, detail.primary_image_url),
+    });
+  }
 
   const activeFieldConfig = useMemo(() => {
     if (fields === null) {
@@ -208,12 +221,14 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     setIsUploading(false);
 
     if (image) {
+      const nextImages = isPrimary
+        ? [image]
+        : [...fields.images, image];
       setFields({
         ...fields,
-        images: isPrimary
-          ? [image]
-          : [...fields.images, image],
+        images: nextImages,
       });
+      syncListThumbnail(nextImages);
     }
 
     return image;
@@ -231,15 +246,17 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     if (deleted) {
       const remaining = fields.images.filter((item) => item.id !== imageId);
       const hasPrimary = remaining.some((item) => item.is_primary);
+      const nextImages = hasPrimary
+        ? remaining
+        : remaining.map((item, index) => ({
+            ...item,
+            is_primary: index === 0,
+          }));
       setFields({
         ...fields,
-        images: hasPrimary
-          ? remaining
-          : remaining.map((item, index) => ({
-              ...item,
-              is_primary: index === 0,
-            })),
+        images: nextImages,
       });
+      syncListThumbnail(nextImages);
     }
 
     return deleted;
@@ -255,13 +272,15 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     setBusyImageId(null);
 
     if (updated) {
+      const nextImages = fields.images.map((item) => ({
+        ...item,
+        is_primary: item.id === imageId,
+      }));
       setFields({
         ...fields,
-        images: fields.images.map((item) => ({
-          ...item,
-          is_primary: item.id === imageId,
-        })),
+        images: nextImages,
       });
+      syncListThumbnail(nextImages);
     }
 
     return updated;
@@ -280,12 +299,14 @@ export function ProductEditForm({ storeId, productId }: ProductEditFormProps) {
     setBusyImageId(null);
 
     if (updated) {
+      const nextImages = fields.images.map((item) =>
+        item.id === imageId ? updated : item,
+      );
       setFields({
         ...fields,
-        images: fields.images.map((item) =>
-          item.id === imageId ? updated : item,
-        ),
+        images: nextImages,
       });
+      syncListThumbnail(nextImages);
     }
 
     return updated;
