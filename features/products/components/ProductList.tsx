@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { resolveMediaUrl } from "@/lib/media-url";
+import { IconActionButton, IconActionLink } from "@/components/ui/IconActionButton";
+import { DeactivateIcon, EditIcon } from "@/components/ui/icons";
 import { resolvePrimaryImageUrl } from "@/features/products/lib/primary-image";
+import { resolveMediaUrl } from "@/lib/media-url";
 import type { Product } from "@/features/products/types";
 
 interface ProductListProps {
@@ -106,21 +107,19 @@ export function ProductList({
                       : `Stock: ${product.stock}`}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Link
+                    <div className="flex items-center gap-2">
+                      <IconActionLink
                         href={`/merchant/products/${product.id}`}
-                        data-testid={`product-edit-${product.id}`}
-                        className="text-sm font-medium text-zinc-900 hover:underline"
-                      >
-                        Editar
-                      </Link>
-                      <button
-                        type="button"
+                        label="Editar producto"
+                        testId={`product-edit-${product.id}`}
+                        icon={<EditIcon />}
+                      />
+                      <IconActionButton
+                        label="Desactivar producto"
+                        variant="danger"
+                        icon={<DeactivateIcon />}
                         onClick={() => onDeactivate(product.id)}
-                        className="text-sm text-red-600 hover:text-red-700"
-                      >
-                        Desactivar
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>

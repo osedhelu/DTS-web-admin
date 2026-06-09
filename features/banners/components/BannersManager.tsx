@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
+import { IconActionButton } from "@/components/ui/IconActionButton";
+import { EditIcon, TrashIcon } from "@/components/ui/icons";
 import { BannerForm } from "@/features/banners/components/BannerForm";
 import { useBannersStore } from "@/features/banners/stores/banners-store";
 import type { Banner, CreateBannerPayload, UpdateBannerPayload } from "@/features/banners/types";
@@ -71,23 +73,20 @@ export function BannersManager() {
                   <td className="px-4 py-3">{banner.sort_order}</td>
                   <td className="px-4 py-3">{banner.is_active ? "Sí" : "No"}</td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        data-testid={`banner-edit-${banner.id}`}
+                    <div className="flex gap-2">
+                      <IconActionButton
+                        label="Editar banner"
+                        testId={`banner-edit-${banner.id}`}
+                        icon={<EditIcon />}
                         onClick={() => setEditing(banner)}
-                        className="font-medium text-zinc-900 hover:underline"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        data-testid={`banner-delete-${banner.id}`}
+                      />
+                      <IconActionButton
+                        label="Eliminar banner"
+                        variant="danger"
+                        testId={`banner-delete-${banner.id}`}
+                        icon={<TrashIcon />}
                         onClick={() => void deleteBanner(banner.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        Eliminar
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>

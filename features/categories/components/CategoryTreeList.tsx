@@ -1,5 +1,7 @@
 "use client";
 
+import { IconActionButton } from "@/components/ui/IconActionButton";
+import { EditIcon, PlusIcon } from "@/components/ui/icons";
 import { resolveMediaUrl } from "@/lib/media-url";
 import type { CategoryFieldConfig, CategoryTreeNode } from "@/features/categories/types";
 
@@ -71,13 +73,15 @@ export function CategoryTreeList({
           Empieza con una categoría raíz (ej. Comida). Luego agrega subcategorías
           (ej. Hamburguesas) sin salir de esta pantalla.
         </p>
-        <button
-          type="button"
-          onClick={onCreateCategory}
-          className="mt-4 inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-        >
-          Crear primera categoría
-        </button>
+        <div className="mt-4 flex justify-center">
+          <IconActionButton
+            label="Crear primera categoría"
+            variant="primary"
+            size="md"
+            icon={<PlusIcon />}
+            onClick={onCreateCategory}
+          />
+        </div>
       </div>
     );
   }
@@ -102,16 +106,16 @@ export function CategoryTreeList({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
+              <IconActionButton
+                label="Agregar subcategoría"
+                testId={`subcategory-create-link-${category.id}`}
+                icon={<PlusIcon />}
                 onClick={() => onCreateSubcategory(category.id, category.name)}
-                data-testid={`subcategory-create-link-${category.id}`}
-                className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-              >
-                + Subcategoría
-              </button>
-              <button
-                type="button"
+              />
+              <IconActionButton
+                label="Editar categoría"
+                testId={`category-edit-${category.id}`}
+                icon={<EditIcon />}
                 onClick={() =>
                   onEdit({
                     categoryId: category.id,
@@ -120,11 +124,7 @@ export function CategoryTreeList({
                     initialFieldConfig: category.field_config,
                   })
                 }
-                data-testid={`category-edit-${category.id}`}
-                className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-              >
-                Editar
-              </button>
+              />
             </div>
           </div>
 
@@ -145,8 +145,10 @@ export function CategoryTreeList({
                       </p>
                     </div>
                   </div>
-                  <button
-                    type="button"
+                  <IconActionButton
+                    label="Editar subcategoría"
+                    testId={`category-edit-${subcategory.id}`}
+                    icon={<EditIcon />}
                     onClick={() =>
                       onEdit({
                         categoryId: subcategory.id,
@@ -156,17 +158,13 @@ export function CategoryTreeList({
                         initialFieldConfig: subcategory.field_config,
                       })
                     }
-                    data-testid={`category-edit-${subcategory.id}`}
-                    className="text-sm font-medium text-zinc-700 hover:underline"
-                  >
-                    Editar
-                  </button>
+                  />
                 </li>
               ))}
             </ul>
           ) : (
             <p className="mt-3 text-sm text-zinc-500">
-              Sin subcategorías. Usa «+ Subcategoría» para agregar una.
+              Sin subcategorías. Usa el botón + para agregar una.
             </p>
           )}
 

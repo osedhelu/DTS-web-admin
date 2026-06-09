@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
+import { IconActionButton } from "@/components/ui/IconActionButton";
+import { DeactivateIcon, EditIcon } from "@/components/ui/icons";
 import {
   PromotionForm,
   formatDiscountType,
@@ -103,26 +105,23 @@ export function PromotionsManager() {
                   </td>
                   <td className="px-4 py-3">{promotion.is_active ? "Sí" : "No"}</td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        data-testid={`promotion-edit-${promotion.id}`}
+                    <div className="flex gap-2">
+                      <IconActionButton
+                        label="Editar promoción"
+                        testId={`promotion-edit-${promotion.id}`}
+                        icon={<EditIcon />}
                         onClick={() => setEditing(promotion)}
-                        className="text-sm font-medium text-zinc-900 hover:underline"
-                      >
-                        Editar
-                      </button>
+                      />
                       {promotion.is_active ? (
-                        <button
-                          type="button"
-                          data-testid={`promotion-deactivate-${promotion.id}`}
+                        <IconActionButton
+                          label="Desactivar promoción"
+                          variant="danger"
+                          testId={`promotion-deactivate-${promotion.id}`}
+                          icon={<DeactivateIcon />}
                           onClick={() =>
                             void deactivatePromotion(storeId, promotion.id)
                           }
-                          className="text-sm text-red-600 hover:text-red-700"
-                        >
-                          Desactivar
-                        </button>
+                        />
                       ) : null}
                     </div>
                   </td>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
+import { IconActionButton } from "@/components/ui/IconActionButton";
+import { EditIcon, TrashIcon } from "@/components/ui/icons";
 import { CouponForm } from "@/features/coupons/components/CouponForm";
 import { useCouponsStore } from "@/features/coupons/stores/coupons-store";
 import type { Coupon, CreateCouponPayload } from "@/features/coupons/types";
@@ -76,23 +78,20 @@ export function CouponsManager() {
                   </td>
                   <td className="px-4 py-3">{coupon.is_active ? "Sí" : "No"}</td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        data-testid={`coupon-edit-${coupon.id}`}
+                    <div className="flex gap-2">
+                      <IconActionButton
+                        label="Editar cupón"
+                        testId={`coupon-edit-${coupon.id}`}
+                        icon={<EditIcon />}
                         onClick={() => setEditing(coupon)}
-                        className="font-medium text-zinc-900 hover:underline"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        data-testid={`coupon-delete-${coupon.id}`}
+                      />
+                      <IconActionButton
+                        label="Eliminar cupón"
+                        variant="danger"
+                        testId={`coupon-delete-${coupon.id}`}
+                        icon={<TrashIcon />}
                         onClick={() => void deleteCoupon(coupon.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        Eliminar
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>

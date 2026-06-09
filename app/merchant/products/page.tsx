@@ -1,5 +1,5 @@
-import Link from "next/link";
-
+import { IconActionLink } from "@/components/ui/IconActionButton";
+import { PlusIcon } from "@/components/ui/icons";
 import { ProductsManager } from "@/features/products/components/ProductsManager";
 
 export default function MerchantProductsPage() {
@@ -14,13 +14,14 @@ export default function MerchantProductsPage() {
             Administra tu catálogo de productos físicos y servicios a domicilio.
           </p>
         </div>
-        <Link
+        <IconActionLink
           href="/merchant/products/new"
-          data-testid="products-create-link"
-          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-        >
-          Nuevo producto
-        </Link>
+          label="Nuevo producto"
+          variant="primary"
+          size="md"
+          testId="products-create-link"
+          icon={<PlusIcon />}
+        />
       </div>
 
       <ProductsManager />

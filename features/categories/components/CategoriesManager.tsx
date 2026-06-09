@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
+import { IconActionButton } from "@/components/ui/IconActionButton";
+import { PlusIcon } from "@/components/ui/icons";
 import {
   CategoryModal,
   type CategoryModalState,
@@ -65,14 +67,14 @@ export function CategoriesManager() {
             subcategorías y edita sin cambiar de página.
           </p>
         </div>
-        <button
-          type="button"
+        <IconActionButton
+          label="Nueva categoría"
+          variant="primary"
+          size="md"
+          testId="categories-create-link"
+          icon={<PlusIcon />}
           onClick={openCreateCategory}
-          data-testid="categories-create-link"
-          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-        >
-          Nueva categoría
-        </button>
+        />
       </div>
 
       <UiFeedback successTestId="categories-success-message" />
