@@ -3,6 +3,7 @@
 import { IconActionButton } from "@/components/ui/IconActionButton";
 import { EditIcon, PlusIcon } from "@/components/ui/icons";
 import { resolveMediaUrl } from "@/lib/media-url";
+import { isSvgMediaUrl } from "@/lib/is-svg-media-url";
 import type { CategoryFieldConfig, CategoryTreeNode } from "@/features/categories/types";
 
 function resolvePrimaryImageUrl(
@@ -24,18 +25,25 @@ function CategoryThumbnail({ url }: { url?: string | null }) {
   if (!url) {
     return (
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-zinc-200 bg-zinc-50 text-[10px] text-zinc-400">
-        Sin foto
+        Sin icono
       </div>
     );
   }
 
+  const resolved = resolveMediaUrl(url) || url;
+  const isSvg = isSvgMediaUrl(resolved);
+
   return (
-    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={resolveMediaUrl(url) || url}
+        src={resolved}
         alt=""
-        className="h-full w-full object-cover"
+        className={
+          isSvg
+            ? "h-9 w-9 object-contain"
+            : "h-full w-full object-cover"
+        }
       />
     </div>
   );

@@ -458,8 +458,8 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
             <p className="text-sm text-zinc-500">Cargando imágenes…</p>
           ) : (
             <MediaImageGallery
-              title="Imágenes de la categoría"
-              description="Sube fotos y marca una como principal."
+              title="Icono de la categoría"
+              description="Sube un icono SVG o imagen (PNG, JPG, WebP). Marca uno como principal."
               images={images}
               onUpload={handleUploadImage}
               onDelete={handleDeleteImage}
@@ -468,6 +468,9 @@ function CategoryModalForm({ state, storeId, onClose }: CategoryModalFormProps) 
               isUploading={isUploadingImage}
               busyImageId={busyImageId}
               testIdPrefix="category-image"
+              accept="image/svg+xml,.svg,image/png,image/jpeg,image/webp"
+              uploadLabel="Subir icono"
+              emptyLabel="Sin icono"
             />
           )
         ) : null}

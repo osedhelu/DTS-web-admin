@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 
 import { resolveMediaUrl } from "@/lib/media-url";
+import { isSvgMediaUrl } from "@/lib/is-svg-media-url";
 import type { MediaImage } from "@/lib/types/media-image";
 
 interface MediaImageGalleryProps {
@@ -16,6 +17,9 @@ interface MediaImageGalleryProps {
   isUploading?: boolean;
   busyImageId?: number | null;
   testIdPrefix?: string;
+  accept?: string;
+  uploadLabel?: string;
+  emptyLabel?: string;
 }
 
 export function MediaImageGallery({
@@ -29,6 +33,9 @@ export function MediaImageGallery({
   isUploading = false,
   busyImageId = null,
   testIdPrefix = "media-image",
+  accept = "image/png,image/jpeg,image/webp",
+  uploadLabel = "Subir imagen",
+  emptyLabel = "Sin imágenes",
 }: MediaImageGalleryProps) {
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
@@ -91,6 +98,7 @@ export function MediaImageGallery({
         {images.map((image) => {
           const isBusy = busyImageId === image.id;
           const src = resolveMediaUrl(image.url) || image.url;
+          const isSvg = isSvgMediaUrl(src);
 
           return (
             <article
@@ -100,7 +108,15 @@ export function MediaImageGallery({
             >
               <figure className="relative aspect-square overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={src}
+                  alt=""
+                  className={
+                    isSvg
+                      ? "h-full w-full object-contain p-3"
+                      : "h-full w-full object-cover"
+                  }
+                />
                 {image.is_primary ? (
                   <span className="absolute left-2 top-2 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                     Principal
@@ -148,7 +164,7 @@ export function MediaImageGallery({
             data-testid={`${testIdPrefix}-placeholder`}
             className="flex aspect-square w-36 items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-white text-xs text-zinc-400"
           >
-            Sin imágenes
+            {emptyLabel}
           </div>
         ) : null}
       </div>
@@ -158,7 +174,7 @@ export function MediaImageGallery({
           ref={uploadInputRef}
           data-testid={`${testIdPrefix}-input`}
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept={accept}
           className="hidden"
           onChange={handleUploadChange}
         />
@@ -166,7 +182,7 @@ export function MediaImageGallery({
           ref={replaceInputRef}
           data-testid={`${testIdPrefix}-replace-input`}
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept={accept}
           className="hidden"
           onChange={handleReplaceChange}
         />
@@ -177,7 +193,7 @@ export function MediaImageGallery({
           onClick={() => uploadInputRef.current?.click()}
           className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-60"
         >
-          {isUploading ? "Subiendo…" : "Subir imagen"}
+          {isUploading ? "Subiendo…" : uploadLabel}
         </button>
       </div>
     </section>
