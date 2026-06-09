@@ -1,4 +1,5 @@
 import { formatPromotionSummary } from "@/features/promotions/components/PromotionForm";
+import { isPromotionCurrentlyApplicable } from "@/features/promotions/lib/promotion-schedule";
 import type { StorePromotion } from "@/features/promotions/types";
 
 export interface ProductPromotionMaps {
@@ -7,7 +8,7 @@ export interface ProductPromotionMaps {
 }
 
 export function isPromotionActiveForDisplay(promotion: StorePromotion): boolean {
-  return promotion.is_active;
+  return isPromotionCurrentlyApplicable(promotion);
 }
 
 export function buildProductPromotionMaps(

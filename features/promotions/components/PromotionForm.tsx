@@ -14,6 +14,11 @@ import type {
   StorePromotion,
   UpdatePromotionPayload,
 } from "@/features/promotions/types";
+import {
+  isoToPromotionDateInput,
+  promotionDateToIsoEnd,
+  promotionDateToIsoStart,
+} from "@/features/promotions/lib/promotion-schedule";
 
 interface PromotionFormProps {
   storeId: number;
@@ -33,7 +38,43 @@ const defaultPayload: CreatePromotionPayload = {
   product_id: null,
   param_key: null,
   param_value: null,
+  valid_from: null,
+  valid_until: null,
 };
+
+type PromotionFormFields = CreatePromotionPayload & {
+  valid_from_date: string;
+  valid_until_date: string;
+  useDateRange: boolean;
+};
+
+function toFormFields(initial?: StorePromotion | null): PromotionFormFields {
+  if (!initial) {
+    return {
+      ...defaultPayload,
+      valid_from_date: "",
+      valid_until_date: "",
+      useDateRange: false,
+    };
+  }
+
+  const fromDate = isoToPromotionDateInput(initial.valid_from);
+  const untilDate = isoToPromotionDateInput(initial.valid_until);
+
+  return {
+    name: initial.name,
+    discount_type: initial.discount_type,
+    discount_value: initial.discount_value,
+    product_id: initial.product_id,
+    param_key: initial.param_key,
+    param_value: initial.param_value,
+    valid_from: initial.valid_from,
+    valid_until: initial.valid_until,
+    valid_from_date: fromDate,
+    valid_until_date: untilDate,
+    useDateRange: Boolean(fromDate || untilDate),
+  };
+}
 
 function formatDiscountType(type: StorePromotion["discount_type"]): string {
   return type === "PERCENTAGE" ? "Porcentaje" : "Monto fijo";
@@ -53,23 +94,11 @@ export function PromotionForm({
   const categories = useCategoriesStore((state) => state.categories);
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
 
-  const [payload, setPayload] = useState<CreatePromotionPayload>(
-    initial
-      ? {
-          name: initial.name,
-          discount_type: initial.discount_type,
-          discount_value: initial.discount_value,
-          product_id: initial.product_id,
-          param_key: initial.param_key,
-          param_value: initial.param_value,
-          valid_from: initial.valid_from,
-          valid_until: initial.valid_until,
-        }
-      : defaultPayload,
-  );
+  const [payload, setPayload] = useState<PromotionFormFields>(() => toFormFields(initial));
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
   const [loadedProductId, setLoadedProductId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const activeProductDetail =
     payload.product_id != null && payload.product_id === loadedProductId
@@ -142,16 +171,39 @@ export function PromotionForm({
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setIsSubmitting(true);
+    setDateError(null);
+
+    const validFrom = payload.useDateRange
+      ? promotionDateToIsoStart(payload.valid_from_date)
+      : null;
+    const validUntil = payload.useDateRange
+      ? promotionDateToIsoEnd(payload.valid_until_date)
+      : null;
+
+    if (
+      payload.useDateRange &&
+      payload.valid_from_date &&
+      payload.valid_until_date &&
+      payload.valid_until_date < payload.valid_from_date
+    ) {
+      setDateError("La fecha final debe ser igual o posterior a la inicial.");
+      setIsSubmitting(false);
+      return;
+    }
 
     const saved = await onSubmit({
-      ...payload,
+      name: payload.name,
+      discount_type: payload.discount_type,
+      discount_value: payload.discount_value,
       product_id: payload.product_id ?? null,
       param_key: payload.param_key ?? null,
       param_value: payload.param_value ?? null,
       variant_id: null,
+      valid_from: validFrom,
+      valid_until: validUntil,
     });
     if (saved && !initial) {
-      setPayload(defaultPayload);
+      setPayload(toFormFields(null));
       setProductDetail(null);
     }
 
@@ -309,6 +361,70 @@ export function PromotionForm({
           ) : null}
         </>
       ) : null}
+
+      <fieldset className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50/80 p-3">
+        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-zinc-700">
+          <input
+            data-testid="promotion-use-date-range"
+            type="checkbox"
+            checked={payload.useDateRange}
+            onChange={(event) =>
+              setPayload((current) => ({
+                ...current,
+                useDateRange: event.target.checked,
+                valid_from_date: event.target.checked ? current.valid_from_date : "",
+                valid_until_date: event.target.checked ? current.valid_until_date : "",
+              }))
+            }
+            className="rounded border-zinc-300"
+          />
+          Programar vigencia por fechas
+        </label>
+        <p className="text-xs text-zinc-500">
+          Fuera del rango el descuento no aplica (como si estuviera desactivado). Al
+          vencer la fecha final deja de mostrarse en productos y pedidos.
+        </p>
+        {payload.useDateRange ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
+              Válida desde
+              <input
+                data-testid="promotion-valid-from"
+                type="date"
+                value={payload.valid_from_date}
+                onChange={(event) =>
+                  setPayload((current) => ({
+                    ...current,
+                    valid_from_date: event.target.value,
+                  }))
+                }
+                className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
+              />
+            </label>
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm font-medium text-zinc-700">
+              Válida hasta
+              <input
+                data-testid="promotion-valid-until"
+                type="date"
+                required={payload.useDateRange}
+                value={payload.valid_until_date}
+                onChange={(event) =>
+                  setPayload((current) => ({
+                    ...current,
+                    valid_until_date: event.target.value,
+                  }))
+                }
+                className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2 font-normal"
+              />
+            </label>
+          </div>
+        ) : null}
+        {dateError ? (
+          <p role="alert" className="text-xs text-red-600">
+            {dateError}
+          </p>
+        ) : null}
+      </fieldset>
 
       <p className="text-xs text-zinc-500" data-testid="promotion-scope-label">
         Aplicará a: {scopeLabel}

@@ -17,6 +17,11 @@ import {
   type PromotionModalState,
 } from "@/features/promotions/components/PromotionModal";
 import { usePromotionsStore } from "@/features/promotions/stores/promotions-store";
+import {
+  formatPromotionScheduleStatus,
+  formatPromotionValidity,
+  getPromotionScheduleStatus,
+} from "@/features/promotions/lib/promotion-schedule";
 import type { CreatePromotionPayload } from "@/features/promotions/types";
 import { useMerchantStoreGuard } from "@/features/stores/hooks/use-merchant-store-guard";
 
@@ -126,12 +131,16 @@ export function PromotionsManager() {
                 <th className="px-4 py-3">Tipo</th>
                 <th className="px-4 py-3">Valor</th>
                 <th className="px-4 py-3">Alcance</th>
-                <th className="px-4 py-3">Activa</th>
+                <th className="px-4 py-3">Vigencia</th>
+                <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {promotions.map((promotion) => (
+              {promotions.map((promotion) => {
+                const scheduleStatus = getPromotionScheduleStatus(promotion);
+
+                return (
                 <tr
                   key={promotion.id}
                   data-testid={`promotion-row-${promotion.id}`}
@@ -157,7 +166,25 @@ export function PromotionsManager() {
                       formatPromotionScope(promotion)
                     )}
                   </td>
-                  <td className="px-4 py-3">{promotion.is_active ? "Sí" : "No"}</td>
+                  <td className="px-4 py-3 text-xs text-zinc-600">
+                    {formatPromotionValidity(promotion)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      data-testid={`promotion-status-${promotion.id}`}
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        scheduleStatus === "active"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : scheduleStatus === "scheduled"
+                            ? "bg-amber-100 text-amber-900"
+                            : scheduleStatus === "expired"
+                              ? "bg-zinc-200 text-zinc-600"
+                              : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {formatPromotionScheduleStatus(scheduleStatus)}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <IconActionButton
@@ -180,7 +207,8 @@ export function PromotionsManager() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           {promotions.length === 0 ? (
