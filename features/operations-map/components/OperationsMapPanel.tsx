@@ -14,6 +14,7 @@ import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 import {
   DELIVERY_STATUS_LABELS,
   type AdminMapDelivery,
+  type AdminMapOnlineDriver,
   type AdminMapStore,
   type AdminOperationsMapData,
 } from "@/features/admin-map/types";
@@ -29,9 +30,11 @@ function formatStatus(status: string): string {
 function FitBounds({
   stores,
   deliveries,
+  onlineDrivers,
 }: {
   stores: AdminMapStore[];
   deliveries: AdminMapDelivery[];
+  onlineDrivers: AdminMapOnlineDriver[];
 }) {
   const map = useMap();
 
@@ -56,12 +59,16 @@ function FitBounds({
       }
     }
 
+    for (const driver of onlineDrivers) {
+      points.push([driver.latitude, driver.longitude]);
+    }
+
     if (points.length === 0) {
       return null;
     }
 
     return points as LatLngBoundsExpression;
-  }, [stores, deliveries]);
+  }, [stores, deliveries, onlineDrivers]);
 
   useEffect(() => {
     if (!bounds) {
@@ -110,6 +117,7 @@ export function OperationsMapPanel({
 
   const stores = data?.stores ?? [];
   const deliveries = data?.active_deliveries ?? [];
+  const onlineDrivers = data?.online_drivers ?? [];
 
   return (
     <div data-testid={testId} className="space-y-4">
@@ -122,6 +130,10 @@ export function OperationsMapPanel({
           <span className="flex items-center gap-2">
             <span className="inline-block h-3 w-3 rounded-full bg-orange-500" />
             Conductor en ruta ({deliveries.length})
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="inline-block h-3 w-3 rounded-full bg-violet-500" />
+            Conductor en línea ({onlineDrivers.length})
           </span>
           <span className="flex items-center gap-2">
             <span className="inline-block h-3 w-3 rounded-full bg-sky-500" />
@@ -165,7 +177,11 @@ export function OperationsMapPanel({
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <FitBounds stores={stores} deliveries={deliveries} />
+              <FitBounds
+                stores={stores}
+                deliveries={deliveries}
+                onlineDrivers={onlineDrivers}
+              />
 
               {stores.map((store) => (
                 <CircleMarker
@@ -284,6 +300,35 @@ export function OperationsMapPanel({
                   </Fragment>
                 );
               })}
+
+              {onlineDrivers.map((driver) => (
+                <CircleMarker
+                  key={`online-driver-${driver.driver_id}`}
+                  center={[driver.latitude, driver.longitude]}
+                  radius={8}
+                  pathOptions={{
+                    color: "#6d28d9",
+                    fillColor: "#8b5cf6",
+                    fillOpacity: 0.95,
+                    weight: 2,
+                  }}
+                >
+                  <Popup>
+                    <strong>{driver.full_name}</strong>
+                    <br />
+                    Conductor en línea
+                    {driver.updated_at ? (
+                      <>
+                        <br />
+                        <span className="text-xs">
+                          GPS:{" "}
+                          {new Date(driver.updated_at).toLocaleString("es-CO")}
+                        </span>
+                      </>
+                    ) : null}
+                  </Popup>
+                </CircleMarker>
+              ))}
             </MapContainer>
           )}
         </div>
@@ -339,8 +384,42 @@ export function OperationsMapPanel({
                     </p>
                     <p className="text-xs text-zinc-500">
                       {delivery.latest_latitude !== null
-                        ? `Conductor: ${delivery.latest_latitude.toFixed(4)}, ${delivery.latest_longitude?.toFixed(4)}`
-                        : "Sin posición GPS aún"}
+                        ? `Conductor: ${delivery.latest_latitude.toFixed(4)}, ${delivery.latest_longitude?.toFixed(4)}${
+                            delivery.gps_source === "profile"
+                              ? " (última ubicación en app)"
+                              : ""
+                          }`
+                        : delivery.driver_id
+                          ? "Conductor asignado, esperando GPS"
+                          : "Sin conductor asignado"}
+                    </p>
+                  </li>
+                ))
+              )}
+            </ul>
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-zinc-900">
+              Conductores en línea ({onlineDrivers.length})
+            </h3>
+            <ul
+              data-testid={`${testId}-online-driver-list`}
+              className="mt-3 max-h-48 space-y-2 overflow-y-auto text-sm"
+            >
+              {onlineDrivers.length === 0 ? (
+                <li className="text-zinc-500">
+                  Ningún conductor disponible con GPS activo ahora.
+                </li>
+              ) : (
+                onlineDrivers.map((driver) => (
+                  <li
+                    key={driver.driver_id}
+                    className="rounded-lg border border-violet-100 bg-violet-50 px-3 py-2"
+                  >
+                    <p className="font-medium text-zinc-900">{driver.full_name}</p>
+                    <p className="text-xs text-zinc-500">
+                      {driver.latitude.toFixed(4)}, {driver.longitude.toFixed(4)}
                     </p>
                   </li>
                 ))

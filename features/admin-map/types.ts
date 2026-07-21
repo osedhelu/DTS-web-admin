@@ -23,11 +23,21 @@ export interface AdminMapDelivery {
   latest_latitude: number | null;
   latest_longitude: number | null;
   latest_recorded_at: string | null;
+  gps_source?: "tracking" | "profile" | null;
+}
+
+export interface AdminMapOnlineDriver {
+  driver_id: number;
+  full_name: string;
+  latitude: number;
+  longitude: number;
+  updated_at: string | null;
 }
 
 export interface AdminOperationsMapData {
   stores: AdminMapStore[];
   active_deliveries: AdminMapDelivery[];
+  online_drivers: AdminMapOnlineDriver[];
 }
 
 export const DELIVERY_STATUS_LABELS: Record<string, string> = {
