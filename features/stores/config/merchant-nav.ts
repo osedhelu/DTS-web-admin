@@ -49,6 +49,11 @@ export const merchantNavGroups: MerchantNavGroup[] = [
         description: "Entregas y estado de cada orden",
       },
       {
+        href: "/merchant/map",
+        label: "Mapa en vivo",
+        description: "Conductores en ruta y ubicación de tus tiendas",
+      },
+      {
         href: "/merchant/service-orders",
         label: "Pedidos servicio",
         description: "Servicios programados y a domicilio",
