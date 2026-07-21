@@ -97,7 +97,15 @@ export function MerchantDashboardWidgets({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <KpiCard
+          testId="merchant-kpi-paid-today"
+          valueTestId="merchant-dashboard-paid-today"
+          label="Cobrado hoy"
+          value={formatCurrency(metrics.paid_today_total)}
+          hint={`${metrics.paid_today_count} pedido(s) pagados hoy`}
+          accent="emerald"
+        />
         <KpiCard
           testId="merchant-kpi-sales"
           label={`Ventas (${metrics.period_days} días)`}

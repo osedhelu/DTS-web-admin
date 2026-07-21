@@ -6,6 +6,10 @@ import {
   getDeliveryOrderAction,
   type DeliveryOrder,
 } from "@/features/orders/types";
+import {
+  formatPaymentStatus,
+  paymentStatusBadgeClass,
+} from "@/features/orders/payment-status";
 
 interface OrdersTableProps {
   orders: DeliveryOrder[];
@@ -36,6 +40,7 @@ export function OrdersTable({
           <tr>
             <th className="px-4 py-3 font-medium">Pedido</th>
             <th className="px-4 py-3 font-medium">Estado</th>
+            <th className="px-4 py-3 font-medium">Pago</th>
             <th className="px-4 py-3 font-medium">Ítems</th>
             <th className="px-4 py-3 font-medium">Total</th>
             <th className="px-4 py-3 font-medium">Conductor</th>
@@ -55,6 +60,22 @@ export function OrdersTable({
                   <span data-testid={`order-status-${order.id}`}>
                     {DELIVERY_STATUS_LABELS[order.status]}
                   </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span
+                    data-testid={`order-payment-status-${order.id}`}
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${paymentStatusBadgeClass(order.payment_status)}`}
+                  >
+                    {formatPaymentStatus(order.payment_status)}
+                  </span>
+                  {order.payment_status === "paid" && order.payment_reference ? (
+                    <p
+                      data-testid={`order-payment-reference-${order.id}`}
+                      className="mt-1 text-xs text-zinc-500"
+                    >
+                      Ref: {order.payment_reference}
+                    </p>
+                  ) : null}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
                   {formatOrderItemsSummary(order.items)}

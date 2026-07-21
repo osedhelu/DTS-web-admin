@@ -34,6 +34,11 @@ export interface ServiceOrder {
   service_latitude: number | null;
   service_longitude: number | null;
   duration_minutes: number | null;
+  payment_status: string | null;
+  payment_reference: string | null;
+  paid_at: string | null;
+  discount_amount?: string | null;
+  coupon_code?: string | null;
 }
 
 export interface ServiceOrderAction {

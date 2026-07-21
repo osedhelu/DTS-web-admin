@@ -6,6 +6,10 @@ import {
   SERVICE_STATUS_LABELS,
   type ServiceOrder,
 } from "@/features/service-orders/types";
+import {
+  formatPaymentStatus,
+  paymentStatusBadgeClass,
+} from "@/features/orders/payment-status";
 
 interface ServiceOrderCardProps {
   order: ServiceOrder;
@@ -75,6 +79,30 @@ export function ServiceOrderCard({
           <dt className="font-medium text-zinc-700">Agendado para</dt>
           <dd data-testid={`service-order-scheduled-${order.id}`}>
             {formatScheduledAt(order.scheduled_at)}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-medium text-zinc-700">Pago</dt>
+          <dd>
+            <span
+              data-testid={`service-order-payment-status-${order.id}`}
+              className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${paymentStatusBadgeClass(order.payment_status)}`}
+            >
+              {formatPaymentStatus(order.payment_status)}
+            </span>
+            {order.payment_status === "paid" && order.paid_at ? (
+              <p className="mt-1 text-xs text-zinc-500">
+                {formatScheduledAt(order.paid_at)}
+              </p>
+            ) : null}
+            {order.payment_reference ? (
+              <p
+                data-testid={`service-order-payment-reference-${order.id}`}
+                className="mt-1 text-xs text-zinc-500"
+              >
+                Ref: {order.payment_reference}
+              </p>
+            ) : null}
           </dd>
         </div>
       </dl>

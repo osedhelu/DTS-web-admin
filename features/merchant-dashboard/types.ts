@@ -17,6 +17,8 @@ export interface MerchantDashboardMetrics {
   order_count: number;
   orders_today: number;
   orders_this_week: number;
+  paid_today_count: number;
+  paid_today_total: string;
   average_ticket: string;
   platform_commission_rate: string;
   platform_commission: string;
