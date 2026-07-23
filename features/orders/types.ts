@@ -42,6 +42,14 @@ export interface DeliveryOrder {
   paid_at: string | null;
   discount_amount?: string | null;
   coupon_code?: string | null;
+  customer_name?: string | null;
+  customer_phone?: string | null;
+  driver_name?: string | null;
+  driver_phone?: string | null;
+  delivery_address?: string | null;
+  delivery_latitude?: number | null;
+  delivery_longitude?: number | null;
+  created_at?: string | null;
 }
 
 export const DELIVERY_STATUS_LABELS: Record<DeliveryOrderStatus, string> = {
@@ -91,6 +99,37 @@ export function formatOrderItemsSummary(items: OrderItem[]): string {
   return preview;
 }
 
+export function formatCustomerLabel(order: DeliveryOrder): string {
+  const name = order.customer_name?.trim();
+  if (name) return name;
+  return `Cliente #${order.customer_id}`;
+}
+
+export function formatDriverLabel(order: DeliveryOrder): string {
+  if (order.driver_id) {
+    const name = order.driver_name?.trim();
+    return name || `Conductor #${order.driver_id}`;
+  }
+  if (order.status === "searching_driver") {
+    return "Buscando…";
+  }
+  if (order.status === "ready_for_pickup") {
+    return "Listo — falta buscar conductor";
+  }
+  return "Sin asignar";
+}
+
+export function formatDriverRelation(order: DeliveryOrder): string {
+  if (order.driver_id) {
+    const name = order.driver_name?.trim() || `#${order.driver_id}`;
+    return `Asignado a ${name}`;
+  }
+  if (order.status === "searching_driver") {
+    return "Buscando conductor";
+  }
+  return "Sin conductor";
+}
+
 export interface DeliveryOrderAction {
   label: string;
   targetStatus: DeliveryOrderStatus;
@@ -106,6 +145,10 @@ export function getDeliveryOrderAction(
       return { label: "En preparación", targetStatus: "in_preparation" };
     case "in_preparation":
       return { label: "Preparado", targetStatus: "ready_for_pickup" };
+    case "ready_for_pickup":
+      // Abre la bolsa de ofertas del conductor (searching_driver).
+      // Si Celery falló al auto-transicionar, el merchant puede hacerlo aquí.
+      return { label: "Buscar conductor", targetStatus: "searching_driver" };
     default:
       return null;
   }

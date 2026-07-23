@@ -27,6 +27,8 @@ const createdOrder = {
   service_latitude: 4.711,
   service_longitude: -74.0721,
   duration_minutes: 180,
+  customer_name: "María Servicio",
+  customer_phone: "3012223344",
 };
 
 test("merchant_service_order_dashboard_test", async ({ page, context }) => {
@@ -77,6 +79,12 @@ test("merchant_service_order_dashboard_test", async ({ page, context }) => {
   ).toBeVisible();
   await expect(page.getByTestId("service-order-101")).toBeVisible();
   await expect(page.getByTestId("service-order-status-101")).toHaveText("Nuevo");
+  await expect(page.getByTestId("service-order-customer-101")).toContainText(
+    "María Servicio",
+  );
+  await expect(page.getByTestId("service-order-customer-101")).toContainText(
+    "3012223344",
+  );
   await expect(page.getByText("Calle 100 #15-20, Bogotá")).toBeVisible();
   await expect(page.getByText("Timbre roto, llamar al llegar")).toBeVisible();
 

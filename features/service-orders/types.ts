@@ -39,6 +39,12 @@ export interface ServiceOrder {
   paid_at: string | null;
   discount_amount?: string | null;
   coupon_code?: string | null;
+  customer_name?: string | null;
+  customer_phone?: string | null;
+  driver_name?: string | null;
+  driver_phone?: string | null;
+  delivery_address?: string | null;
+  created_at?: string | null;
 }
 
 export interface ServiceOrderAction {

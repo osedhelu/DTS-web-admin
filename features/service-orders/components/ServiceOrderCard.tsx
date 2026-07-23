@@ -59,9 +59,24 @@ export function ServiceOrderCard({
       </div>
 
       <dl className="grid gap-2 text-sm text-zinc-600 sm:grid-cols-2">
+        <div data-testid={`service-order-customer-${order.id}`}>
+          <dt className="font-medium text-zinc-700">Cliente</dt>
+          <dd>
+            <p className="font-medium text-zinc-900">
+              {order.customer_name?.trim() || `Cliente #${order.customer_id}`}
+            </p>
+            {order.customer_phone ? (
+              <p className="text-xs text-zinc-500">{order.customer_phone}</p>
+            ) : null}
+          </dd>
+        </div>
         <div>
           <dt className="font-medium text-zinc-700">Dirección</dt>
-          <dd>{order.service_address ?? "—"}</dd>
+          <dd>
+            {order.delivery_address?.trim() ||
+              order.service_address ||
+              "—"}
+          </dd>
         </div>
         <div>
           <dt className="font-medium text-zinc-700">Duración estimada</dt>

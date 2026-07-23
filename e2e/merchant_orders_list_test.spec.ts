@@ -23,11 +23,19 @@ const deliveryOrders = [
       },
     ],
     service_address: null,
-    customer_notes: null,
+    customer_notes: "Sin cebolla",
     scheduled_at: null,
     service_latitude: null,
     service_longitude: null,
     duration_minutes: null,
+    customer_name: "Ana Cliente",
+    customer_phone: "3001112233",
+    driver_name: null,
+    driver_phone: null,
+    delivery_address: "Calle 80 #10-20, Bogotá",
+    delivery_latitude: 4.7,
+    delivery_longitude: -74.07,
+    created_at: "2026-07-20T15:00:00.000Z",
   },
   {
     id: 202,
@@ -54,6 +62,14 @@ const deliveryOrders = [
     service_latitude: null,
     service_longitude: null,
     duration_minutes: null,
+    customer_name: "Luis Pérez",
+    customer_phone: "3004445566",
+    driver_name: "Carlos Conductor",
+    driver_phone: "3109998877",
+    delivery_address: "Carrera 7 #45-12",
+    delivery_latitude: 4.65,
+    delivery_longitude: -74.06,
+    created_at: "2026-07-20T16:00:00.000Z",
   },
 ];
 
@@ -86,6 +102,24 @@ test("merchant_orders_list_test", async ({ page, context }) => {
   await expect(page.getByTestId("order-row-201")).toContainText(
     "2x Hamburguesa clásica",
   );
+  await expect(page.getByTestId("order-customer-201")).toContainText("Ana Cliente");
+  await expect(page.getByTestId("order-customer-201")).toContainText("3001112233");
+  await expect(page.getByTestId("order-driver-201")).toContainText("Sin asignar");
+  await expect(page.getByTestId("order-customer-202")).toContainText("Luis Pérez");
+  await expect(page.getByTestId("order-driver-202")).toContainText(
+    "Carlos Conductor",
+  );
+  await expect(page.getByTestId("order-driver-202")).toContainText("3109998877");
+
+  await page.getByTestId("order-detail-toggle-201").click();
+  await expect(page.getByTestId("order-detail-201")).toBeVisible();
+  await expect(page.getByTestId("order-detail-201")).toContainText(
+    "Calle 80 #10-20, Bogotá",
+  );
+  await expect(page.getByTestId("order-detail-201")).toContainText("Sin cebolla");
+  await expect(page.getByTestId("order-detail-201")).toContainText(
+    "Sin conductor",
+  );
 
   await page.getByTestId("orders-filter-created").click();
   await expect(page.getByTestId("order-row-201")).toBeVisible();
@@ -95,5 +129,7 @@ test("merchant_orders_list_test", async ({ page, context }) => {
   await page.getByTestId("orders-filter-in_preparation").click();
   await expect(page.getByTestId("order-row-202")).toBeVisible();
   await expect(page.getByTestId("order-row-201")).toHaveCount(0);
-  await expect(page.getByTestId("order-row-202")).toContainText("#42");
+  await expect(page.getByTestId("order-driver-202")).toContainText(
+    "Carlos Conductor",
+  );
 });
