@@ -111,9 +111,245 @@
       "login": "Merchant login",
       "licenses": "Licenses",
       "privacy": "Privacy",
-      "terms": "Terms"
+      "terms": "Terms",
+      "deleteAccount": "Delete account",
+      "appReview": "App Review"
     },
     "rights": "© {year} DTS Delivery. All rights reserved."
+  },
+  "legalCommon": {
+    "back": "Back to home",
+    "supportEmail": "soporte@dtsdrop.com",
+    "lastUpdated": "Last updated: July 23, 2026"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "This policy explains how DTS Delivery (“DTS”, “we”) collects, uses, and protects personal data when you use our mobile apps (customer and driver), the merchant web panel, and dtsdrop.com.",
+    "sections": [
+      {
+        "title": "1. Controller",
+        "paragraphs": [
+          "Data controller: DTS Delivery / Oscar Herrera. Privacy and support contact: soporte@dtsdrop.com."
+        ]
+      },
+      {
+        "title": "2. Data we process",
+        "paragraphs": [
+          "Account: name, email, phone, profile photo (if provided), and Google or Apple sign-in identifiers.",
+          "Orders and deliveries: delivery address, order contents, status history, and order chat messages.",
+          "Location: device coordinates when you search nearby stores, set a driver work zone, or use live delivery tracking (with your permission).",
+          "Device and notifications: FCM tokens, platform (iOS/Android), and technical data needed for security and performance.",
+          "Merchants: business details, catalog, logos, and product photos published in the merchant panel."
+        ]
+      },
+      {
+        "title": "3. Purposes",
+        "paragraphs": [
+          "Provide the marketplace and delivery service (accounts, orders, operational payments, chat, and tracking).",
+          "Send push notifications about order status, driver offers, and relevant messages.",
+          "Improve security (authentication, fraud prevention) and platform reliability.",
+          "Meet legal obligations and handle support or account-deletion requests."
+        ]
+      },
+      {
+        "title": "4. Legal bases",
+        "paragraphs": [
+          "Performance of a contract when you create an account and use the apps or panel.",
+          "Consent for location and push notifications when the OS prompts you.",
+          "Legitimate interests in security, abuse prevention, and service improvement, balanced against your rights."
+        ]
+      },
+      {
+        "title": "5. Processors and third parties",
+        "paragraphs": [
+          "Firebase / Google (Authentication, Cloud Messaging) and Apple (Sign in with Apple) for identity and notifications.",
+          "Hosting infrastructure (e.g. Railway) for API, database, and media storage.",
+          "We do not sell your personal data to third parties for advertising."
+        ]
+      },
+      {
+        "title": "6. Retention",
+        "paragraphs": [
+          "We keep data while your account is active and as needed to provide the service.",
+          "After a deletion request, we delete or anonymize account data within 30 days, except where law requires limited retention (e.g. accounting or claims)."
+        ]
+      },
+      {
+        "title": "7. Your rights",
+        "paragraphs": [
+          "You may request access, correction, objection, restriction, or deletion by emailing soporte@dtsdrop.com or using the Delete account page on dtsdrop.com.",
+          "You can also revoke location and notification permissions in your device settings."
+        ]
+      },
+      {
+        "title": "8. Children",
+        "paragraphs": [
+          "The service is not directed to children under 13 (or the applicable minimum age in your jurisdiction). If we learn of an unauthorized minor account, we will delete it."
+        ]
+      },
+      {
+        "title": "9. Changes",
+        "paragraphs": [
+          "We may update this policy. The update date appears at the bottom of the page. Continued use after a material change means you have been informed; we will notify you of material changes when reasonable."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "intro": "These terms govern use of DTS Delivery: mobile apps (customer and driver), the merchant web panel, and dtsdrop.com. By registering or using the service you accept these terms.",
+    "sections": [
+      {
+        "title": "1. The service",
+        "paragraphs": [
+          "DTS connects merchants, customers, and drivers for product and service orders with optional delivery.",
+          "Unless stated otherwise, DTS is not the seller of merchant products; the sale contract is between customer and merchant."
+        ]
+      },
+      {
+        "title": "2. Accounts",
+        "paragraphs": [
+          "You must provide accurate information and keep access confidential (password or linked Google/Apple accounts).",
+          "Roles differ (customer, driver, merchant). Do not use one role’s app with another role’s account."
+        ]
+      },
+      {
+        "title": "3. Customers",
+        "paragraphs": [
+          "Prices, availability, and ETAs are set by the merchant. Provide a valid delivery address and be available to receive the order.",
+          "Order chat is only for coordinating delivery; harassment or illegal content is prohibited."
+        ]
+      },
+      {
+        "title": "4. Drivers",
+        "paragraphs": [
+          "Comply with traffic laws and hold any permits required in your area.",
+          "Going online shares location for matching and tracking. Complete accepted deliveries in good faith."
+        ]
+      },
+      {
+        "title": "5. Merchants",
+        "paragraphs": [
+          "You are responsible for catalog accuracy, stock, prices, allergens, and images.",
+          "Comply with applicable law (health, tax, consumer) and fulfill accepted orders."
+        ]
+      },
+      {
+        "title": "6. Content and IP",
+        "paragraphs": [
+          "You retain rights to content you upload. You grant DTS a limited license to host and display it on the platform.",
+          "The DTS Delivery brand and platform software are owned by DTS or its licensors."
+        ]
+      },
+      {
+        "title": "7. Prohibited use",
+        "paragraphs": [
+          "Do not manipulate the system, create fake accounts, interfere with others, or use the service for illegal activity."
+        ]
+      },
+      {
+        "title": "8. Limitation of liability",
+        "paragraphs": [
+          "The service is provided “as is”. To the fullest extent permitted by law, DTS is not liable for indirect damages, lost profits, or outages beyond our reasonable control.",
+          "Disputes about product quality or merchant delays should first be raised with the merchant; DTS may mediate reasonably."
+        ]
+      },
+      {
+        "title": "9. Termination",
+        "paragraphs": [
+          "You may stop using the service and request account deletion at any time.",
+          "We may suspend or close accounts that violate these terms or endanger the platform."
+        ]
+      },
+      {
+        "title": "10. Contact",
+        "paragraphs": [
+          "Questions about these terms: soporte@dtsdrop.com."
+        ]
+      }
+    ]
+  },
+  "deleteAccount": {
+    "title": "Delete my account",
+    "intro": "In line with Apple App Store policies and privacy best practices, you may request permanent deletion of your DTS Delivery account.",
+    "sections": [
+      {
+        "title": "What is deleted",
+        "paragraphs": [
+          "User profile, linked sign-in data (Google/Apple in our database), saved addresses, notification tokens, and app preferences.",
+          "Order history may be anonymized or retained in limited form if required by law (e.g. accounting obligations)."
+        ]
+      },
+      {
+        "title": "Timeline",
+        "paragraphs": [
+          "We process requests within 30 days of confirmation. We may contact the email you provide to verify account ownership."
+        ]
+      },
+      {
+        "title": "How to request",
+        "paragraphs": [
+          "Complete the form below with the same email as your DTS account, or email soporte@dtsdrop.com with subject “Delete account” and the app (customer, driver, or merchant)."
+        ]
+      }
+    ],
+    "form": {
+      "nameLabel": "Full name",
+      "emailLabel": "Account email",
+      "appLabel": "App / role",
+      "appCustomer": "Customer app",
+      "appDriver": "Driver app",
+      "appMerchant": "Merchant panel (web)",
+      "confirmLabel": "I confirm I want to permanently delete my account and understand this cannot be undone.",
+      "submit": "Request deletion",
+      "submitting": "Sending…",
+      "success": "We received your request. We will process it within 30 days.",
+      "error": "Could not submit the request. Try again or email support.",
+      "supportHint": "You can also email {email}."
+    }
+  },
+  "appReview": {
+    "title": "App Review guide",
+    "intro": "Instructions for App Store / Play Console reviewers. Demo account credentials are provided in App Store Connect (Review Information), not on this page.",
+    "sections": [
+      {
+        "title": "Sign-in",
+        "paragraphs": [
+          "Customer and driver apps support email/password (where enabled) and social login: Google Sign-In and Sign in with Apple (iOS).",
+          "Use the demo account provided in App Store Connect (Demo Required = Yes). If social login shows an account picker, choose the test account listed in the review notes."
+        ]
+      },
+      {
+        "title": "What to test — customer app",
+        "paragraphs": [
+          "Browse nearby stores and featured products; open a store and view the catalog.",
+          "Create or review an order, tracking / status, and order chat if an active order exists.",
+          "Location / search-radius settings if available in profile."
+        ]
+      },
+      {
+        "title": "What to test — driver app",
+        "paragraphs": [
+          "Complete profile onboarding if prompted; go online / offline.",
+          "View order offers in the work zone, accept an offer, and follow the delivery flow (map / statuses).",
+          "Open chat for the assigned order."
+        ]
+      },
+      {
+        "title": "Privacy and account deletion",
+        "paragraphs": [
+          "Privacy policy: https://dtsdrop.com/en/privacy",
+          "Terms: https://dtsdrop.com/en/terms",
+          "Delete account: https://dtsdrop.com/en/delete-account"
+        ]
+      },
+      {
+        "title": "Contact",
+        "paragraphs": [
+          "Oscar Herrera — soporte@dtsdrop.com"
+        ]
+      }
+    ]
   },
   "licenses": {
     "title": "Software licenses",

@@ -274,10 +274,27 @@ export function MarketingLanding({ dict, locale }: MarketingLandingProps) {
                 </Link>
               </li>
               <li>
-                <span className="cursor-default">{dict.footer.links.privacy}</span>
+                <Link href={`/${locale}/privacy`} className="hover:text-white">
+                  {dict.footer.links.privacy}
+                </Link>
               </li>
               <li>
-                <span className="cursor-default">{dict.footer.links.terms}</span>
+                <Link href={`/${locale}/terms`} className="hover:text-white">
+                  {dict.footer.links.terms}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/delete-account`}
+                  className="hover:text-white"
+                >
+                  {dict.footer.links.deleteAccount}
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/app-review`} className="hover:text-white">
+                  {dict.footer.links.appReview}
+                </Link>
               </li>
             </ul>
           </div>

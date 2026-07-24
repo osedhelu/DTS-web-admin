@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 
@@ -127,7 +128,24 @@ export function ReviewStep() {
           className="mt-1 accent-emerald-500"
         />
         <span>
-          Acepto los términos del servicio y la política de tratamiento de datos
+          Acepto los{" "}
+          <Link
+            href="/es/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-400 underline hover:text-emerald-300"
+          >
+            términos del servicio
+          </Link>{" "}
+          y la{" "}
+          <Link
+            href="/es/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-400 underline hover:text-emerald-300"
+          >
+            política de privacidad
+          </Link>{" "}
           de DTS Delivery.
         </span>
       </label>

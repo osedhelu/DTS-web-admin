@@ -111,9 +111,245 @@
       "login": "Acceso merchant",
       "licenses": "Licencias",
       "privacy": "Privacidad",
-      "terms": "Términos"
+      "terms": "Términos",
+      "deleteAccount": "Eliminar cuenta",
+      "appReview": "App Review"
     },
     "rights": "© {year} DTS Delivery. Todos los derechos reservados."
+  },
+  "legalCommon": {
+    "back": "Volver al inicio",
+    "supportEmail": "soporte@dtsdrop.com",
+    "lastUpdated": "Última actualización: 23 de julio de 2026"
+  },
+  "privacy": {
+    "title": "Política de privacidad",
+    "intro": "Esta política describe cómo DTS Delivery («DTS», «nosotros») recopila, usa y protege los datos personales cuando usas nuestras aplicaciones móviles (cliente y conductor), el panel web de comercios y el sitio dtsdrop.com.",
+    "sections": [
+      {
+        "title": "1. Responsable",
+        "paragraphs": [
+          "Responsable del tratamiento: DTS Delivery / Oscar Herrera. Contacto de privacidad y soporte: soporte@dtsdrop.com."
+        ]
+      },
+      {
+        "title": "2. Datos que tratamos",
+        "paragraphs": [
+          "Cuenta: nombre, correo electrónico, teléfono, foto de perfil (si la aportas) e identificadores de inicio de sesión con Google o Apple.",
+          "Pedidos y entregas: dirección de entrega, contenido del pedido, historial de estados y mensajes de chat asociados al pedido.",
+          "Ubicación: coordenadas del dispositivo cuando usas búsqueda de comercios cercanos, zona de trabajo del conductor o seguimiento de entrega en vivo (con tu permiso).",
+          "Dispositivo y notificaciones: tokens FCM, plataforma (iOS/Android) e información técnica necesaria para seguridad y rendimiento.",
+          "Comercios: datos del negocio, catálogo, logos y fotos de productos publicados en el panel merchant."
+        ]
+      },
+      {
+        "title": "3. Finalidades",
+        "paragraphs": [
+          "Prestar el servicio de marketplace y delivery (cuentas, pedidos, pagos operativos, chat y seguimiento).",
+          "Enviar notificaciones push sobre el estado del pedido, ofertas a conductores y mensajes relevantes.",
+          "Mejorar la seguridad (autenticación, prevención de fraude) y el funcionamiento de la plataforma.",
+          "Cumplir obligaciones legales y atender solicitudes de soporte o eliminación de cuenta."
+        ]
+      },
+      {
+        "title": "4. Bases legales",
+        "paragraphs": [
+          "Ejecución del contrato al crear una cuenta y usar las apps o el panel.",
+          "Consentimiento para ubicación y notificaciones push cuando el sistema operativo lo solicita.",
+          "Interés legítimo en seguridad, prevención de abuso y mejora del servicio, respetando tus derechos."
+        ]
+      },
+      {
+        "title": "5. Encargados y terceros",
+        "paragraphs": [
+          "Firebase / Google (Authentication, Cloud Messaging) y Apple (Sign in with Apple) para identidad y notificaciones.",
+          "Infraestructura de alojamiento (p. ej. Railway) para API, base de datos y almacenamiento de medios.",
+          "No vendemos tus datos personales a terceros con fines publicitarios."
+        ]
+      },
+      {
+        "title": "6. Conservación",
+        "paragraphs": [
+          "Conservamos los datos mientras tu cuenta esté activa y el tiempo necesario para prestar el servicio.",
+          "Tras una solicitud de eliminación, borramos o anonimizamos los datos de cuenta en un plazo máximo de 30 días, salvo obligaciones legales (p. ej. facturación o reclamaciones) que requieran retención limitada."
+        ]
+      },
+      {
+        "title": "7. Tus derechos",
+        "paragraphs": [
+          "Puedes solicitar acceso, rectificación, oposición, limitación o eliminación de tus datos escribiendo a soporte@dtsdrop.com o usando la página Eliminar cuenta en dtsdrop.com.",
+          "También puedes retirar permisos de ubicación y notificaciones desde los ajustes del sistema operativo."
+        ]
+      },
+      {
+        "title": "8. Menores",
+        "paragraphs": [
+          "El servicio no está dirigido a menores de 13 años (o la edad mínima aplicable en tu jurisdicción). Si detectamos una cuenta de un menor sin autorización, la eliminaremos."
+        ]
+      },
+      {
+        "title": "9. Cambios",
+        "paragraphs": [
+          "Podemos actualizar esta política. La fecha de actualización aparece al final de la página. El uso continuado tras un cambio relevante implica que has sido informado; te notificaremos cambios materiales cuando sea razonable."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Términos y condiciones",
+    "intro": "Estos términos regulan el uso de DTS Delivery: apps móviles (cliente y conductor), panel web de comercios y sitio público dtsdrop.com. Al registrarte o usar el servicio aceptas estos términos.",
+    "sections": [
+      {
+        "title": "1. El servicio",
+        "paragraphs": [
+          "DTS conecta comercios, clientes y conductores para pedidos de productos y servicios con opción de entrega.",
+          "DTS no es el vendedor de los productos del comercio salvo que se indique lo contrario; el contrato de compraventa es entre cliente y comercio."
+        ]
+      },
+      {
+        "title": "2. Cuentas",
+        "paragraphs": [
+          "Debes proporcionar información veraz. Eres responsable de la confidencialidad de tu acceso (correo/contraseña o cuentas Google/Apple vinculadas).",
+          "Puedes tener roles distintos (cliente, conductor, comercio). No uses una app de un rol con una cuenta de otro rol."
+        ]
+      },
+      {
+        "title": "3. Clientes",
+        "paragraphs": [
+          "Los precios, disponibilidad y tiempos estimados los determina el comercio. Debes proporcionar una dirección de entrega válida y estar disponible para recibir el pedido.",
+          "El chat del pedido es solo para coordinar la entrega; está prohibido el acoso o contenido ilegal."
+        ]
+      },
+      {
+        "title": "4. Conductores",
+        "paragraphs": [
+          "Debes cumplir la normativa de tránsito y disponer de los permisos exigidos en tu zona.",
+          "Al ponerte en línea compartes ubicación para matching y seguimiento. Debes completar las entregas aceptadas de buena fe."
+        ]
+      },
+      {
+        "title": "5. Comercios",
+        "paragraphs": [
+          "Eres responsable de la exactitud del catálogo, stock, precios, alérgenos e imágenes.",
+          "Debes cumplir la legislación aplicable (sanitaria, fiscal, consumo) y atender pedidos aceptados."
+        ]
+      },
+      {
+        "title": "6. Contenido y propiedad",
+        "paragraphs": [
+          "Conservas los derechos sobre el contenido que subes (fotos, textos). Nos otorgas una licencia limitada para alojarlo y mostrarlo en la plataforma.",
+          "La marca DTS Delivery y el software de la plataforma son propiedad de DTS o sus licenciantes."
+        ]
+      },
+      {
+        "title": "7. Uso prohibido",
+        "paragraphs": [
+          "No está permitido manipular el sistema, crear cuentas falsas, interferir con otros usuarios, ni usar el servicio para actividades ilegales."
+        ]
+      },
+      {
+        "title": "8. Limitación de responsabilidad",
+        "paragraphs": [
+          "El servicio se ofrece «tal cual». En la máxima medida permitida por la ley, DTS no responde por daños indirectos, pérdida de beneficios o interrupciones ajenas a nuestro control razonable.",
+          "Las disputas sobre calidad del producto o retrasos del comercio deben gestionarse primero con el comercio; DTS puede mediar de forma razonable."
+        ]
+      },
+      {
+        "title": "9. Terminación",
+        "paragraphs": [
+          "Puedes dejar de usar el servicio y solicitar la eliminación de tu cuenta en cualquier momento.",
+          "Podemos suspender o cerrar cuentas que incumplan estos términos o pongan en riesgo la plataforma."
+        ]
+      },
+      {
+        "title": "10. Contacto",
+        "paragraphs": [
+          "Para consultas sobre estos términos: soporte@dtsdrop.com."
+        ]
+      }
+    ]
+  },
+  "deleteAccount": {
+    "title": "Eliminar mi cuenta",
+    "intro": "De acuerdo con las políticas de Apple App Store y buenas prácticas de privacidad, puedes solicitar la eliminación permanente de tu cuenta de DTS Delivery.",
+    "sections": [
+      {
+        "title": "Qué se elimina",
+        "paragraphs": [
+          "Perfil de usuario, datos de inicio de sesión vinculados (Google/Apple en nuestra base), direcciones guardadas, tokens de notificaciones y preferencias de la app.",
+          "El historial de pedidos puede anonimizarse o conservarse de forma limitada si la ley lo exige (p. ej. obligaciones contables)."
+        ]
+      },
+      {
+        "title": "Plazo",
+        "paragraphs": [
+          "Procesamos las solicitudes en un máximo de 30 días desde la confirmación. Te contactaremos al correo indicado si necesitamos verificar la titularidad de la cuenta."
+        ]
+      },
+      {
+        "title": "Cómo solicitarlo",
+        "paragraphs": [
+          "Completa el formulario siguiente con el mismo correo de tu cuenta DTS, o escribe a soporte@dtsdrop.com indicando «Eliminar cuenta» y la app (cliente, conductor o comercio)."
+        ]
+      }
+    ],
+    "form": {
+      "nameLabel": "Nombre completo",
+      "emailLabel": "Correo de la cuenta",
+      "appLabel": "Aplicación / rol",
+      "appCustomer": "App cliente",
+      "appDriver": "App conductor",
+      "appMerchant": "Panel comercio (web)",
+      "confirmLabel": "Confirmo que quiero eliminar permanentemente mi cuenta y entiendo que esta acción no se puede deshacer.",
+      "submit": "Solicitar eliminación",
+      "submitting": "Enviando…",
+      "success": "Hemos recibido tu solicitud. La procesaremos en un máximo de 30 días.",
+      "error": "No se pudo enviar la solicitud. Inténtalo de nuevo o escribe a soporte.",
+      "supportHint": "También puedes escribir a {email}."
+    }
+  },
+  "appReview": {
+    "title": "Guía para App Review",
+    "intro": "Instrucciones para revisores de App Store / Play Console. Las credenciales de la cuenta demo se indican en App Store Connect (Review Information), no en esta página.",
+    "sections": [
+      {
+        "title": "Inicio de sesión",
+        "paragraphs": [
+          "Las apps cliente y conductor admiten correo/contraseña (si aplica) y acceso social: Google Sign-In y Sign in with Apple (iOS).",
+          "Usa la cuenta demo facilitada en App Store Connect (Demo Required = Yes). Si el login social pide selector de cuenta, elige la cuenta de prueba indicada en las notas de revisión."
+        ]
+      },
+      {
+        "title": "Qué probar — app cliente",
+        "paragraphs": [
+          "Explorar comercios cercanos y productos destacados; abrir un comercio y ver el catálogo.",
+          "Crear o revisar un pedido, seguimiento / estados y chat del pedido si hay un pedido activo.",
+          "Ajustes de ubicación / radio de búsqueda si está disponible en el perfil."
+        ]
+      },
+      {
+        "title": "Qué probar — app conductor",
+        "paragraphs": [
+          "Completar onboarding de perfil si se solicita; ponerse en línea / offline.",
+          "Ver ofertas de pedidos en la zona de trabajo, aceptar una oferta y seguir el flujo de entrega (mapa / estados).",
+          "Abrir el chat del pedido asignado."
+        ]
+      },
+      {
+        "title": "Privacidad y eliminación de cuenta",
+        "paragraphs": [
+          "Política de privacidad: https://dtsdrop.com/es/privacy",
+          "Términos: https://dtsdrop.com/es/terms",
+          "Eliminar cuenta: https://dtsdrop.com/es/delete-account"
+        ]
+      },
+      {
+        "title": "Contacto",
+        "paragraphs": [
+          "Oscar Herrera — soporte@dtsdrop.com"
+        ]
+      }
+    ]
   },
   "licenses": {
     "title": "Licencias de software",

@@ -66,6 +66,8 @@ export interface Dictionary {
       licenses: string;
       privacy: string;
       terms: string;
+      deleteAccount: string;
+      appReview: string;
     };
     rights: string;
   };
@@ -81,5 +83,44 @@ export interface Dictionary {
       items: Array<{ name: string; license: string; url: string }>;
     };
     back: string;
+  };
+  legalCommon: {
+    back: string;
+    supportEmail: string;
+    lastUpdated: string;
+  };
+  privacy: {
+    title: string;
+    intro: string;
+    sections: Array<{ title: string; paragraphs: string[] }>;
+  };
+  terms: {
+    title: string;
+    intro: string;
+    sections: Array<{ title: string; paragraphs: string[] }>;
+  };
+  deleteAccount: {
+    title: string;
+    intro: string;
+    sections: Array<{ title: string; paragraphs: string[] }>;
+    form: {
+      nameLabel: string;
+      emailLabel: string;
+      appLabel: string;
+      appCustomer: string;
+      appDriver: string;
+      appMerchant: string;
+      confirmLabel: string;
+      submit: string;
+      submitting: string;
+      success: string;
+      error: string;
+      supportHint: string;
+    };
+  };
+  appReview: {
+    title: string;
+    intro: string;
+    sections: Array<{ title: string; paragraphs: string[] }>;
   };
 }
