@@ -21,7 +21,7 @@ const STATUS_FILTERS: Array<{ value: "all" | ServiceOrderStatus; label: string }
     { value: "completed", label: "Completados" },
   ];
 
-const CHAT_SCAN_MS = 8_000;
+const CHAT_SCAN_MS = 3_000;
 
 export function ServiceOrdersDashboard() {
   const orders = useServiceOrdersStore((state) => state.orders);

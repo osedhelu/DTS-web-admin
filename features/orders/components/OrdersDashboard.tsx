@@ -12,7 +12,7 @@ import { useOrdersStore } from "@/features/orders/stores/orders-store";
 import { useOrderChatStore } from "@/features/orders/stores/order-chat-store";
 import { useUiStore } from "@/lib/stores/ui-store";
 
-const CHAT_SCAN_MS = 8_000;
+const CHAT_SCAN_MS = 3_000;
 
 export function OrdersDashboard() {
   const orders = useOrdersStore((state) => state.orders);

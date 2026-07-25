@@ -1,7 +1,10 @@
 "use client";
 
 import { create } from "@/lib/stores/create-store";
-import { playAlertBeep } from "@/lib/audio/play-alert-beep";
+import {
+  playAlertBeep,
+  unlockAlertAudio,
+} from "@/lib/audio/play-alert-beep";
 
 export interface OrderChatMessage {
   id: number;
@@ -63,6 +66,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
   error: null,
 
   openModal: async (orderId) => {
+    unlockAlertAudio();
     set({
       modalOpen: true,
       orderId,
@@ -115,7 +119,14 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
           )
         : [];
       if (get().orderId === orderId && get().modalOpen) {
+        const prevMax = get().messages.reduce((m, x) => Math.max(m, x.id), 0);
+        const inbound = list.filter(
+          (m) => m.id > prevMax && m.sender_role !== "merchant",
+        );
         set({ messages: list, isLoading: false, error: null });
+        if (silent && inbound.length > 0) {
+          playAlertBeep("message");
+        }
       }
     } catch {
       if (get().orderId === orderId) {
@@ -149,6 +160,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
         [orderId]: Math.max(get().lastSeenByOrder[orderId] ?? 0, msg.id),
       },
     });
+    playAlertBeep("message");
   },
 
   scanOrdersForNewMessages: async (orderIds) => {
@@ -188,6 +200,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
           );
           if (inbound.length > 0) {
             if (openId === orderId) {
+              // El modal ya hace poll + beep en refreshMessages.
               set({ messages: list });
             } else {
               newUnread += inbound.length;

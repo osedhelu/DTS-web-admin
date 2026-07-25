@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { useOrderChatStore } from "@/features/orders/stores/order-chat-store";
 
-const POLL_MS = 4_000;
+const POLL_MS = 2_000;
 
 export function OrderChatButton({ orderId }: { orderId: number }) {
   const openModal = useOrderChatStore((s) => s.openModal);
@@ -12,7 +12,9 @@ export function OrderChatButton({ orderId }: { orderId: number }) {
     <button
       type="button"
       data-testid={`order-chat-open-${orderId}`}
-      onClick={() => void openModal(orderId)}
+      onClick={() => {
+        void openModal(orderId);
+      }}
       className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
     >
       Chat
