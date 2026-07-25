@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import {
+  MerchantChatInbox,
+  MerchantMessagesButton,
+} from "@/features/orders/components/MerchantChatInbox";
 import { MerchantStoreSelector } from "@/features/stores/components/MerchantStoreSelector";
 import { resetMerchantSession } from "@/features/stores/stores/merchant-session-store";
 import { merchantNavGroups } from "@/features/stores/config/merchant-nav";
@@ -172,6 +176,7 @@ export function MerchantShell({ userEmail, children }: MerchantShellProps) {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              <MerchantMessagesButton />
               <MerchantStoreSelector compact />
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
                 Comercio
@@ -181,6 +186,7 @@ export function MerchantShell({ userEmail, children }: MerchantShellProps) {
         </header>
 
         <main className="min-h-0 flex-1 overflow-y-auto px-8 py-8">{children}</main>
+        <MerchantChatInbox />
       </div>
     </div>
   );

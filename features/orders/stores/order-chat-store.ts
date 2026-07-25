@@ -37,12 +37,21 @@ function dedupeMessages(list: OrderChatMessage[]): OrderChatMessage[] {
   return [...byId.values()].sort((a, b) => a.id - b.id);
 }
 
+function sumUnread(unreadByOrder: Record<number, number>): number {
+  return Object.values(unreadByOrder).reduce((a, b) => a + b, 0);
+}
+
 interface OrderChatState {
   modalOpen: boolean;
   orderId: number | null;
   messages: OrderChatMessage[];
+  /** Total de mensajes no leídos (suma de unreadByOrder). */
   unreadCount: number;
-  /** Máximo id de mensaje visto por pedido (alertas en background). */
+  /** No leídos por pedido (solo inbound de cliente/conductor). */
+  unreadByOrder: Record<number, number>;
+  /** Preview del último inbound no leído por pedido. */
+  unreadPreviewByOrder: Record<number, string>;
+  /** Máximo id de mensaje marcado como leído por pedido. */
   lastSeenByOrder: Record<number, number>;
   isLoading: boolean;
   error: string | null;
@@ -53,6 +62,7 @@ interface OrderChatState {
   /** Escaneo background: detecta mensajes nuevos de otros roles. */
   scanOrdersForNewMessages: (orderIds: number[]) => Promise<void>;
   clearUnread: () => void;
+  clearUnreadForOrder: (orderId: number) => void;
   noteSeenOrderIds: (orderIds: number[]) => void;
 }
 
@@ -61,18 +71,26 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
   orderId: null,
   messages: [],
   unreadCount: 0,
+  unreadByOrder: {},
+  unreadPreviewByOrder: {},
   lastSeenByOrder: {},
   isLoading: false,
   error: null,
 
   openModal: async (orderId) => {
     unlockAlertAudio();
+    const unreadByOrder = { ...get().unreadByOrder };
+    const unreadPreviewByOrder = { ...get().unreadPreviewByOrder };
+    delete unreadByOrder[orderId];
+    delete unreadPreviewByOrder[orderId];
     set({
       modalOpen: true,
       orderId,
       isLoading: true,
       error: null,
-      unreadCount: 0,
+      unreadByOrder,
+      unreadPreviewByOrder,
+      unreadCount: sumUnread(unreadByOrder),
     });
     await get().refreshMessages(orderId);
     const msgs = get().messages;
@@ -123,7 +141,16 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
         const inbound = list.filter(
           (m) => m.id > prevMax && m.sender_role !== "merchant",
         );
-        set({ messages: list, isLoading: false, error: null });
+        const maxId = list.reduce((m, x) => Math.max(m, x.id), 0);
+        set({
+          messages: list,
+          isLoading: false,
+          error: null,
+          lastSeenByOrder: {
+            ...get().lastSeenByOrder,
+            [orderId]: Math.max(get().lastSeenByOrder[orderId] ?? 0, maxId),
+          },
+        });
         if (silent && inbound.length > 0) {
           playAlertBeep("message");
         }
@@ -163,10 +190,11 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
   },
 
   scanOrdersForNewMessages: async (orderIds) => {
-    const unique = [...new Set(orderIds)].slice(0, 20);
-    let newUnread = 0;
+    const unique = [...new Set(orderIds)].slice(0, 30);
     let heardMessage = false;
     const lastSeen = { ...get().lastSeenByOrder };
+    const unreadByOrder = { ...get().unreadByOrder };
+    const unreadPreviewByOrder = { ...get().unreadPreviewByOrder };
     const openId = get().modalOpen ? get().orderId : null;
 
     await Promise.all(
@@ -191,22 +219,37 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
           const prevMax = lastSeen[orderId];
           const maxId = list.reduce((m, x) => Math.max(m, x.id), 0);
           if (prevMax === undefined) {
+            // Primera vez: marcar como visto sin alertar (historial viejo).
             lastSeen[orderId] = maxId;
             return;
           }
+
+          if (openId === orderId) {
+            set({ messages: list });
+            lastSeen[orderId] = maxId;
+            delete unreadByOrder[orderId];
+            delete unreadPreviewByOrder[orderId];
+            return;
+          }
+
           const inbound = list.filter(
             (m) => m.id > prevMax && m.sender_role !== "merchant",
           );
+          const prevUnread = unreadByOrder[orderId] ?? 0;
           if (inbound.length > 0) {
-            if (openId === orderId) {
-              // El modal ya hace poll + beep en refreshMessages.
-              set({ messages: list });
-            } else {
-              newUnread += inbound.length;
+            unreadByOrder[orderId] = inbound.length;
+            unreadPreviewByOrder[orderId] =
+              inbound[inbound.length - 1]?.body?.slice(0, 80) ?? "";
+            if (inbound.length > prevUnread) {
               heardMessage = true;
             }
+            // No avanzar lastSeen: el badge permanece hasta abrir el chat.
+          } else if (prevUnread > 0) {
+            // Sin nuevos respecto a lastSeen; mantener unread actual.
+          } else {
+            delete unreadByOrder[orderId];
+            delete unreadPreviewByOrder[orderId];
           }
-          lastSeen[orderId] = Math.max(prevMax, maxId);
         } catch {
           /* ignore */
         }
@@ -215,14 +258,33 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
 
     set({
       lastSeenByOrder: lastSeen,
-      unreadCount: get().unreadCount + newUnread,
+      unreadByOrder,
+      unreadPreviewByOrder,
+      unreadCount: sumUnread(unreadByOrder),
     });
     if (heardMessage) {
       playAlertBeep("message");
     }
   },
 
-  clearUnread: () => set({ unreadCount: 0 }),
+  clearUnread: () =>
+    set({
+      unreadCount: 0,
+      unreadByOrder: {},
+      unreadPreviewByOrder: {},
+    }),
+
+  clearUnreadForOrder: (orderId) => {
+    const unreadByOrder = { ...get().unreadByOrder };
+    const unreadPreviewByOrder = { ...get().unreadPreviewByOrder };
+    delete unreadByOrder[orderId];
+    delete unreadPreviewByOrder[orderId];
+    set({
+      unreadByOrder,
+      unreadPreviewByOrder,
+      unreadCount: sumUnread(unreadByOrder),
+    });
+  },
 
   noteSeenOrderIds: (orderIds) => {
     const lastSeen = { ...get().lastSeenByOrder };

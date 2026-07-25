@@ -3,11 +3,8 @@
 import { useEffect } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
-import { OrderChatModal } from "@/features/orders/components/OrderChatPanel";
 import { ServiceOrderCard } from "@/features/service-orders/components/ServiceOrderCard";
 import { useServiceOrdersStore } from "@/features/service-orders/stores/service-orders-store";
-import { useOrderChatStore } from "@/features/orders/stores/order-chat-store";
-import { useUiStore } from "@/lib/stores/ui-store";
 import type { ServiceOrderStatus } from "@/features/service-orders/types";
 
 const STATUS_FILTERS: Array<{ value: "all" | ServiceOrderStatus; label: string }> =
@@ -21,8 +18,6 @@ const STATUS_FILTERS: Array<{ value: "all" | ServiceOrderStatus; label: string }
     { value: "completed", label: "Completados" },
   ];
 
-const CHAT_SCAN_MS = 3_000;
-
 export function ServiceOrdersDashboard() {
   const orders = useServiceOrdersStore((state) => state.orders);
   const statusFilter = useServiceOrdersStore((state) => state.statusFilter);
@@ -32,35 +27,11 @@ export function ServiceOrdersDashboard() {
   const stopPolling = useServiceOrdersStore((state) => state.stopPolling);
   const setStatusFilter = useServiceOrdersStore((state) => state.setStatusFilter);
   const transitionOrder = useServiceOrdersStore((state) => state.transitionOrder);
-  const scanOrdersForNewMessages = useOrderChatStore(
-    (s) => s.scanOrdersForNewMessages,
-  );
-  const unreadChat = useOrderChatStore((s) => s.unreadCount);
-  const clearUnread = useOrderChatStore((s) => s.clearUnread);
 
   useEffect(() => {
     startPolling();
     return () => stopPolling();
   }, [startPolling, stopPolling]);
-
-  useEffect(() => {
-    const ids = orders.map((o) => o.id);
-    if (ids.length === 0) return;
-    void scanOrdersForNewMessages(ids);
-    const timer = window.setInterval(() => {
-      void scanOrdersForNewMessages(ids);
-    }, CHAT_SCAN_MS);
-    return () => window.clearInterval(timer);
-  }, [orders, scanOrdersForNewMessages]);
-
-  useEffect(() => {
-    if (unreadChat > 0) {
-      useUiStore
-        .getState()
-        .setSuccess(`Nuevo mensaje en chat (${unreadChat}).`);
-      clearUnread();
-    }
-  }, [unreadChat, clearUnread]);
 
   const filteredOrders =
     statusFilter === "all"
@@ -69,7 +40,6 @@ export function ServiceOrdersDashboard() {
 
   return (
     <div className="space-y-6">
-      <OrderChatModal />
       <div className="flex flex-wrap gap-2">
         {STATUS_FILTERS.map((filter) => (
           <button

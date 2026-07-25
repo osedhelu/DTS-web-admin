@@ -8,6 +8,9 @@ const POLL_MS = 2_000;
 
 export function OrderChatButton({ orderId }: { orderId: number }) {
   const openModal = useOrderChatStore((s) => s.openModal);
+  const unread = useOrderChatStore((s) => s.unreadByOrder[orderId] ?? 0);
+  const badge = unread > 99 ? "99+" : String(unread);
+
   return (
     <button
       type="button"
@@ -15,9 +18,32 @@ export function OrderChatButton({ orderId }: { orderId: number }) {
       onClick={() => {
         void openModal(orderId);
       }}
-      className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
+      className="relative inline-flex items-center rounded-lg border border-transparent bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-700"
     >
-      Chat
+      <svg
+        className="me-1 h-3.5 w-3.5"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M4 13h3.439a.991.991 0 0 1 .908.6 3.978 3.978 0 0 0 7.306 0 .99.99 0 0 1 .908-.6H20M4 13v6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-6M4 13l2-9h12l2 9M9 7h6m-7 3h8"
+        />
+      </svg>
+      Mensajes
+      {unread > 0 ? (
+        <span
+          data-testid={`order-chat-badge-${orderId}`}
+          className="absolute -end-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-[10px] font-bold text-white"
+        >
+          {badge}
+        </span>
+      ) : null}
     </button>
   );
 }
