@@ -160,7 +160,6 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
         [orderId]: Math.max(get().lastSeenByOrder[orderId] ?? 0, msg.id),
       },
     });
-    playAlertBeep("message");
   },
 
   scanOrdersForNewMessages: async (orderIds) => {
