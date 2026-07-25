@@ -7,6 +7,7 @@ import {
 } from "@/features/orders/types";
 import { useUiStore } from "@/lib/stores/ui-store";
 import type { PaginatedResponse } from "@/lib/api/types";
+import { playAlertBeep } from "@/lib/audio/play-alert-beep";
 
 interface OrdersState {
   orders: DeliveryOrder[];
@@ -15,6 +16,7 @@ interface OrdersState {
   updatingOrderId: number | null;
   refreshCount: number;
   pollIntervalId: number | null;
+  knownOrderIds: number[];
   loadOrders: (options?: { silent?: boolean }) => Promise<void>;
   startPolling: () => void;
   stopPolling: () => void;
@@ -29,6 +31,7 @@ export const useOrdersStore = create<OrdersState>((set, get) => ({
   updatingOrderId: null,
   refreshCount: 0,
   pollIntervalId: null,
+  knownOrderIds: [],
 
   loadOrders: async (options) => {
     try {
@@ -47,8 +50,28 @@ export const useOrdersStore = create<OrdersState>((set, get) => ({
         return;
       }
 
+      const next = data.results.filter(
+        (order) => order.order_type === "delivery",
+      );
+      const known = get().knownOrderIds;
+      if (known.length > 0) {
+        const knownSet = new Set(known);
+        const arrivals = next.filter((o) => !knownSet.has(o.id));
+        if (arrivals.length > 0) {
+          playAlertBeep("order");
+          useUiStore
+            .getState()
+            .setSuccess(
+              arrivals.length === 1
+                ? `Nuevo pedido #${arrivals[0].id}`
+                : `${arrivals.length} pedidos nuevos`,
+            );
+        }
+      }
+
       set({
-        orders: data.results.filter((order) => order.order_type === "delivery"),
+        orders: next,
+        knownOrderIds: next.map((o) => o.id),
         refreshCount: get().refreshCount + 1,
         isLoading: false,
       });

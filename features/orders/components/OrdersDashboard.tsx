@@ -4,10 +4,15 @@ import { useEffect } from "react";
 
 import { UiFeedback } from "@/components/ui/UiFeedback";
 import { OrdersTable } from "@/features/orders/components/OrdersTable";
+import {
+  OrderChatModal,
+} from "@/features/orders/components/OrderChatPanel";
 import { DELIVERY_STATUS_FILTERS } from "@/features/orders/types";
 import { useOrdersStore } from "@/features/orders/stores/orders-store";
 import { useOrderChatStore } from "@/features/orders/stores/order-chat-store";
 import { useUiStore } from "@/lib/stores/ui-store";
+
+const CHAT_SCAN_MS = 8_000;
 
 export function OrdersDashboard() {
   const orders = useOrdersStore((state) => state.orders);
@@ -20,6 +25,10 @@ export function OrdersDashboard() {
   const setStatusFilter = useOrdersStore((state) => state.setStatusFilter);
   const transitionOrder = useOrdersStore((state) => state.transitionOrder);
   const unreadChat = useOrderChatStore((state) => state.unreadCount);
+  const scanOrdersForNewMessages = useOrderChatStore(
+    (state) => state.scanOrdersForNewMessages,
+  );
+  const clearUnread = useOrderChatStore((state) => state.clearUnread);
 
   useEffect(() => {
     startPolling();
@@ -27,12 +36,25 @@ export function OrdersDashboard() {
   }, [startPolling, stopPolling]);
 
   useEffect(() => {
+    const ids = orders.map((o) => o.id);
+    if (ids.length === 0) return;
+    void scanOrdersForNewMessages(ids);
+    const timer = window.setInterval(() => {
+      void scanOrdersForNewMessages(ids);
+    }, CHAT_SCAN_MS);
+    return () => window.clearInterval(timer);
+  }, [orders, scanOrdersForNewMessages]);
+
+  useEffect(() => {
     if (unreadChat > 0) {
-      useUiStore.getState().setSuccess(
-        `Tienes ${unreadChat} mensaje(s) nuevo(s) en el chat de pedidos.`,
-      );
+      useUiStore
+        .getState()
+        .setSuccess(
+          `Nuevo mensaje en chat (${unreadChat}). Abre el botón Chat del pedido.`,
+        );
+      clearUnread();
     }
-  }, [unreadChat]);
+  }, [unreadChat, clearUnread]);
 
   const filteredOrders =
     statusFilter === "all"
@@ -41,11 +63,9 @@ export function OrdersDashboard() {
 
   return (
     <div className="space-y-6">
-      <p
-        data-testid="orders-auto-refresh"
-        className="text-xs text-zinc-500"
-      >
-        Actualización automática cada 10 segundos
+      <OrderChatModal />
+      <p data-testid="orders-auto-refresh" className="text-xs text-zinc-500">
+        Actualización automática · sonido al llegar pedidos o mensajes
       </p>
       <span data-testid="orders-refresh-count" className="sr-only">
         {refreshCount}

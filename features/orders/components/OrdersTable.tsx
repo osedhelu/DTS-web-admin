@@ -15,7 +15,7 @@ import {
   formatPaymentStatus,
   paymentStatusBadgeClass,
 } from "@/features/orders/payment-status";
-import { OrderChatPanel } from "@/features/orders/components/OrderChatPanel";
+import { OrderChatButton } from "@/features/orders/components/OrderChatPanel";
 
 interface OrdersTableProps {
   orders: DeliveryOrder[];
@@ -162,6 +162,7 @@ export function OrdersTable({
                       ) : (
                         <span className="text-xs text-zinc-400">—</span>
                       )}
+                      <OrderChatButton orderId={order.id} />
                       <button
                         type="button"
                         data-testid={`order-detail-toggle-${order.id}`}
@@ -222,9 +223,6 @@ export function OrdersTable({
                               ))
                             )}
                           </ul>
-                        </div>
-                        <div className="md:col-span-2">
-                          <OrderChatPanel orderId={order.id} />
                         </div>
                       </div>
                     </td>

@@ -4,6 +4,7 @@ import { SERVICE_STATUS_LABELS } from "@/features/service-orders/types";
 import { useUiStore } from "@/lib/stores/ui-store";
 import type { PaginatedResponse } from "@/lib/api/types";
 import { ORDERS_POLL_INTERVAL_MS } from "@/features/orders/constants";
+import { playAlertBeep } from "@/lib/audio/play-alert-beep";
 
 interface ServiceOrdersState {
   orders: ServiceOrder[];
@@ -11,6 +12,7 @@ interface ServiceOrdersState {
   isLoading: boolean;
   updatingOrderId: number | null;
   pollIntervalId: number | null;
+  knownOrderIds: number[];
   loadOrders: (options?: { silent?: boolean }) => Promise<void>;
   startPolling: () => void;
   stopPolling: () => void;
@@ -24,6 +26,7 @@ export const useServiceOrdersStore = create<ServiceOrdersState>((set, get) => ({
   isLoading: true,
   updatingOrderId: null,
   pollIntervalId: null,
+  knownOrderIds: [],
 
   loadOrders: async (options) => {
     if (!options?.silent) {
@@ -46,7 +49,28 @@ export const useServiceOrdersStore = create<ServiceOrdersState>((set, get) => ({
         return;
       }
 
-      set({ orders: data.results, isLoading: false });
+      const next = data.results;
+      const known = get().knownOrderIds;
+      if (known.length > 0) {
+        const knownSet = new Set(known);
+        const arrivals = next.filter((o) => !knownSet.has(o.id));
+        if (arrivals.length > 0) {
+          playAlertBeep("order");
+          useUiStore
+            .getState()
+            .setSuccess(
+              arrivals.length === 1
+                ? `Nuevo pedido de servicio #${arrivals[0].id}`
+                : `${arrivals.length} pedidos de servicio nuevos`,
+            );
+        }
+      }
+
+      set({
+        orders: next,
+        knownOrderIds: next.map((o) => o.id),
+        isLoading: false,
+      });
     } catch {
       if (!options?.silent) {
         useUiStore.getState().setError("Error de conexión al cargar pedidos.");
@@ -98,7 +122,7 @@ export const useServiceOrdersStore = create<ServiceOrdersState>((set, get) => ({
         ),
       });
       useUiStore.getState().setSuccess(
-        `Pedido #${orderId} actualizado a "${SERVICE_STATUS_LABELS[data.status]}".`,
+        `Pedido #${orderId} → ${SERVICE_STATUS_LABELS[data.status as ServiceOrderStatus] ?? data.status}`,
       );
       void get().loadOrders({ silent: true });
     } catch {

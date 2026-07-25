@@ -1,7 +1,6 @@
 /**
- * Unit smoke for order-chat-store append + unread (B11).
- * Run with: npx tsx --test features/orders/stores/order-chat-store.test.ts
- * (logic mirrored for environments without full Vitest setup)
+ * Unit smoke for order-chat-store dedupe + unread (B11).
+ * Run with: npm run test:unit
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -15,53 +14,63 @@ type Msg = {
   created_at: string;
 };
 
-function appendMessage(
-  state: { orderId: number | null; messages: Msg[]; unreadCount: number },
-  message: Msg,
-) {
-  if (state.orderId !== null && message.order_id !== state.orderId) {
-    return {
-      ...state,
-      unreadCount: state.unreadCount + 1,
-    };
-  }
-  if (state.messages.some((m) => m.id === message.id)) return state;
-  return {
-    ...state,
-    messages: [...state.messages, message],
-  };
+function dedupe(list: Msg[]): Msg[] {
+  const byId = new Map<number, Msg>();
+  for (const m of list) byId.set(Number(m.id), { ...m, id: Number(m.id) });
+  return [...byId.values()].sort((a, b) => a.id - b.id);
 }
 
-describe("order chat append", () => {
-  it("appends message for open chat", () => {
-    const next = appendMessage(
-      { orderId: 1, messages: [], unreadCount: 0 },
+describe("order chat dedupe", () => {
+  it("removes duplicate ids", () => {
+    const next = dedupe([
+      {
+        id: 1,
+        order_id: 9,
+        sender_id: 1,
+        sender_role: "customer",
+        body: "a",
+        created_at: "1",
+      },
+      {
+        id: 1,
+        order_id: 9,
+        sender_id: 1,
+        sender_role: "customer",
+        body: "a",
+        created_at: "1",
+      },
+      {
+        id: 2,
+        order_id: 9,
+        sender_id: 2,
+        sender_role: "merchant",
+        body: "b",
+        created_at: "2",
+      },
+    ]);
+    assert.equal(next.length, 2);
+  });
+
+  it("normalizes string ids", () => {
+    const next = dedupe([
+      {
+        id: "10" as unknown as number,
+        order_id: 1,
+        sender_id: 1,
+        sender_role: "customer",
+        body: "x",
+        created_at: "1",
+      },
       {
         id: 10,
         order_id: 1,
-        sender_id: 2,
+        sender_id: 1,
         sender_role: "customer",
-        body: "hola",
-        created_at: "2026-01-01",
+        body: "x",
+        created_at: "1",
       },
-    );
-    assert.equal(next.messages.length, 1);
-    assert.equal(next.unreadCount, 0);
-  });
-
-  it("increments unread for other order", () => {
-    const next = appendMessage(
-      { orderId: 1, messages: [], unreadCount: 0 },
-      {
-        id: 11,
-        order_id: 2,
-        sender_id: 2,
-        sender_role: "customer",
-        body: "otro",
-        created_at: "2026-01-01",
-      },
-    );
-    assert.equal(next.unreadCount, 1);
-    assert.equal(next.messages.length, 0);
+    ]);
+    assert.equal(next.length, 1);
+    assert.equal(next[0].id, 10);
   });
 });

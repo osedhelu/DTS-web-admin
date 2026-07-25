@@ -10,7 +10,7 @@ import {
   formatPaymentStatus,
   paymentStatusBadgeClass,
 } from "@/features/orders/payment-status";
-import { OrderChatPanel } from "@/features/orders/components/OrderChatPanel";
+import { OrderChatButton } from "@/features/orders/components/OrderChatPanel";
 
 interface ServiceOrderCardProps {
   order: ServiceOrder;
@@ -147,9 +147,8 @@ export function ServiceOrderCard({
             Cancelar
           </button>
         ) : null}
+        <OrderChatButton orderId={order.id} />
       </div>
-
-      <OrderChatPanel orderId={order.id} />
     </article>
   );
 }
