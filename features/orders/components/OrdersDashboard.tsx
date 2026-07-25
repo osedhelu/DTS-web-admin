@@ -6,6 +6,8 @@ import { UiFeedback } from "@/components/ui/UiFeedback";
 import { OrdersTable } from "@/features/orders/components/OrdersTable";
 import { DELIVERY_STATUS_FILTERS } from "@/features/orders/types";
 import { useOrdersStore } from "@/features/orders/stores/orders-store";
+import { useOrderChatStore } from "@/features/orders/stores/order-chat-store";
+import { useUiStore } from "@/lib/stores/ui-store";
 
 export function OrdersDashboard() {
   const orders = useOrdersStore((state) => state.orders);
@@ -17,11 +19,20 @@ export function OrdersDashboard() {
   const stopPolling = useOrdersStore((state) => state.stopPolling);
   const setStatusFilter = useOrdersStore((state) => state.setStatusFilter);
   const transitionOrder = useOrdersStore((state) => state.transitionOrder);
+  const unreadChat = useOrderChatStore((state) => state.unreadCount);
 
   useEffect(() => {
     startPolling();
     return () => stopPolling();
   }, [startPolling, stopPolling]);
+
+  useEffect(() => {
+    if (unreadChat > 0) {
+      useUiStore.getState().setSuccess(
+        `Tienes ${unreadChat} mensaje(s) nuevo(s) en el chat de pedidos.`,
+      );
+    }
+  }, [unreadChat]);
 
   const filteredOrders =
     statusFilter === "all"

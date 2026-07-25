@@ -23,13 +23,15 @@ export function ServiceOrdersDashboard() {
   const statusFilter = useServiceOrdersStore((state) => state.statusFilter);
   const isLoading = useServiceOrdersStore((state) => state.isLoading);
   const updatingOrderId = useServiceOrdersStore((state) => state.updatingOrderId);
-  const loadOrders = useServiceOrdersStore((state) => state.loadOrders);
+  const startPolling = useServiceOrdersStore((state) => state.startPolling);
+  const stopPolling = useServiceOrdersStore((state) => state.stopPolling);
   const setStatusFilter = useServiceOrdersStore((state) => state.setStatusFilter);
   const transitionOrder = useServiceOrdersStore((state) => state.transitionOrder);
 
   useEffect(() => {
-    void loadOrders();
-  }, [loadOrders]);
+    startPolling();
+    return () => stopPolling();
+  }, [startPolling, stopPolling]);
 
   const filteredOrders =
     statusFilter === "all"

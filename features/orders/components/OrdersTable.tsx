@@ -15,6 +15,7 @@ import {
   formatPaymentStatus,
   paymentStatusBadgeClass,
 } from "@/features/orders/payment-status";
+import { OrderChatPanel } from "@/features/orders/components/OrderChatPanel";
 
 interface OrdersTableProps {
   orders: DeliveryOrder[];
@@ -221,6 +222,9 @@ export function OrdersTable({
                               ))
                             )}
                           </ul>
+                        </div>
+                        <div className="md:col-span-2">
+                          <OrderChatPanel orderId={order.id} />
                         </div>
                       </div>
                     </td>

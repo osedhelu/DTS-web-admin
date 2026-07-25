@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, master]
+  pull_request:
+    branches: [main, develop, master]
+
+concurrency:
+  group: web-admin-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-build-unit:
+    name: lint + unit + build
+    runs-on: ubuntu-latest
+    env:
+      # Build no llama al backend; valor placeholder para variables públicas.
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit (order-chat-store / realtime B11)
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
+  # E2E Playwright (opcional): requiere secrets — ver docs/CI_GITHUB_ACTIONS.md en monorepo.
+  # Descomentar cuando E2E_BASE_URL y credenciales demo estén en GitHub Secrets.
+  # e2e:
+  #   if: ${{ vars.RUN_E2E == 'true' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "20"
+  #         cache: npm
+  #     - run: npm ci
+  #     - run: npx playwright install --with-deps chromium
+  #     - run: npm run test:e2e:orders-polling
+  #       env:
+  #         PLAYWRIGHT_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+  #         E2E_MERCHANT_EMAIL: ${{ secrets.E2E_MERCHANT_EMAIL }}
+  #         E2E_MERCHANT_PASSWORD: ${{ secrets.E2E_MERCHANT_PASSWORD }}

@@ -10,6 +10,7 @@ import {
   formatPaymentStatus,
   paymentStatusBadgeClass,
 } from "@/features/orders/payment-status";
+import { OrderChatPanel } from "@/features/orders/components/OrderChatPanel";
 
 interface ServiceOrderCardProps {
   order: ServiceOrder;
@@ -147,6 +148,8 @@ export function ServiceOrderCard({
           </button>
         ) : null}
       </div>
+
+      <OrderChatPanel orderId={order.id} />
     </article>
   );
 }

@@ -107,6 +107,7 @@ export const useOrdersStore = create<OrdersState>((set, get) => ({
       useUiStore.getState().setSuccess(
         `Pedido #${orderId} actualizado a "${DELIVERY_STATUS_LABELS[data.status]}".`,
       );
+      void get().loadOrders({ silent: true });
     } catch {
       useUiStore.getState().setError("Error de conexión al actualizar el pedido.");
     } finally {

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:unit": "node --import tsx --test features/orders/stores/order-chat-store.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:merchant-layout": "playwright test e2e/merchant_layout_renders_test.spec.ts",
     "test:e2e:products": "playwright test e2e/merchant_create_product_flow_test.spec.ts e2e/merchant_create_service_flow_test.spec.ts",
@@ -53,6 +54,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5"
   }
 }
