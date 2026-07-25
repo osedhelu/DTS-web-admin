@@ -53,6 +53,7 @@ export function OrderChatModal() {
   const modalOpen = useOrderChatStore((s) => s.modalOpen);
   const orderId = useOrderChatStore((s) => s.orderId);
   const messages = useOrderChatStore((s) => s.messages);
+  const chatClosed = useOrderChatStore((s) => s.chatClosed);
   const isLoading = useOrderChatStore((s) => s.isLoading);
   const error = useOrderChatStore((s) => s.error);
   const refreshMessages = useOrderChatStore((s) => s.refreshMessages);
@@ -87,6 +88,7 @@ export function OrderChatModal() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (chatClosed) return;
     const text = draft.trim();
     if (!text || sending) return;
     setSending(true);
@@ -118,7 +120,9 @@ export function OrderChatModal() {
             >
               Chat · Pedido #{orderId}
             </h2>
-            <p className="text-xs text-zinc-500">Cliente y conductor</p>
+            <p className="text-xs text-zinc-500">
+              {chatClosed ? "Chat cerrado" : "Cliente y conductor"}
+            </p>
           </div>
           <button
             type="button"
@@ -152,6 +156,8 @@ export function OrderChatModal() {
                     : m.sender_role === "driver"
                       ? "Conductor"
                       : m.sender_role;
+              const showImage =
+                m.message_type === "image" && Boolean(m.image_url);
               return (
                 <div
                   key={m.id}
@@ -162,7 +168,15 @@ export function OrderChatModal() {
                   }`}
                 >
                   <p className="text-[10px] font-semibold opacity-80">{label}</p>
-                  <p>{m.body}</p>
+                  {showImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.image_url}
+                      alt={m.body || "Foto de entrega"}
+                      className="mb-1 mt-1 max-h-56 w-full rounded-lg object-cover"
+                    />
+                  ) : null}
+                  {m.body ? <p>{m.body}</p> : null}
                 </div>
               );
             })
@@ -170,27 +184,36 @@ export function OrderChatModal() {
           <div ref={bottomRef} />
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="flex gap-2 border-t border-zinc-200 p-3"
-        >
-          <input
-            data-testid={`order-chat-input-${orderId}`}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="Escribe al cliente o conductor…"
-            className="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-            autoFocus
-          />
-          <button
-            type="submit"
-            disabled={sending}
-            data-testid={`order-chat-send-${orderId}`}
-            className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        {chatClosed ? (
+          <p
+            className="border-t border-zinc-200 bg-zinc-100 px-4 py-3 text-center text-xs text-zinc-600"
+            data-testid={`order-chat-closed-${orderId}`}
           >
-            {sending ? "…" : "Enviar"}
-          </button>
-        </form>
+            Chat cerrado — pedido entregado
+          </p>
+        ) : (
+          <form
+            onSubmit={onSubmit}
+            className="flex gap-2 border-t border-zinc-200 p-3"
+          >
+            <input
+              data-testid={`order-chat-input-${orderId}`}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Escribe al cliente o conductor…"
+              className="flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
+              autoFocus
+            />
+            <button
+              type="submit"
+              disabled={sending}
+              data-testid={`order-chat-send-${orderId}`}
+              className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            >
+              {sending ? "…" : "Enviar"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

@@ -14,6 +14,13 @@ interface ChatMessage {
   sender_role: string;
   body: string;
   created_at: string;
+  message_type?: string;
+  image_url?: string;
+}
+
+interface ChatMessagesPayload {
+  chat_closed: boolean;
+  messages: ChatMessage[];
 }
 
 export async function GET(_request: NextRequest, context: RouteContext) {
@@ -23,12 +30,12 @@ export async function GET(_request: NextRequest, context: RouteContext) {
   }
   const { orderId } = await context.params;
   try {
-    const messages = await api<ChatMessage[]>(
+    const payload = await api<ChatMessagesPayload | ChatMessage[]>(
       `/orders/${orderId}/messages/`,
       { method: "GET" },
       token,
     );
-    return NextResponse.json(messages);
+    return NextResponse.json(payload);
   } catch (error) {
     if (error instanceof ApiError) {
       return NextResponse.json(

@@ -13,6 +13,8 @@ export interface OrderChatMessage {
   sender_role: string;
   body: string;
   created_at: string;
+  message_type: string;
+  image_url: string;
 }
 
 function normalizeMessage(raw: Record<string, unknown>): OrderChatMessage | null {
@@ -26,7 +28,38 @@ function normalizeMessage(raw: Record<string, unknown>): OrderChatMessage | null
     sender_role: String(raw.sender_role ?? ""),
     body: String(raw.body ?? ""),
     created_at: String(raw.created_at ?? ""),
+    message_type: String(raw.message_type ?? "text"),
+    image_url: String(raw.image_url ?? ""),
   };
+}
+
+function parseMessagesPayload(data: unknown): {
+  messages: OrderChatMessage[];
+  chatClosed: boolean;
+} {
+  if (Array.isArray(data)) {
+    return {
+      chatClosed: false,
+      messages: dedupeMessages(
+        data
+          .map((row) => normalizeMessage(row as Record<string, unknown>))
+          .filter((m): m is OrderChatMessage => m !== null),
+      ),
+    };
+  }
+  if (data && typeof data === "object") {
+    const obj = data as { messages?: unknown; chat_closed?: unknown };
+    const rows = Array.isArray(obj.messages) ? obj.messages : [];
+    return {
+      chatClosed: obj.chat_closed === true,
+      messages: dedupeMessages(
+        rows
+          .map((row) => normalizeMessage(row as Record<string, unknown>))
+          .filter((m): m is OrderChatMessage => m !== null),
+      ),
+    };
+  }
+  return { messages: [], chatClosed: false };
 }
 
 function dedupeMessages(list: OrderChatMessage[]): OrderChatMessage[] {
@@ -41,10 +74,18 @@ function sumUnread(unreadByOrder: Record<number, number>): number {
   return Object.values(unreadByOrder).reduce((a, b) => a + b, 0);
 }
 
+function previewOf(m: OrderChatMessage): string {
+  if (m.message_type === "image") {
+    return m.body?.trim() || "Foto de entrega";
+  }
+  return m.body?.slice(0, 80) ?? "";
+}
+
 interface OrderChatState {
   modalOpen: boolean;
   orderId: number | null;
   messages: OrderChatMessage[];
+  chatClosed: boolean;
   /** Total de mensajes no leídos (suma de unreadByOrder). */
   unreadCount: number;
   /** No leídos por pedido (solo inbound de cliente/conductor). */
@@ -70,6 +111,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
   modalOpen: false,
   orderId: null,
   messages: [],
+  chatClosed: false,
   unreadCount: 0,
   unreadByOrder: {},
   unreadPreviewByOrder: {},
@@ -88,6 +130,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
       orderId,
       isLoading: true,
       error: null,
+      chatClosed: false,
       unreadByOrder,
       unreadPreviewByOrder,
       unreadCount: sumUnread(unreadByOrder),
@@ -105,6 +148,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
       modalOpen: false,
       orderId: null,
       messages: [],
+      chatClosed: false,
       isLoading: false,
       error: null,
     }),
@@ -127,15 +171,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
         }
         return;
       }
-      const list = Array.isArray(data)
-        ? dedupeMessages(
-            data
-              .map((row) =>
-                normalizeMessage(row as Record<string, unknown>),
-              )
-              .filter((m): m is OrderChatMessage => m !== null),
-          )
-        : [];
+      const { messages: list, chatClosed } = parseMessagesPayload(data);
       if (get().orderId === orderId && get().modalOpen) {
         const prevMax = get().messages.reduce((m, x) => Math.max(m, x.id), 0);
         const inbound = list.filter(
@@ -144,6 +180,7 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
         const maxId = list.reduce((m, x) => Math.max(m, x.id), 0);
         set({
           messages: list,
+          chatClosed,
           isLoading: false,
           error: null,
           lastSeenByOrder: {
@@ -163,8 +200,8 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
   },
 
   sendMessage: async (body) => {
-    const { orderId } = get();
-    if (orderId === null) return;
+    const { orderId, chatClosed } = get();
+    if (orderId === null || chatClosed) return;
     const response = await fetch(`/api/merchant/orders/${orderId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -175,6 +212,9 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
     };
     if (!response.ok) {
       set({ error: data.detail ?? "No se pudo enviar" });
+      if (String(data.detail ?? "").toLowerCase().includes("cerrado")) {
+        set({ chatClosed: true });
+      }
       return;
     }
     const msg = normalizeMessage(data);
@@ -205,27 +245,21 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
           );
           if (!response.ok) return;
           const data = (await response.json()) as unknown;
-          if (!Array.isArray(data) || data.length === 0) {
+          const { messages: list, chatClosed } = parseMessagesPayload(data);
+          if (list.length === 0) {
             if (lastSeen[orderId] === undefined) lastSeen[orderId] = 0;
+            if (openId === orderId) set({ chatClosed });
             return;
           }
-          const list = dedupeMessages(
-            data
-              .map((row) =>
-                normalizeMessage(row as Record<string, unknown>),
-              )
-              .filter((m): m is OrderChatMessage => m !== null),
-          );
           const prevMax = lastSeen[orderId];
           const maxId = list.reduce((m, x) => Math.max(m, x.id), 0);
           if (prevMax === undefined) {
-            // Primera vez: marcar como visto sin alertar (historial viejo).
             lastSeen[orderId] = maxId;
             return;
           }
 
           if (openId === orderId) {
-            set({ messages: list });
+            set({ messages: list, chatClosed });
             lastSeen[orderId] = maxId;
             delete unreadByOrder[orderId];
             delete unreadPreviewByOrder[orderId];
@@ -238,14 +272,14 @@ export const useOrderChatStore = create<OrderChatState>((set, get) => ({
           const prevUnread = unreadByOrder[orderId] ?? 0;
           if (inbound.length > 0) {
             unreadByOrder[orderId] = inbound.length;
-            unreadPreviewByOrder[orderId] =
-              inbound[inbound.length - 1]?.body?.slice(0, 80) ?? "";
+            unreadPreviewByOrder[orderId] = previewOf(
+              inbound[inbound.length - 1]!,
+            );
             if (inbound.length > prevUnread) {
               heardMessage = true;
             }
-            // No avanzar lastSeen: el badge permanece hasta abrir el chat.
           } else if (prevUnread > 0) {
-            // Sin nuevos respecto a lastSeen; mantener unread actual.
+            // mantener unread
           } else {
             delete unreadByOrder[orderId];
             delete unreadPreviewByOrder[orderId];
