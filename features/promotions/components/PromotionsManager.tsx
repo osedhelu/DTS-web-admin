@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -38,7 +38,7 @@ export function PromotionsManager() {
   const activatePromotion = usePromotionsStore((state) => state.activatePromotion);
 
   const [modalState, setModalState] = useState<PromotionModalState | null>(null);
-  const handledPromotionIdRef = useRef<number | null>(null);
+  const [openedPromotionId, setOpenedPromotionId] = useState<number | null>(null);
 
   const promotionIdParam = searchParams.get("promotionId");
   const requestedPromotionId = promotionIdParam ? Number(promotionIdParam) : null;
@@ -51,32 +51,25 @@ export function PromotionsManager() {
     void loadPromotions(guard.activeStoreId);
   }, [guard.ready, guard.activeStoreId, loadPromotions]);
 
-  useEffect(() => {
-    if (
-      isLoading ||
-      !requestedPromotionId ||
-      Number.isNaN(requestedPromotionId) ||
-      handledPromotionIdRef.current === requestedPromotionId
-    ) {
-      return;
-    }
-
+  // Deep-link ?promotionId= → abrir modal (ajuste de estado al cambiar props/URL).
+  if (
+    !isLoading &&
+    requestedPromotionId &&
+    !Number.isNaN(requestedPromotionId) &&
+    openedPromotionId !== requestedPromotionId
+  ) {
     const promotion = promotions.find((item) => item.id === requestedPromotionId);
-    if (!promotion) {
-      return;
+    if (promotion) {
+      setOpenedPromotionId(requestedPromotionId);
+      setModalState({ mode: "edit", promotion });
+      queueMicrotask(() => {
+        document
+          .querySelector(`[data-testid="promotion-row-${requestedPromotionId}"]`)
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        router.replace("/merchant/promotions", { scroll: false });
+      });
     }
-
-    handledPromotionIdRef.current = requestedPromotionId;
-    setModalState({ mode: "edit", promotion });
-
-    requestAnimationFrame(() => {
-      document
-        .querySelector(`[data-testid="promotion-row-${requestedPromotionId}"]`)
-        ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    });
-
-    router.replace("/merchant/promotions", { scroll: false });
-  }, [isLoading, promotions, requestedPromotionId, router]);
+  }
 
   if (!guard.ready) {
     return guard.content;
